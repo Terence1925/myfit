@@ -45,6 +45,7 @@ export const FREE_FEATURES = [
 export const PRO_FEATURES = [
   'Unlimited saved programs',
   'Regenerate anytime — no cooldown',
+  'Progressive overload tracking with PR alerts',
   'Progress tracking & body-metric charts',
   'PDF export of any program',
   'Priority AI regeneration queue',

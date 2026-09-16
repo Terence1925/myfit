@@ -1,10 +1,13 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Check, Loader2, PlayCircle, RefreshCw } from 'lucide-react'
+import { Check, Crown, Loader2, PlayCircle, RefreshCw, TrendingUp } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
+import { ExerciseHistoryDialog } from './ExerciseHistoryDialog'
+import { lastSessionHint } from '@/lib/progressiveOverload'
 import { cn } from '@/lib/utils'
-import type { Exercise, SetLog } from '@/lib/types'
+import type { Exercise, SetLog, WorkoutSession } from '@/lib/types'
 
 export function ExerciseCard({
   exercise,
@@ -14,6 +17,8 @@ export function ExerciseCard({
   logging,
   setLogs,
   onSetChange,
+  userSessions,
+  hasProgressAccess,
 }: {
   exercise: Exercise
   index: number
@@ -22,8 +27,21 @@ export function ExerciseCard({
   logging?: boolean
   setLogs?: SetLog[]
   onSetChange?: (setIndex: number, field: 'weight' | 'reps' | 'completed', value: number | boolean) => void
+  userSessions: WorkoutSession[]
+  hasProgressAccess: boolean
 }) {
+  const navigate = useNavigate()
   const [demoOpen, setDemoOpen] = React.useState(false)
+  const [historyOpen, setHistoryOpen] = React.useState(false)
+  const hint = logging ? lastSessionHint(userSessions, exercise.name) : null
+
+  const handleHistoryClick = () => {
+    if (!hasProgressAccess) {
+      navigate('/pricing')
+      return
+    }
+    setHistoryOpen(true)
+  }
 
   return (
     <motion.div
@@ -46,6 +64,11 @@ export function ExerciseCard({
           {exercise.notes && (
             <p className="mt-2 text-sm text-muted-foreground font-body">{exercise.notes}</p>
           )}
+          {hint && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-primary">
+              <TrendingUp className="h-3.5 w-3.5" /> {hint}
+            </p>
+          )}
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               onClick={onSwap}
@@ -61,6 +84,13 @@ export function ExerciseCard({
             >
               <PlayCircle className="h-3.5 w-3.5" />
               Demo
+            </button>
+            <button
+              onClick={handleHistoryClick}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+            >
+              {hasProgressAccess ? <TrendingUp className="h-3.5 w-3.5" /> : <Crown className="h-3.5 w-3.5" />}
+              History
             </button>
           </div>
 
@@ -106,6 +136,14 @@ export function ExerciseCard({
       </div>
 
       <ExerciseDemoDialog exerciseName={exercise.name} open={demoOpen} onClose={() => setDemoOpen(false)} />
+      {hasProgressAccess && (
+        <ExerciseHistoryDialog
+          exerciseName={exercise.name}
+          sessions={userSessions}
+          open={historyOpen}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
     </motion.div>
   )
 }

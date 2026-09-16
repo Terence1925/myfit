@@ -27,6 +27,7 @@ export function WeeklyPlanTab({
   activeDay,
   onActiveDayChange,
   onSwapExercise,
+  hasProgressAccess,
 }: {
   program: ProgramData
   programId: string
@@ -34,11 +35,13 @@ export function WeeklyPlanTab({
   activeDay: number
   onActiveDayChange: (day: number) => void
   onSwapExercise: (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => Promise<void>
+  hasProgressAccess: boolean
 }) {
   const [swappingKey, setSwappingKey] = React.useState<string | null>(null)
   const [loggingMode, setLoggingMode] = React.useState(false)
   const [log, setLog] = React.useState<ExerciseLog[]>([])
   const [history, setHistory] = React.useState<WorkoutSession[]>([])
+  const [userSessions, setUserSessions] = React.useState<WorkoutSession[]>([])
   const [justSaved, setJustSaved] = React.useState(false)
 
   const day = program.days.find((d) => d.day === activeDay) ?? program.days[0]
@@ -55,6 +58,16 @@ export function WeeklyPlanTab({
       cancelled = true
     }
   }, [day, programId])
+
+  React.useEffect(() => {
+    let cancelled = false
+    sessions.listForUser(userId).then((s) => {
+      if (!cancelled) setUserSessions(s)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [userId])
 
   const handleSwap = async (exerciseIndex: number, exerciseName: string) => {
     const key = `${day.day}-${exerciseIndex}`
@@ -92,6 +105,7 @@ export function WeeklyPlanTab({
       exercises: log,
     })
     setHistory(await sessions.listForProgramDay(programId, day.day))
+    setUserSessions(await sessions.listForUser(userId))
     setLog(buildLog(day.exercises))
     setLoggingMode(false)
     setJustSaved(true)
@@ -162,6 +176,8 @@ export function WeeklyPlanTab({
               logging={loggingMode}
               setLogs={log[i]?.sets}
               onSetChange={(setIndex, field, value) => updateSet(i, setIndex, field, value)}
+              userSessions={userSessions}
+              hasProgressAccess={hasProgressAccess}
             />
           ))}
         </div>

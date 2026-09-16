@@ -102,6 +102,7 @@ export function ProgramView({
               activeDay={activeDay}
               onActiveDayChange={setActiveDay}
               onSwapExercise={handleSwap}
+              hasProgressAccess={proAccess}
             />
           </TabsContent>
 
