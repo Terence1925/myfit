@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 4%;
+    --foreground: 40 20% 96%;
+
+    --card: 220 15% 8%;
+    --card-foreground: 40 20% 96%;
+
+    --popover: 220 15% 9%;
+    --popover-foreground: 40 20% 96%;
+
+    --border: 220 12% 16%;
+    --input: 220 12% 16%;
+    --ring: 38 100% 50%;
+
+    --muted: 220 12% 14%;
+    --muted-foreground: 220 8% 62%;
+
+    --primary: 38 100% 50%;
+    --primary-foreground: 220 20% 6%;
+
+    --accent: 25 100% 55%;
+    --accent-foreground: 220 20% 6%;
+
+    --secondary: 220 12% 14%;
+    --secondary-foreground: 40 20% 96%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 20% 96%;
+
+    --goal-lose: 0 72% 55%;
+    --goal-muscle: 189 90% 50%;
+    --goal-strength: 38 100% 50%;
+    --goal-recomp: 25 100% 55%;
+
+    --radius: 0.85rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(38 100% 50% / 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 10%, hsl(25 100% 55% / 0.08), transparent);
+    background-attachment: fixed;
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-wide;
+  }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-gold-gradient bg-clip-text text-transparent;
+  }
+
+  .glass {
+    background: hsl(220 15% 8% / 0.65);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  .bg-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(38 100% 50% / 0.25) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+/* gold scrollbar — desktop/mouse only; hidden on touch devices so the app doesn't read as a website */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(220 20% 4%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, hsl(38 100% 50%), hsl(25 100% 55%));
+    border-radius: 999px;
+    border: 2px solid hsl(220 20% 4%);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, hsl(38 100% 58%), hsl(25 100% 62%));
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(38 100% 50%) hsl(220 20% 4%);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  * {
+    scrollbar-width: none;
+  }
+}

@@ -1,0 +1,383 @@
+import { calculateNutrition } from '../tdee'
+import { isPro, PRO_PRICES } from '../billing'
+import type {
+  ActivityLogEntry,
+  BodyMetricEntry,
+  IntakeAnswers,
+  NutritionPlan,
+  Profile,
+  Role,
+  SubscriptionPeriod,
+  WorkoutProgram,
+  WorkoutSession,
+} from '../types'
+import type { BillingResult } from './types'
+import { EXERCISES } from './exerciseLibrary'
+import { generateAlternate, generateProgram } from './programGenerator'
+import { readAll, readOne, removeKey, uid, writeAll, writeOne } from './storage'
+
+interface StoredUser {
+  id: string
+  email: string
+  password: string
+}
+
+interface RoleRow {
+  userId: string
+  role: Role
+}
+
+const SESSION_KEY = 'session'
+const USERS_KEY = 'users'
+const PROFILES_KEY = 'profiles'
+const ROLES_KEY = 'roles'
+const PROGRAMS_KEY = 'programs'
+const ACTIVITY_KEY = 'activity'
+const METRICS_KEY = 'metrics'
+const SESSIONS_KEY = 'sessions'
+
+const PROGRAM_LIFETIME_MS = 12 * 7 * 24 * 60 * 60 * 1000
+
+function ensureSeedAdmin() {
+  const users = readAll<StoredUser>(USERS_KEY)
+  if (users.length > 0) return
+  const adminId = uid()
+  writeAll<StoredUser>(USERS_KEY, [
+    { id: adminId, email: 'admin@forgefit.app', password: 'admin123' },
+  ])
+  const profiles = readAll<Profile>(PROFILES_KEY)
+  profiles.push({
+    id: adminId,
+    displayName: 'Founder Admin',
+    email: 'admin@forgefit.app',
+    createdAt: new Date().toISOString(),
+    subscriptionTier: 'pro',
+    subscriptionStatus: 'active',
+    subscriptionPeriod: 'yearly',
+    subscriptionStartedAt: new Date().toISOString(),
+  })
+  writeAll(PROFILES_KEY, profiles)
+  writeAll<RoleRow>(ROLES_KEY, [{ userId: adminId, role: 'admin' }])
+}
+ensureSeedAdmin()
+
+function logActivity(userId: string, action: string, metadata: Record<string, unknown> = {}) {
+  const log = readAll<ActivityLogEntry>(ACTIVITY_KEY)
+  log.unshift({
+    id: uid(),
+    userId,
+    action,
+    metadata,
+    createdAt: new Date().toISOString(),
+  })
+  writeAll(ACTIVITY_KEY, log.slice(0, 500))
+}
+
+export const auth = {
+  async signUp(email: string, password: string, displayName: string): Promise<Profile> {
+    const users = readAll<StoredUser>(USERS_KEY)
+    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      throw new Error('An account with this email already exists.')
+    }
+    const id = uid()
+    users.push({ id, email, password })
+    writeAll(USERS_KEY, users)
+
+    const allProfiles = readAll<Profile>(PROFILES_KEY)
+    const profile: Profile = {
+      id,
+      displayName,
+      email,
+      createdAt: new Date().toISOString(),
+      subscriptionTier: 'free',
+      subscriptionStatus: 'none',
+    }
+    allProfiles.push(profile)
+    writeAll(PROFILES_KEY, allProfiles)
+
+    const roleRows = readAll<RoleRow>(ROLES_KEY)
+    roleRows.push({ userId: id, role: 'user' })
+    writeAll(ROLES_KEY, roleRows)
+
+    writeOne(SESSION_KEY, { userId: id })
+    logActivity(id, 'signed_up', { displayName })
+    return profile
+  },
+
+  async signIn(email: string, password: string): Promise<Profile> {
+    const users = readAll<StoredUser>(USERS_KEY)
+    const match = users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password)
+    if (!match) throw new Error('Invalid email or password.')
+    writeOne(SESSION_KEY, { userId: match.id })
+    const profile = await profiles.get(match.id)
+    if (!profile) throw new Error('Profile not found.')
+    logActivity(match.id, 'signed_in', {})
+    return profile
+  },
+
+  async signOut(): Promise<void> {
+    const session = readOne<{ userId: string }>(SESSION_KEY)
+    if (session) logActivity(session.userId, 'signed_out', {})
+    removeKey(SESSION_KEY)
+  },
+
+  async currentSession(): Promise<Profile | null> {
+    const session = readOne<{ userId: string }>(SESSION_KEY)
+    if (!session) return null
+    return profiles.get(session.userId)
+  },
+}
+
+export const profiles = {
+  async get(userId: string): Promise<Profile | null> {
+    return readAll<Profile>(PROFILES_KEY).find((p) => p.id === userId) ?? null
+  },
+
+  async saveIntake(userId: string, answers: IntakeAnswers, nutrition: NutritionPlan): Promise<Profile> {
+    const all = readAll<Profile>(PROFILES_KEY)
+    const idx = all.findIndex((p) => p.id === userId)
+    if (idx === -1) throw new Error('Profile not found.')
+    const weightKg = answers.weightUnit === 'lbs' ? answers.weight * 0.453592 : answers.weight
+    const heightCm = (answers.heightFeet * 12 + answers.heightInches) * 2.54
+    all[idx] = {
+      ...all[idx],
+      sex: answers.sex,
+      age: answers.age,
+      weightKg: Math.round(weightKg * 10) / 10,
+      heightCm: Math.round(heightCm),
+      sleepHours: answers.sleepHours,
+      sleepQuality: answers.sleepQuality,
+      stressLevel: answers.stressLevel,
+      activityLevel: answers.activityLevel,
+      goal: answers.goal,
+      bmr: nutrition.bmr,
+      tdee: nutrition.tdee,
+      calorieTarget: nutrition.calorieTarget,
+      proteinG: nutrition.proteinG,
+      carbsG: nutrition.carbsG,
+      fatG: nutrition.fatG,
+      recoveryScore: nutrition.recoveryScore,
+    }
+    writeAll(PROFILES_KEY, all)
+    logActivity(userId, 'completed_intake', { goal: answers.goal, recoveryScore: nutrition.recoveryScore })
+    return all[idx]
+  },
+
+  async listAll(): Promise<Profile[]> {
+    return readAll<Profile>(PROFILES_KEY)
+  },
+}
+
+export const roles = {
+  async getRole(userId: string): Promise<Role> {
+    const row = readAll<RoleRow>(ROLES_KEY).find((r) => r.userId === userId)
+    return row?.role ?? 'user'
+  },
+
+  async isAdmin(userId: string): Promise<boolean> {
+    return (await roles.getRole(userId)) === 'admin'
+  },
+
+  async listAdmins(): Promise<Profile[]> {
+    const adminIds = new Set(
+      readAll<RoleRow>(ROLES_KEY)
+        .filter((r) => r.role === 'admin')
+        .map((r) => r.userId),
+    )
+    return readAll<Profile>(PROFILES_KEY).filter((p) => adminIds.has(p.id))
+  },
+
+  async promote(userId: string): Promise<void> {
+    const all = readAll<RoleRow>(ROLES_KEY)
+    const idx = all.findIndex((r) => r.userId === userId)
+    if (idx === -1) all.push({ userId, role: 'admin' })
+    else all[idx].role = 'admin'
+    writeAll(ROLES_KEY, all)
+    logActivity(userId, 'promoted_to_admin', {})
+  },
+
+  async demote(userId: string): Promise<void> {
+    const all = readAll<RoleRow>(ROLES_KEY)
+    const idx = all.findIndex((r) => r.userId === userId)
+    if (idx === -1) all.push({ userId, role: 'user' })
+    else all[idx].role = 'user'
+    writeAll(ROLES_KEY, all)
+    logActivity(userId, 'demoted_to_user', {})
+  },
+}
+
+function purgeExpired(): void {
+  const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
+  const now = Date.now()
+  const active = all.filter((p) => new Date(p.expiresAt).getTime() > now)
+  if (active.length !== all.length) writeAll(PROGRAMS_KEY, active)
+}
+
+export const programs = {
+  async generate(userId: string, answers: IntakeAnswers): Promise<WorkoutProgram> {
+    purgeExpired()
+    const isAdmin = await roles.isAdmin(userId)
+    const profile = await profiles.get(userId)
+    const existing = await programs.listForUser(userId)
+    if (!isAdmin && !isPro(profile) && existing.length >= 1) {
+      throw new Error('PROGRAM_LIMIT_REACHED')
+    }
+    const nutrition = calculateNutrition(answers)
+    await profiles.saveIntake(userId, answers, nutrition)
+    await new Promise((r) => setTimeout(r, 1400))
+    const programData = generateProgram(answers, nutrition)
+    const now = Date.now()
+    const program: WorkoutProgram = {
+      id: uid(),
+      userId,
+      programName: programData.programName,
+      programData,
+      answers,
+      nutrition,
+      recoveryScore: nutrition.recoveryScore,
+      createdAt: new Date(now).toISOString(),
+      expiresAt: new Date(now + PROGRAM_LIFETIME_MS).toISOString(),
+    }
+    const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
+    all.push(program)
+    writeAll(PROGRAMS_KEY, all)
+    logActivity(userId, 'generated_program', { programName: program.programName })
+    return program
+  },
+
+  async alternate(userId: string, exerciseName: string, dayFocus: string, answers: IntakeAnswers) {
+    await new Promise((r) => setTimeout(r, 700))
+    const muscle = (EXERCISES.find((e) => e.name === exerciseName)?.muscle[0] ??
+      dayFocus.split(' / ')[0].replace(' ', '-')) as IntakeAnswers['focusAreas'][number]
+    const swap = generateAlternate(exerciseName, muscle, answers)
+    logActivity(userId, 'swapped_exercise', { from: exerciseName, to: swap.name })
+    return swap
+  },
+
+  async listForUser(userId: string): Promise<WorkoutProgram[]> {
+    purgeExpired()
+    return readAll<WorkoutProgram>(PROGRAMS_KEY)
+      .filter((p) => p.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  },
+
+  async listAll(): Promise<WorkoutProgram[]> {
+    purgeExpired()
+    return readAll<WorkoutProgram>(PROGRAMS_KEY).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+  },
+
+  async get(id: string): Promise<WorkoutProgram | null> {
+    return readAll<WorkoutProgram>(PROGRAMS_KEY).find((p) => p.id === id) ?? null
+  },
+
+  async delete(id: string, userId: string): Promise<void> {
+    const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
+    writeAll(
+      PROGRAMS_KEY,
+      all.filter((p) => p.id !== id),
+    )
+    logActivity(userId, 'deleted_program', { programId: id })
+  },
+}
+
+export const activity = {
+  async listForUser(userId: string): Promise<ActivityLogEntry[]> {
+    return readAll<ActivityLogEntry>(ACTIVITY_KEY).filter((a) => a.userId === userId)
+  },
+
+  async listAll(): Promise<ActivityLogEntry[]> {
+    return readAll<ActivityLogEntry>(ACTIVITY_KEY)
+  },
+}
+
+export const billing = {
+  async subscribe(userId: string, period: SubscriptionPeriod): Promise<BillingResult> {
+    await new Promise((r) => setTimeout(r, 900))
+    const all = readAll<Profile>(PROFILES_KEY)
+    const idx = all.findIndex((p) => p.id === userId)
+    if (idx === -1) throw new Error('Profile not found.')
+    const now = new Date()
+    const renewsAt = new Date(now)
+    if (period === 'monthly') renewsAt.setMonth(renewsAt.getMonth() + 1)
+    else renewsAt.setFullYear(renewsAt.getFullYear() + 1)
+
+    all[idx] = {
+      ...all[idx],
+      subscriptionTier: 'pro',
+      subscriptionStatus: 'active',
+      subscriptionPeriod: period,
+      subscriptionStartedAt: now.toISOString(),
+      subscriptionRenewsAt: renewsAt.toISOString(),
+    }
+    writeAll(PROFILES_KEY, all)
+    logActivity(userId, 'subscribed_pro', { period, price: PRO_PRICES[period].price })
+    return {}
+  },
+
+  async cancel(userId: string): Promise<BillingResult> {
+    const all = readAll<Profile>(PROFILES_KEY)
+    const idx = all.findIndex((p) => p.id === userId)
+    if (idx === -1) throw new Error('Profile not found.')
+    all[idx] = { ...all[idx], subscriptionStatus: 'canceled' }
+    writeAll(PROFILES_KEY, all)
+    logActivity(userId, 'canceled_subscription', {})
+    return {}
+  },
+
+  async listActiveSubscribers(): Promise<Profile[]> {
+    return readAll<Profile>(PROFILES_KEY).filter(
+      (p) => p.subscriptionTier === 'pro' && p.subscriptionStatus === 'active',
+    )
+  },
+}
+
+export const metrics = {
+  async log(userId: string, entry: Omit<BodyMetricEntry, 'id' | 'userId'>): Promise<BodyMetricEntry> {
+    const all = readAll<BodyMetricEntry>(METRICS_KEY)
+    const record: BodyMetricEntry = { id: uid(), userId, ...entry }
+    all.push(record)
+    writeAll(METRICS_KEY, all)
+    logActivity(userId, 'logged_body_metric', { weightKg: entry.weightKg })
+    return record
+  },
+
+  async listForUser(userId: string): Promise<BodyMetricEntry[]> {
+    return readAll<BodyMetricEntry>(METRICS_KEY)
+      .filter((m) => m.userId === userId)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  },
+
+  async delete(id: string, userId: string): Promise<void> {
+    const all = readAll<BodyMetricEntry>(METRICS_KEY)
+    writeAll(
+      METRICS_KEY,
+      all.filter((m) => m.id !== id),
+    )
+    logActivity(userId, 'deleted_body_metric', { metricId: id })
+  },
+}
+
+export const sessions = {
+  async save(session: Omit<WorkoutSession, 'id'>): Promise<WorkoutSession> {
+    const all = readAll<WorkoutSession>(SESSIONS_KEY)
+    const record: WorkoutSession = { id: uid(), ...session }
+    all.push(record)
+    writeAll(SESSIONS_KEY, all)
+    logActivity(session.userId, 'logged_workout_session', { day: session.day, dayName: session.dayName })
+    return record
+  },
+
+  async listForProgramDay(programId: string, day: number): Promise<WorkoutSession[]> {
+    return readAll<WorkoutSession>(SESSIONS_KEY)
+      .filter((s) => s.programId === programId && s.day === day)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  },
+
+  async listForUser(userId: string): Promise<WorkoutSession[]> {
+    return readAll<WorkoutSession>(SESSIONS_KEY)
+      .filter((s) => s.userId === userId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  },
+}
