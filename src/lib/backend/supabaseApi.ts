@@ -5,6 +5,7 @@ import type {
   BodyMetricEntry,
   IntakeAnswers,
   NutritionPlan,
+  ProgramData,
   Profile,
   Role,
   SubscriptionPeriod,
@@ -16,7 +17,12 @@ import { generateAlternate, generateProgram } from './programGenerator'
 import { EXERCISES } from './exerciseLibrary'
 import { supabase } from './supabaseClient'
 
-const PROGRAM_LIFETIME_MS = 12 * 7 * 24 * 60 * 60 * 1000
+// Free tier programs expire fast (1 week) so people who like the app hit a natural decision
+// point to subscribe. Pro's "unlimited saved programs" means their programs effectively never
+// expire — a 100-year lifetime avoids nullable-column edge cases in the .gt('expires_at', ...)
+// queries below while behaving as permanent in practice.
+const FREE_PROGRAM_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000
+const PRO_PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
 
 function sb() {
   if (!supabase) throw new Error('Supabase is not configured.')
@@ -137,6 +143,24 @@ export const auth = {
     if (!data.session) return null
     return profiles.get(data.session.user.id)
   },
+
+  async requestPasswordReset(email: string): Promise<void> {
+    const { error } = await sb().auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (error) throw new Error(error.message)
+  },
+
+  async updatePassword(newPassword: string): Promise<void> {
+    const { error } = await sb().auth.updateUser({ password: newPassword })
+    if (error) throw new Error(error.message)
+  },
+
+  async deleteAccount(): Promise<void> {
+    const { error } = await sb().functions.invoke('delete-account', { body: {} })
+    if (error) throw new Error(error.message)
+    await sb().auth.signOut()
+  },
 }
 
 export const profiles = {
@@ -221,8 +245,9 @@ export const programs = {
 
     const isAdmin = await roles.isAdmin(userId)
     const profile = await profiles.get(userId)
+    const isProUser = isAdmin || isPro(profile)
     const existing = await programs.listForUser(userId)
-    if (!isAdmin && !isPro(profile) && existing.length >= 1) {
+    if (!isProUser && existing.length >= 1) {
       throw new Error('PROGRAM_LIMIT_REACHED')
     }
 
@@ -231,6 +256,7 @@ export const programs = {
     await new Promise((r) => setTimeout(r, 1400))
     const programData = generateProgram(answers, nutrition)
     const now = Date.now()
+    const lifetimeMs = isProUser ? PRO_PROGRAM_LIFETIME_MS : FREE_PROGRAM_LIFETIME_MS
 
     const { data, error } = await sb()
       .from('workout_programs')
@@ -241,7 +267,7 @@ export const programs = {
         answers,
         nutrition,
         recovery_score: nutrition.recoveryScore,
-        expires_at: new Date(now + PROGRAM_LIFETIME_MS).toISOString(),
+        expires_at: new Date(now + lifetimeMs).toISOString(),
       })
       .select()
       .single()
@@ -287,6 +313,14 @@ export const programs = {
     return mapProgram(data)
   },
 
+  async update(id: string, programData: ProgramData): Promise<void> {
+    const { error } = await sb()
+      .from('workout_programs')
+      .update({ program_name: programData.programName, program_data: programData })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
+  },
+
   async delete(id: string, userId: string): Promise<void> {
     await sb().from('workout_programs').delete().eq('id', id)
     await logActivity(userId, 'deleted_program', { programId: id })
@@ -312,16 +346,13 @@ export const activity = {
 }
 
 export const billing = {
-  async subscribe(userId: string, period: SubscriptionPeriod): Promise<BillingResult> {
+  async subscribe(_userId: string, period: SubscriptionPeriod): Promise<BillingResult> {
+    // The edge function derives the user from the caller's own session (which functions.invoke
+    // forwards automatically) rather than trusting a client-supplied id — see
+    // supabase/functions/create-checkout-session for why.
     const { data, error } = await sb().functions.invoke('create-checkout-session', {
-      body: { userId, period },
+      body: { period },
     })
-    if (error) throw new Error(error.message)
-    return { redirectUrl: data.url }
-  },
-
-  async cancel(userId: string): Promise<BillingResult> {
-    const { data, error } = await sb().functions.invoke('billing-portal', { body: { userId } })
     if (error) throw new Error(error.message)
     return { redirectUrl: data.url }
   },

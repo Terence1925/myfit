@@ -170,7 +170,11 @@ export default function PricingPage() {
                 <span className="text-sm text-muted-foreground">/{period === 'monthly' ? 'mo' : 'yr'}</span>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                {period === 'yearly' ? `Billed yearly — ${plan.perMonthLabel} effective` : 'Billed monthly, cancel anytime'}
+                {period === 'yearly'
+                  ? `Billed yearly — ${plan.perMonthLabel} effective`
+                  : native
+                    ? 'Billed monthly, cancel anytime'
+                    : 'One-time payment for 30 days — renew anytime after'}
               </p>
               {error && (
                 <p className="mt-2 text-sm text-destructive">{error}</p>
@@ -200,7 +204,7 @@ export default function PricingPage() {
       <p className="text-center text-xs text-muted-foreground mt-8">
         {native
           ? 'Payment is processed securely by Google Play.'
-          : 'Payment is processed securely by Stripe.'}
+          : 'Payment is processed securely by PayMongo.'}
       </p>
     </div>
   )

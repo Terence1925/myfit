@@ -38,7 +38,9 @@ export function ProgramView({
         ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) }
         : d,
     )
-    onProgramUpdate({ ...program, programData: { ...program.programData, days: updatedDays } })
+    const updatedProgramData = { ...program.programData, days: updatedDays }
+    onProgramUpdate({ ...program, programData: updatedProgramData })
+    await programs.update(program.id, updatedProgramData)
   }
 
   const handleExportPdf = () => {

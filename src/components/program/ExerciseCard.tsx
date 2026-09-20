@@ -58,7 +58,9 @@ export function ExerciseCard({
           <h4 className="font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
           <div className="mt-2 flex flex-wrap gap-2">
             <Badge variant="default">{exercise.sets} sets</Badge>
-            <Badge variant="outline">{exercise.reps} reps</Badge>
+            {/* Hold-based exercises (e.g. Plank) store a time range like "30-45 sec" in `reps` —
+                appending "reps" to that reads wrong, so only add the suffix for rep counts. */}
+            <Badge variant="outline">{exercise.reps}{exercise.reps.includes('sec') ? '' : ' reps'}</Badge>
             <Badge variant="outline">{exercise.rest} rest</Badge>
           </div>
           {exercise.notes && (

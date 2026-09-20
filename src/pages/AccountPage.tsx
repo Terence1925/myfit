@@ -1,24 +1,31 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Crown, Loader2, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, Crown, Loader2, Lock, ShieldCheck, Trash2 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
-import { billing, isSupabaseConfigured } from '@/lib/backend/api'
 import { hasProAccess, isPro, PRO_PRICES } from '@/lib/billing'
 import { isNativeApp } from '@/lib/platform'
 
 // Must match capacitor.config.ts's appId
 const ANDROID_PACKAGE_ID = 'com.forgefit.app'
 
+// Must match supabase/functions/delete-account's OWNER_EMAIL — the server is the real
+// enforcement; this just avoids offering a delete flow that would only fail at the last step.
+const OWNER_EMAIL = 'ttagayona1985@gmail.com'
+
 export default function AccountPage() {
-  const { profile, refreshProfile, role } = useAuth()
+  const { profile, refreshProfile, role, deleteAccount } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [canceling, setCanceling] = React.useState(false)
   const [syncing, setSyncing] = React.useState(false)
+  const [confirmingDelete, setConfirmingDelete] = React.useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = React.useState('')
+  const [deleting, setDeleting] = React.useState(false)
+  const [deleteError, setDeleteError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (searchParams.get('checkout') !== 'success') return
@@ -37,24 +44,24 @@ export default function AccountPage() {
   const isAdmin = role === 'admin'
   const proAccess = hasProAccess(profile, role)
   const native = isNativeApp()
+  const isOwner = profile.email === OWNER_EMAIL
 
-  const handleCancel = async () => {
-    if (native) {
-      // Google requires subscription management to go through Play Store's own UI, not a custom cancel flow.
-      const sku = profile.subscriptionPeriod === 'monthly' ? 'pro_monthly' : 'pro_yearly'
-      window.location.href = `https://play.google.com/store/account/subscriptions?sku=${sku}&package=${ANDROID_PACKAGE_ID}`
-      return
-    }
-    setCanceling(true)
+  const handleManageNative = () => {
+    // Google requires subscription management to go through Play Store's own UI.
+    const sku = profile.subscriptionPeriod === 'monthly' ? 'pro_monthly' : 'pro_yearly'
+    window.location.href = `https://play.google.com/store/account/subscriptions?sku=${sku}&package=${ANDROID_PACKAGE_ID}`
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeleteError(null)
+    setDeleting(true)
     try {
-      const result = await billing.cancel(profile.id)
-      if (result.redirectUrl) {
-        window.location.href = result.redirectUrl
-        return
-      }
-      refreshProfile()
+      await deleteAccount()
+      navigate('/auth')
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
-      setCanceling(false)
+      setDeleting(false)
     }
   }
 
@@ -64,8 +71,8 @@ export default function AccountPage() {
 
       {syncing && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" /> Confirming your subscription with{' '}
-          {native ? 'Google Play' : 'Stripe'}...
+          <Loader2 className="h-4 w-4 animate-spin text-primary" /> Confirming your{' '}
+          {native ? 'Google Play' : 'PayMongo'} payment...
         </div>
       )}
 
@@ -100,17 +107,20 @@ export default function AccountPage() {
                 </p>
                 {profile.subscriptionRenewsAt && (
                   <p className="text-muted-foreground">
-                    Renews on {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}
+                    {native ? 'Renews on' : 'Pro access until'}{' '}
+                    {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}
+                    {!native && ' — renew below anytime before then to keep it active.'}
                   </p>
                 )}
-                <Button variant="destructive" size="sm" className="gap-1.5" onClick={handleCancel} disabled={canceling}>
-                  {canceling && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {native
-                    ? 'Manage in Google Play'
-                    : isSupabaseConfigured
-                      ? 'Manage / Cancel Subscription'
-                      : 'Cancel Subscription'}
-                </Button>
+                {native ? (
+                  <Button variant="outline" size="sm" onClick={handleManageNative}>
+                    Manage in Google Play
+                  </Button>
+                ) : (
+                  <Button size="sm" className="gap-1.5" onClick={() => navigate('/pricing')}>
+                    <Crown className="h-3.5 w-3.5" /> Renew Now
+                  </Button>
+                )}
               </>
             ) : isAdmin ? (
               <p className="text-muted-foreground">
@@ -125,6 +135,73 @@ export default function AccountPage() {
                 <Button className="gap-2" onClick={() => navigate('/pricing')}>
                   <Crown className="h-4 w-4" /> Upgrade to Pro
                 </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-destructive/30">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" /> Danger Zone
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm font-body">
+            {isOwner ? (
+              <p className="flex items-center gap-1.5 text-muted-foreground">
+                <Lock className="h-3.5 w-3.5 shrink-0" /> This is the app's owner account — it can't be deleted
+                from here. Contact support if you ever genuinely need this done.
+              </p>
+            ) : !confirmingDelete ? (
+              <>
+                <p className="text-muted-foreground">
+                  Permanently delete your account and all data — programs, progress history, and body-metric
+                  logs. This cannot be undone.
+                </p>
+                <Button variant="destructive" size="sm" className="gap-1.5" onClick={() => setConfirmingDelete(true)}>
+                  <Trash2 className="h-3.5 w-3.5" /> Delete Account
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground">
+                  Type <span className="font-bold text-foreground">DELETE</span> to confirm. This immediately and
+                  permanently erases your account — there is no recovery.
+                </p>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="max-w-xs"
+                />
+                {deleteError && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+                    {deleteError}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-1.5"
+                    disabled={deleteConfirmText !== 'DELETE' || deleting}
+                    onClick={handleDeleteAccount}
+                  >
+                    {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    Permanently Delete
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setConfirmingDelete(false)
+                      setDeleteConfirmText('')
+                      setDeleteError(null)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </>
             )}
           </CardContent>

@@ -52,19 +52,25 @@ export const PRO_FEATURES = [
   'Early access to new training templates',
 ]
 
-export function isPro(profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus'> | null): boolean {
+export function isPro(
+  profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionRenewsAt'> | null,
+): boolean {
   if (!profile) return false
-  return profile.subscriptionTier === 'pro' && profile.subscriptionStatus === 'active'
+  if (profile.subscriptionTier !== 'pro' || profile.subscriptionStatus !== 'active') return false
+  // Web payments are pay-per-period (no auto-charge), so Pro access ends at the period's renewal
+  // date unless the user pays again — there's no separate webhook to flip subscriptionStatus.
+  if (profile.subscriptionRenewsAt && new Date(profile.subscriptionRenewsAt).getTime() < Date.now()) return false
+  return true
 }
 
-export function planLabel(profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus'>): string {
+export function planLabel(profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionRenewsAt'>): string {
   if (isPro(profile)) return 'Pro'
   return 'Free'
 }
 
 /** Admins get every Pro feature for free — use this (not isPro) for feature gating. */
 export function hasProAccess(
-  profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus'> | null,
+  profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionRenewsAt'> | null,
   role: Role,
 ): boolean {
   return role === 'admin' || isPro(profile)

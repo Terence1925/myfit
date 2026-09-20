@@ -1,6 +1,6 @@
 // Wraps the RevenueCat Capacitor SDK, which handles Google Play Billing for us —
 // no hand-rolled receipt validation. Only usable inside the native Android app
-// (see src/lib/platform.ts); on web, billing goes through Stripe instead.
+// (see src/lib/platform.ts); on web, billing goes through PayMongo instead.
 //
 // Setup required in the RevenueCat dashboard (once you have an account):
 //   1. Create a Play Store app entry, link it to your Play Console app + service account.
@@ -8,7 +8,7 @@
 //   3. Create an Entitlement called "pro" and attach both products to it.
 //   4. Create an Offering with a "$rc_monthly" and "$rc_annual" package pointing at those products.
 //   5. Copy the public "Google Play API key" into VITE_REVENUECAT_ANDROID_KEY (.env.local) — this
-//      key is meant to ship in client apps, unlike a Stripe secret key.
+//      key is meant to ship in client apps, unlike a PayMongo secret key.
 
 import { Purchases, type PurchasesPackage } from '@revenuecat/purchases-capacitor'
 

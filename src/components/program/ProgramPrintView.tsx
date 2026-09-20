@@ -17,6 +17,15 @@ export function ProgramPrintView({ program }: { program: WorkoutProgram }) {
       <p className="mb-1"><strong>Weekly Volume:</strong> {p.weeklyVolume}</p>
       <p className="mb-4"><strong>Progression:</strong> {p.progressionStrategy}</p>
 
+      {p.personalizationNotes?.length > 0 && (
+        <>
+          <h2 className="text-xl font-bold border-b border-gray-300 pb-1 mb-2 mt-6">Why This Program Is Built For You</h2>
+          <ul className="list-disc list-inside mb-4">
+            {p.personalizationNotes.map((note, i) => <li key={i}>{note}</li>)}
+          </ul>
+        </>
+      )}
+
       <h2 className="text-xl font-bold border-b border-gray-300 pb-1 mb-2 mt-6">Warm-Up</h2>
       <ul className="list-disc list-inside mb-4">
         {p.warmup.map((w, i) => <li key={i}>{w}</li>)}

@@ -8,16 +8,19 @@ export default function RefundPage() {
 
       <h2>Monthly Pro (₱399.99/mo)</h2>
       <p>
-        You can cancel anytime from your Account page. Cancellation stops future billing; you keep Pro
-        access until the end of the period you already paid for. We do not provide partial refunds for
-        unused days within a billing period.
+        <strong>On the web,</strong> Monthly Pro is a one-time payment covering 30 days, processed by
+        PayMongo. It does not auto-renew, so there's no future billing to cancel; we do not provide partial
+        refunds for unused days within a period. <strong>On the Android app,</strong> Monthly Pro auto-renews
+        through Google Play — you can cancel anytime from your Google Play subscription settings, and Google
+        Play's own refund policy applies to that purchase.
       </p>
 
       <h2>Yearly Pro (₱3,999/yr)</h2>
       <p>
         First-time yearly subscribers may request a full refund within <strong>7 days</strong> of the
-        initial purchase if unsatisfied. After 7 days, the subscription follows the same policy as Monthly —
-        cancel anytime to stop renewal, no partial refund for the remainder of the paid year.
+        initial purchase if unsatisfied (web purchases: email us; Android purchases: Google Play's refund
+        process). After 7 days, the same policy as Monthly applies — no partial refund for the remainder of
+        the paid year.
       </p>
 
       <h2>How to Request a Refund</h2>

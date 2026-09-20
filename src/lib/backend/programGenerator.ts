@@ -1,10 +1,37 @@
 import { GOAL_LABELS, getRecoveryTier } from '../tdee'
 import type { Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
-import { poolFor } from './exerciseLibrary'
+import { EXERCISES, poolFor } from './exerciseLibrary'
 
 function pick<T>(arr: T[], seed: number): T | undefined {
   if (arr.length === 0) return undefined
   return arr[seed % arr.length]
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
+const FOCUS_LABELS: Record<FocusArea, string> = {
+  chest: 'Chest',
+  back: 'Back',
+  shoulders: 'Shoulders',
+  arms: 'Arms',
+  legs: 'Legs',
+  glutes: 'Glutes',
+  core: 'Core',
+  'full-body': 'Full Body',
+}
+
+const INJURY_LABELS: Record<Exclude<IntakeAnswers['injuries'], 'none'>, string> = {
+  knee: 'knee',
+  shoulder: 'shoulder',
+  'lower-back': 'lower-back',
+  other: 'unspecified',
 }
 
 function splitForDays(days: number): { name: string; muscles: FocusArea[] }[][] {
@@ -70,27 +97,84 @@ function volumeMultiplier(recoveryTier: string): number {
   return 1
 }
 
-function exercisesPerMuscle(experience: IntakeAnswers['experience'], recoveryTier: string): number {
+function exercisesPerMuscle(experience: IntakeAnswers['experience'], recoveryTier: string, isFocus: boolean): number {
   const base = experience === '0-1' ? 2 : experience === '2-3' ? 3 : 3
-  const adjusted = Math.round(base * volumeMultiplier(recoveryTier))
+  const adjusted = Math.round(base * volumeMultiplier(recoveryTier)) + (isFocus ? 1 : 0)
   return Math.max(1, Math.min(4, adjusted))
+}
+
+function holdTimeFor(experience: IntakeAnswers['experience']): string {
+  if (experience === '0-1') return '20-30 sec'
+  if (experience === '2-3') return '30-45 sec'
+  return '45-60 sec'
+}
+
+// Muscles that get trained together on the same day in every split (push / pull / lower body).
+// Used to slot a selected focus area into the day(s) it anatomically belongs on, even when the
+// day template for this training-day count didn't already include it (e.g. glutes are absent
+// from every day of the 3-day Full Body split).
+//
+// `anchors` (never includes "arms") are what actually identify a day as push/pull/lower-body —
+// "arms" is deliberately excluded because it's trained on both push AND pull days in every split,
+// so using it as an anchor would match either family and leak e.g. back work onto a push day.
+// `members` is the full set of focus areas that belong to the family once it's been identified.
+const MUSCLE_FAMILIES: { anchors: FocusArea[]; members: FocusArea[] }[] = [
+  { anchors: ['chest', 'shoulders'], members: ['chest', 'shoulders', 'arms'] },
+  { anchors: ['back'], members: ['back', 'arms'] },
+  { anchors: ['legs'], members: ['legs', 'glutes'] },
+]
+
+function withFocusCoverage(
+  templates: { name: string; muscles: FocusArea[] }[],
+  focusAreas: FocusArea[],
+): { name: string; muscles: FocusArea[]; injected: FocusArea[] }[] {
+  return templates.map((day) => {
+    const muscles = [...day.muscles]
+    const injected: FocusArea[] = []
+    for (const focus of focusAreas) {
+      if (muscles.includes(focus)) continue
+      // Full-body conditioning work (kettlebell swings, burpees, carries) fits as a finisher on
+      // any training day, so it isn't restricted to a specific anatomical family like the others.
+      if (focus === 'full-body') {
+        muscles.push(focus)
+        injected.push(focus)
+        continue
+      }
+      const family = MUSCLE_FAMILIES.find((group) => group.members.includes(focus))
+      if (family?.anchors.some((m) => muscles.includes(m))) {
+        muscles.push(focus)
+        injected.push(focus)
+      }
+    }
+    return { ...day, muscles, injected }
+  })
 }
 
 export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan): ProgramData {
   const tier = getRecoveryTier(nutrition.recoveryScore)
   const scheme = repSchemeFor(answers.goal, answers.experience)
-  const perMuscleCount = exercisesPerMuscle(answers.experience, tier.tier)
+  const holdTime = holdTimeFor(answers.experience)
 
-  const templates = splitForDays(answers.trainingDays)[0]
+  const templates = withFocusCoverage(splitForDays(answers.trainingDays)[0], answers.focusAreas)
   const usedNames = new Set<string>()
 
   const days: ProgramDay[] = templates.map((template, dayIdx) => {
     const exercises: Exercise[] = []
     template.muscles.forEach((muscle, muscleIdx) => {
+      const isFocus = answers.focusAreas.includes(muscle)
+      const perMuscleCount = exercisesPerMuscle(answers.experience, tier.tier, isFocus)
       const pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => !usedNames.has(e.name))
-      const count = muscle === 'core' ? Math.max(1, perMuscleCount - 1) : perMuscleCount
-      const compounds = pool.filter((e) => e.compound)
-      const isolations = pool.filter((e) => !e.compound)
+      // A muscle injected onto a day that wouldn't naturally train it (e.g. glutes added to a
+      // Full Body day, or a full-body finisher added anywhere) gets a light touch — 1 exercise —
+      // rather than the full per-muscle count. Otherwise the first day to process that muscle
+      // would grab the whole (often small) exercise pool for it, leaving nothing for the other
+      // days it was also injected into, which defeats the point of spreading it across the week.
+      const count = muscle === 'core' ? Math.max(1, perMuscleCount - 1) : template.injected.includes(muscle) ? 1 : perMuscleCount
+      // Shuffled (not just filtered) so two people with identical stats — or the same person
+      // hitting Regenerate — don't get the exact same exercise selection every time. Compounds
+      // stay ordered before isolations so slot 0 is reliably a compound lift when one's available.
+      const compounds = shuffle(pool.filter((e) => e.compound))
+      const isolations = shuffle(pool.filter((e) => !e.compound))
       const chosenPool = [...compounds, ...isolations]
 
       for (let i = 0; i < count && i < chosenPool.length; i++) {
@@ -99,6 +183,16 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
         if (!ex) continue
         usedNames.add(ex.name)
         const isCompound = ex.compound && i === 0
+        if (ex.holdBased) {
+          exercises.push({
+            name: ex.name,
+            sets: Math.max(2, scheme.compoundSets - 1),
+            reps: holdTime,
+            rest: '45-60 sec',
+            notes: `Hold with a neutral spine and braced core — stop the set early if form breaks down.`,
+          })
+          continue
+        }
         exercises.push({
           name: ex.name,
           sets: isCompound ? scheme.compoundSets : Math.max(2, scheme.compoundSets - 1),
@@ -127,6 +221,54 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
   const goalLabel = GOAL_LABELS[answers.goal]
   const equipmentLabel = answers.equipment.replace(/-/g, ' ')
 
+  const splitTypeLabel =
+    answers.trainingDays === 3
+      ? 'Full Body'
+      : answers.trainingDays === 4
+        ? 'Upper/Lower'
+        : answers.trainingDays === 5
+          ? 'Push/Pull/Legs plus an accessory day'
+          : 'Push/Pull/Legs, twice through the week'
+
+  const goalReasoning: Record<IntakeAnswers['goal'], string> = {
+    'lose-weight': `Your goal is Lose Weight, so compound lifts sit at ${scheme.compoundReps} reps with shorter ${scheme.rest} rest — that keeps training density high and calories burned per session up, while the rep range still protects the muscle you already have.`,
+    'build-muscle': `Your goal is Build Muscle, so compound lifts are programmed at ${scheme.compoundReps} reps with ${scheme.rest} rest — the rep and rest ranges most associated with hypertrophy (muscle growth) rather than pure strength or endurance.`,
+    'strength-power': `Your goal is Strength & Power, so compound lifts use a heavier ${scheme.compoundReps} rep range with a longer ${scheme.rest} rest — enough recovery between sets to lift closer to your max each time.`,
+    'body-recomposition': `Your goal is Body Recomposition, so reps sit at a middle-ground ${scheme.compoundReps} with ${scheme.rest} rest — intense enough to build or hold onto muscle while your nutrition targets (Nutrition tab) handle the fat-loss side.`,
+  }
+
+  const experienceReasoning =
+    answers.experience === '0-1'
+      ? `You're early in structured training (0-1 years), so each muscle group gets fewer total exercises — more focus per movement while your technique and movement patterns build up.`
+      : answers.experience === '5+'
+        ? `You have 5+ years of training experience, so compound lifts carry an extra working set (${scheme.compoundSets} sets) to match the higher volume your training age can recover from.`
+        : `You have ${answers.experience} years of training experience, so volume is set for steady, sustainable progress without overreaching.`
+
+  const personalizationNotes: string[] = [
+    goalReasoning[answers.goal],
+    experienceReasoning,
+    `With ${equipmentLabel} equipment across ${answers.trainingDays} training days a week, your split follows a ${splitTypeLabel} structure — the standard way to fit that many sessions in without hitting the same muscles on back-to-back days.`,
+  ]
+
+  if (answers.focusAreas.length > 0) {
+    const labels = answers.focusAreas.map((f) => FOCUS_LABELS[f]).join(', ')
+    personalizationNotes.push(
+      `You flagged ${labels} as a focus area — ${answers.focusAreas.length > 1 ? 'those muscles get' : 'it gets'} an extra exercise slot on every day it's trained, and was added to days that wouldn't otherwise include it so it gets consistent weekly attention.`,
+    )
+  }
+
+  if (answers.injuries !== 'none') {
+    personalizationNotes.push(
+      answers.injuries === 'other'
+        ? `You noted a limitation outside our specific categories — the highest-load, highest-impact movements (heavy squats, deadlifts, plyometrics) have been excluded as a precaution, but always stop anything that doesn't feel right and check with a professional about your specific case.`
+        : `You noted a ${INJURY_LABELS[answers.injuries]} limitation — exercises that load that area under heavy or unstable conditions have been filtered out in favor of joint-friendlier alternatives throughout every day of this program.`,
+    )
+  }
+
+  personalizationNotes.push(
+    `Your recovery score is ${nutrition.recoveryScore}/100 (${tier.tier} tier), calculated from your sleep, stress, and activity answers — ${tier.volumeAdjustment.charAt(0).toLowerCase()}${tier.volumeAdjustment.slice(1)}`,
+  )
+
   const nutritionTips = [
     `Hit ${nutrition.calorieTarget} kcal/day with ${nutrition.proteinG}g protein to support this program's recovery demands.`,
     `Split protein evenly across 3-4 meals — roughly ${Math.round(nutrition.proteinG / 4)}g per meal keeps synthesis elevated all day.`,
@@ -146,6 +288,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     programName: `${goalLabel} Protocol`,
     tagline: `${answers.trainingDays}-day ${equipmentLabel} program built for your ${tier.tier.toLowerCase()} recovery capacity`,
     overview: `This program is built around ${goalLabel.toLowerCase()} as the primary objective, using ${equipmentLabel} equipment across ${answers.trainingDays} training days per week. Volume and intensity are calibrated to your ${answers.experience === '0-1' ? 'beginner' : answers.experience} experience level and your current recovery score of ${nutrition.recoveryScore}/100.`,
+    personalizationNotes,
     weeklyVolume: `${days.reduce((sum, d) => sum + d.exercises.reduce((s, e) => s + e.sets, 0), 0)} total working sets/week across ${answers.trainingDays} sessions`,
     progressionStrategy:
       answers.experience === '5+'
@@ -169,12 +312,38 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
   }
 }
 
+// Subgroups that train an opposing/antagonist muscle despite sharing a broader `muscle` label
+// (e.g. "legs" covers both quads and hamstrings). When the original exercise's subgroup has no
+// same-subgroup alternative to fall back to, these are excluded before falling back further —
+// better to offer a less-precise-but-still-quad match than to silently flip to hamstrings.
+const OPPOSING_SUBGROUPS: Record<string, string[]> = {
+  'quad-isolation': ['hamstring-isolation'],
+  'hamstring-isolation': ['quad-isolation'],
+}
+
 export function generateAlternate(
   exerciseName: string,
   muscle: FocusArea,
   answers: IntakeAnswers,
 ): Exercise {
-  const pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName)
+  let pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName)
+  // Prefer staying within the same specific movement (e.g. biceps vs triceps within "arms", or
+  // which deltoid head within "shoulders") so a swap still feels like a reasonable substitute —
+  // otherwise "arms" alone would happily swap a triceps exercise like Dip for a biceps one like
+  // Barbell Curl, which share a muscle-group label but train opposite, unrelated movements.
+  const original = EXERCISES.find((e) => e.name === exerciseName)
+  if (original?.subgroup) {
+    const narrowed = pool.filter((e) => e.subgroup === original.subgroup)
+    if (narrowed.length > 0) {
+      pool = narrowed
+    } else {
+      const opposing = OPPOSING_SUBGROUPS[original.subgroup]
+      if (opposing) {
+        const avoided = pool.filter((e) => !e.subgroup || !opposing.includes(e.subgroup))
+        if (avoided.length > 0) pool = avoided
+      }
+    }
+  }
   const replacement = pool[Math.floor(Math.random() * pool.length)]
   const scheme = repSchemeFor(answers.goal, answers.experience)
   if (!replacement) {
@@ -184,6 +353,15 @@ export function generateAlternate(
       reps: scheme.compoundReps,
       rest: scheme.rest,
       notes: 'No equipment-compatible swap found — keep current exercise.',
+    }
+  }
+  if (replacement.holdBased) {
+    return {
+      name: replacement.name,
+      sets: Math.max(2, scheme.compoundSets - 1),
+      reps: holdTimeFor(answers.experience),
+      rest: '45-60 sec',
+      notes: 'Swapped to match your equipment and target muscle group — hold with a neutral spine and braced core.',
     }
   }
   return {

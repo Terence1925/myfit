@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { GlowBackground } from '@/components/layout/GlowBackground'
 import { NavBar } from '@/components/layout/NavBar'
 import AuthPage from '@/pages/AuthPage'
+import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import Home from '@/pages/Home'
 import SavedPrograms from '@/pages/SavedPrograms'
 import AdminPage from '@/pages/AdminPage'
@@ -13,6 +14,7 @@ import ProgressPage from '@/pages/ProgressPage'
 import TermsPage from '@/pages/legal/TermsPage'
 import PrivacyPage from '@/pages/legal/PrivacyPage'
 import RefundPage from '@/pages/legal/RefundPage'
+import DeleteAccountPage from '@/pages/legal/DeleteAccountPage'
 import { Footer } from '@/components/layout/Footer'
 import NotFound from '@/pages/NotFound'
 
@@ -31,6 +33,7 @@ function AppShell() {
       {profile && <NavBar />}
       <Routes>
         <Route path="/auth" element={profile ? <Navigate to="/" replace /> : <AuthPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
           path="/"
           element={
@@ -82,6 +85,7 @@ function AppShell() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/refund-policy" element={<RefundPage />} />
+        <Route path="/delete-account" element={<DeleteAccountPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />

@@ -142,6 +142,8 @@ export interface ProgramData {
   programName: string
   tagline: string
   overview: string
+  /** Bullet points explaining how specific intake answers shaped this program. */
+  personalizationNotes: string[]
   weeklyVolume: string
   progressionStrategy: string
   nutritionTips: string[]

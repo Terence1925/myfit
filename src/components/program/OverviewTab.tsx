@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { CalendarDays, ListChecks, TrendingUp, Waves } from 'lucide-react'
+import { CalendarDays, ListChecks, Sparkles, TrendingUp, Waves } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProgramData } from '@/lib/types'
 
@@ -17,6 +17,25 @@ export function OverviewTab({
           <p className="font-body leading-relaxed text-foreground/90">{program.overview}</p>
         </CardContent>
       </Card>
+
+      {program.personalizationNotes?.length > 0 && (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" /> Why This Program Is Built For You
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              {program.personalizationNotes.map((note, i) => (
+                <li key={i} className="flex gap-2.5 text-sm text-foreground/90 font-body leading-relaxed">
+                  <span className="mt-0.5 text-primary shrink-0">•</span> {note}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>

@@ -33,9 +33,11 @@ export default function TermsPage() {
       <ul>
         <li>The Free plan is limited to one active saved program at a time.</li>
         <li>
-          Pro plans (Monthly at ₱399.99, Yearly at ₱3,999) automatically renew each billing period until
-          canceled. You can cancel anytime from your Account page; access continues until the end of the
-          period already paid for.
+          Pro plans (Monthly at ₱399.99, Yearly at ₱3,999) are priced per period. On the Android app,
+          purchases are billed and automatically renewed through Google Play until canceled from your
+          Google Play subscription settings. On the web, Pro is a one-time payment per period processed by
+          PayMongo — it does not auto-renew; access ends at the end of the paid period unless you purchase
+          again beforehand.
         </li>
         <li>Prices are listed in Philippine Peso (₱) and may change with prior notice for future billing periods.</li>
         <li>Refunds are handled under our <a href="/refund-policy">Refund Policy</a>.</li>
@@ -55,8 +57,8 @@ export default function TermsPage() {
 
       <h2>7. Termination</h2>
       <p>
-        We may suspend or terminate accounts that violate these Terms. You may delete your account at any
-        time by contacting support.
+        We may suspend or terminate accounts that violate these Terms. You may delete your account and all
+        associated data at any time — see <a href="/delete-account">how to delete your account</a>.
       </p>
 
       <h2>8. Limitation of Liability</h2>

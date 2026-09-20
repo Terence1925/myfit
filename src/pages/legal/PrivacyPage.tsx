@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <li><strong>Account data:</strong> name, email address, hashed password.</li>
         <li><strong>Body &amp; lifestyle data:</strong> age, sex, weight, height, sleep, stress, activity level, training goal — used to calculate your BMR/TDEE and generate your program.</li>
         <li><strong>Usage data:</strong> generated programs, logged workouts, body-metric entries, activity history.</li>
-        <li><strong>Billing data:</strong> your subscription plan and status. Card numbers are handled directly by our payment processor (Stripe) — we never see or store your full card number.</li>
+        <li><strong>Billing data:</strong> your subscription plan and status. Card numbers are handled directly by our payment processors (PayMongo on the web, Google Play on Android) — we never see or store your full card number.</li>
       </ul>
 
       <h2>2. How We Use Your Data</h2>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
       <h2>3. Who We Share It With</h2>
       <p>
         Only the service providers necessary to run FORGEFIT: our database/auth provider (Supabase) and our
-        payment processor (Stripe). We do not share your health or body data with advertisers.
+        payment processors (PayMongo, Google Play). We do not share your health or body data with advertisers.
       </p>
 
       <h2>4. Data Storage &amp; Security</h2>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
       <ul>
         <li>Access the personal data we hold about you</li>
         <li>Correct inaccurate data</li>
-        <li>Request deletion of your account and data</li>
+        <li>Request deletion of your account and data — see <a href="/delete-account">how to delete your account</a></li>
         <li>Object to or restrict certain processing</li>
         <li>Data portability (receive a copy of your data)</li>
         <li>File a complaint with the National Privacy Commission</li>

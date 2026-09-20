@@ -5,6 +5,7 @@ import type {
   BodyMetricEntry,
   IntakeAnswers,
   NutritionPlan,
+  ProgramData,
   Profile,
   Role,
   SubscriptionPeriod,
@@ -36,7 +37,8 @@ const ACTIVITY_KEY = 'activity'
 const METRICS_KEY = 'metrics'
 const SESSIONS_KEY = 'sessions'
 
-const PROGRAM_LIFETIME_MS = 12 * 7 * 24 * 60 * 60 * 1000
+const FREE_PROGRAM_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000
+const PRO_PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
 
 function ensureSeedAdmin() {
   const users = readAll<StoredUser>(USERS_KEY)
@@ -125,6 +127,31 @@ export const auth = {
     const session = readOne<{ userId: string }>(SESSION_KEY)
     if (!session) return null
     return profiles.get(session.userId)
+  },
+
+  // Demo mode has no real email delivery or recovery-session flow, so password reset can't
+  // actually work here — surface a clear message instead of pretending it sent something.
+  async requestPasswordReset(): Promise<void> {
+    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  },
+
+  async updatePassword(): Promise<void> {
+    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  },
+
+  async deleteAccount(): Promise<void> {
+    const session = readOne<{ userId: string }>(SESSION_KEY)
+    if (!session) throw new Error('Not signed in.')
+    const userId = session.userId
+
+    writeAll(USERS_KEY, readAll<StoredUser>(USERS_KEY).filter((u) => u.id !== userId))
+    writeAll(PROFILES_KEY, readAll<Profile>(PROFILES_KEY).filter((p) => p.id !== userId))
+    writeAll(ROLES_KEY, readAll<RoleRow>(ROLES_KEY).filter((r) => r.userId !== userId))
+    writeAll(PROGRAMS_KEY, readAll<WorkoutProgram>(PROGRAMS_KEY).filter((p) => p.userId !== userId))
+    writeAll(ACTIVITY_KEY, readAll<ActivityLogEntry>(ACTIVITY_KEY).filter((a) => a.userId !== userId))
+    writeAll(METRICS_KEY, readAll<BodyMetricEntry>(METRICS_KEY).filter((m) => m.userId !== userId))
+    writeAll(SESSIONS_KEY, readAll<WorkoutSession>(SESSIONS_KEY).filter((s) => s.userId !== userId))
+    removeKey(SESSION_KEY)
   },
 }
 
@@ -218,8 +245,9 @@ export const programs = {
     purgeExpired()
     const isAdmin = await roles.isAdmin(userId)
     const profile = await profiles.get(userId)
+    const isProUser = isAdmin || isPro(profile)
     const existing = await programs.listForUser(userId)
-    if (!isAdmin && !isPro(profile) && existing.length >= 1) {
+    if (!isProUser && existing.length >= 1) {
       throw new Error('PROGRAM_LIMIT_REACHED')
     }
     const nutrition = calculateNutrition(answers)
@@ -227,6 +255,7 @@ export const programs = {
     await new Promise((r) => setTimeout(r, 1400))
     const programData = generateProgram(answers, nutrition)
     const now = Date.now()
+    const lifetimeMs = isProUser ? PRO_PROGRAM_LIFETIME_MS : FREE_PROGRAM_LIFETIME_MS
     const program: WorkoutProgram = {
       id: uid(),
       userId,
@@ -236,7 +265,7 @@ export const programs = {
       nutrition,
       recoveryScore: nutrition.recoveryScore,
       createdAt: new Date(now).toISOString(),
-      expiresAt: new Date(now + PROGRAM_LIFETIME_MS).toISOString(),
+      expiresAt: new Date(now + lifetimeMs).toISOString(),
     }
     const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
     all.push(program)
@@ -270,6 +299,14 @@ export const programs = {
 
   async get(id: string): Promise<WorkoutProgram | null> {
     return readAll<WorkoutProgram>(PROGRAMS_KEY).find((p) => p.id === id) ?? null
+  },
+
+  async update(id: string, programData: ProgramData): Promise<void> {
+    const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
+    const idx = all.findIndex((p) => p.id === id)
+    if (idx === -1) throw new Error('Program not found.')
+    all[idx] = { ...all[idx], programName: programData.programName, programData }
+    writeAll(PROGRAMS_KEY, all)
   },
 
   async delete(id: string, userId: string): Promise<void> {
@@ -313,16 +350,6 @@ export const billing = {
     }
     writeAll(PROFILES_KEY, all)
     logActivity(userId, 'subscribed_pro', { period, price: PRO_PRICES[period].price })
-    return {}
-  },
-
-  async cancel(userId: string): Promise<BillingResult> {
-    const all = readAll<Profile>(PROFILES_KEY)
-    const idx = all.findIndex((p) => p.id === userId)
-    if (idx === -1) throw new Error('Profile not found.')
-    all[idx] = { ...all[idx], subscriptionStatus: 'canceled' }
-    writeAll(PROFILES_KEY, all)
-    logActivity(userId, 'canceled_subscription', {})
     return {}
   },
 

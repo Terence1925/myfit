@@ -4,6 +4,7 @@ import type {
   Exercise,
   IntakeAnswers,
   NutritionPlan,
+  ProgramData,
   Profile,
   Role,
   SubscriptionPeriod,
@@ -20,6 +21,9 @@ export interface AuthApi {
   signIn(email: string, password: string): Promise<Profile>
   signOut(): Promise<void>
   currentSession(): Promise<Profile | null>
+  requestPasswordReset(email: string): Promise<void>
+  updatePassword(newPassword: string): Promise<void>
+  deleteAccount(): Promise<void>
 }
 
 export interface ProfilesApi {
@@ -42,6 +46,7 @@ export interface ProgramsApi {
   listForUser(userId: string): Promise<WorkoutProgram[]>
   listAll(): Promise<WorkoutProgram[]>
   get(id: string): Promise<WorkoutProgram | null>
+  update(id: string, programData: ProgramData): Promise<void>
   delete(id: string, userId: string): Promise<void>
 }
 
@@ -64,6 +69,5 @@ export interface SessionsApi {
 
 export interface BillingApi {
   subscribe(userId: string, period: SubscriptionPeriod): Promise<BillingResult>
-  cancel(userId: string): Promise<BillingResult>
   listActiveSubscribers(): Promise<Profile[]>
 }

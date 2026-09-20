@@ -9,6 +9,7 @@ export function Footer() {
           <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
           <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
           <Link to="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
+          <Link to="/delete-account" className="hover:text-primary transition-colors">Delete Account</Link>
         </div>
       </div>
     </footer>
