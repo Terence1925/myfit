@@ -3,15 +3,18 @@
 // (--no-verify-jwt is required: PayMongo calls this endpoint directly, with no Supabase auth token)
 //
 // After deploying, copy its URL into PayMongo Dashboard -> Developers -> Webhooks -> Add endpoint,
-// subscribed to: payment.paid, payment.failed. Then copy the "Signing secret" PayMongo shows you
-// into the PAYMONGO_WEBHOOK_SECRET function secret.
+// subscribed to: checkout_session.payment.paid, payment.paid, payment.failed. Then copy the
+// "Signing secret" PayMongo shows you into the PAYMONGO_WEBHOOK_SECRET function secret.
 //
 // Secrets required: PAYMONGO_WEBHOOK_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 //
-// NOTE: PayMongo's webhook payload shape for a Checkout Session's resulting payment isn't fully
-// documented publicly. This handler logs the raw payload on first run — check
-// `supabase functions logs paymongo-webhook` after a real test payment and adjust the metadata
-// extraction below (search for "ADJUST HERE") if the actual shape differs.
+// NOTE: PayMongo's webhook payload shape isn't fully documented publicly. This handler logs the
+// raw payload on every event — check `supabase functions logs paymongo-webhook` after a real
+// test payment and adjust the metadata extraction below (search for "ADJUST HERE") if the actual
+// shape differs. Both checkout_session.payment.paid and payment.paid are handled identically
+// since metadata propagates to attributes.metadata on whichever resource is nested either way —
+// if PayMongo fires both for the same transaction, activatePro() re-running is harmless (it just
+// re-sets the same subscription fields, not a second charge).
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
@@ -80,7 +83,7 @@ Deno.serve(async (req) => {
   console.log('paymongo-webhook received:', eventType, JSON.stringify(event))
 
   try {
-    if (eventType === 'payment.paid') {
+    if (eventType === 'checkout_session.payment.paid' || eventType === 'payment.paid') {
       // ADJUST HERE if PayMongo's actual nesting differs from this guess.
       const resource = event.data.attributes.data
       const metadata = resource?.attributes?.metadata ?? {}
@@ -90,7 +93,7 @@ Deno.serve(async (req) => {
       if (userId && (period === 'monthly' || period === 'yearly')) {
         await activatePro(userId, period)
       } else {
-        console.error('paymongo-webhook: payment.paid missing supabase_user_id/period metadata', metadata)
+        console.error(`paymongo-webhook: ${eventType} missing supabase_user_id/period metadata`, metadata)
       }
     }
   } catch (err) {

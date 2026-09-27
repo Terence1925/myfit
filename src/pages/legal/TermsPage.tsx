@@ -33,7 +33,7 @@ export default function TermsPage() {
       <ul>
         <li>The Free plan is limited to one active saved program at a time.</li>
         <li>
-          Pro plans (Monthly at ₱399.99, Yearly at ₱3,999) are priced per period. On the Android app,
+          Pro plans (Monthly at ₱300, Yearly at ₱2,600) are priced per period. On the Android app,
           purchases are billed and automatically renewed through Google Play until canceled from your
           Google Play subscription settings. On the web, Pro is a one-time payment per period processed by
           PayMongo — it does not auto-renew; access ends at the end of the paid period unless you purchase

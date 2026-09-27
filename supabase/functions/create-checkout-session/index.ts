@@ -32,7 +32,7 @@ const PAYMONGO_SECRET_KEY = Deno.env.get('PAYMONGO_SECRET_KEY')!
 const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
 // Centavos, matching src/lib/billing.ts's MONTHLY_PRICE / YEARLY_PRICE.
-const AMOUNTS = { monthly: 39_999, yearly: 399_900 }
+const AMOUNTS = { monthly: 30_000, yearly: 260_000 }
 const LABELS = { monthly: 'FORGEFIT Pro — Monthly', yearly: 'FORGEFIT Pro — Yearly' }
 
 function paymongoAuthHeader(): string {

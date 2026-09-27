@@ -6,7 +6,7 @@ export default function RefundPage() {
       <h2>Free Plan</h2>
       <p>The Free plan costs nothing and never requires a refund.</p>
 
-      <h2>Monthly Pro (₱399.99/mo)</h2>
+      <h2>Monthly Pro (₱300/mo)</h2>
       <p>
         <strong>On the web,</strong> Monthly Pro is a one-time payment covering 30 days, processed by
         PayMongo. It does not auto-renew, so there's no future billing to cancel; we do not provide partial
@@ -15,7 +15,7 @@ export default function RefundPage() {
         Play's own refund policy applies to that purchase.
       </p>
 
-      <h2>Yearly Pro (₱3,999/yr)</h2>
+      <h2>Yearly Pro (₱2,600/yr)</h2>
       <p>
         First-time yearly subscribers may request a full refund within <strong>7 days</strong> of the
         initial purchase if unsatisfied (web purchases: email us; Android purchases: Google Play's refund

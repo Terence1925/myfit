@@ -17,8 +17,7 @@ import type { SubscriptionPeriod } from '@/lib/types'
 export default function PricingPage() {
   const { profile, refreshProfile, role } = useAuth()
   const navigate = useNavigate()
-  const [period, setPeriod] = React.useState<SubscriptionPeriod>('yearly')
-  const [loading, setLoading] = React.useState(false)
+  const [loadingPeriod, setLoadingPeriod] = React.useState<SubscriptionPeriod | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [nativePackages, setNativePackages] = React.useState<PurchasesPackage[]>([])
   const native = isNativeApp()
@@ -36,13 +35,11 @@ export default function PricingPage() {
   if (!profile) return null
   const isAdmin = role === 'admin'
   const alreadyPro = isPro(profile)
-  const plan = PRO_PRICES[period]
-  const nativePkg = native
-    ? nativePackages.find((p) => p.packageType === (period === 'monthly' ? 'MONTHLY' : 'ANNUAL'))
-    : undefined
+  const nativePkgFor = (period: SubscriptionPeriod) =>
+    native ? nativePackages.find((p) => p.packageType === (period === 'monthly' ? 'MONTHLY' : 'ANNUAL')) : undefined
 
-  const handleSubscribeWeb = async () => {
-    setLoading(true)
+  const handleSubscribeWeb = async (period: SubscriptionPeriod) => {
+    setLoadingPeriod(period)
     try {
       const result = await billing.subscribe(profile.id, period)
       if (result.redirectUrl) {
@@ -52,12 +49,12 @@ export default function PricingPage() {
       refreshProfile()
       navigate('/account')
     } finally {
-      setLoading(false)
+      setLoadingPeriod(null)
     }
   }
 
-  const handleSubscribeNative = async () => {
-    setLoading(true)
+  const handleSubscribeNative = async (period: SubscriptionPeriod) => {
+    setLoadingPeriod(period)
     setError(null)
     try {
       await configureRevenueCat(profile.id)
@@ -73,7 +70,7 @@ export default function PricingPage() {
       const isCancel = err instanceof Error && err.message.toLowerCase().includes('cancel')
       if (!isCancel) setError(err instanceof Error ? err.message : 'Purchase failed.')
     } finally {
-      setLoading(false)
+      setLoadingPeriod(null)
     }
   }
 
@@ -115,29 +112,9 @@ export default function PricingPage() {
         <p className="mt-3 font-body text-muted-foreground max-w-lg mx-auto">
           Unlock unlimited programs, progress tracking, and priority AI regeneration.
         </p>
-
-        <div className="mt-8 inline-flex rounded-xl border border-border p-1">
-          {(['monthly', 'yearly'] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={cn(
-                'relative rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors',
-                period === p ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground',
-              )}
-            >
-              {p === 'monthly' ? 'Monthly' : 'Yearly'}
-              {p === 'yearly' && PRO_PRICES.yearly.savingsLabel && (
-                <Badge variant="success" className="ml-2 py-0 px-1.5 align-middle">
-                  {PRO_PRICES.yearly.savingsLabel}
-                </Badge>
-              )}
-            </button>
-          ))}
-        </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Card className="h-full">
             <CardContent className="p-8 flex flex-col h-full">
@@ -158,47 +135,73 @@ export default function PricingPage() {
           </Card>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="h-full border-primary/40 shadow-glow-lg relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-gold-gradient text-primary-foreground text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl flex items-center gap-1.5">
-              <Crown className="h-3.5 w-3.5" /> Most Popular
-            </div>
-            <CardContent className="p-8 flex flex-col h-full">
-              <h3 className="font-display text-2xl tracking-wide text-gradient-gold">PRO</h3>
-              <div className="mt-3 flex items-baseline gap-2">
-                <span className="font-display text-4xl">{nativePkg?.product.priceString ?? plan.priceLabel}</span>
-                <span className="text-sm text-muted-foreground">/{period === 'monthly' ? 'mo' : 'yr'}</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {period === 'yearly'
-                  ? `Billed yearly — ${plan.perMonthLabel} effective`
-                  : native
-                    ? 'Billed monthly, cancel anytime'
-                    : 'One-time payment for 30 days — renew anytime after'}
-              </p>
-              {error && (
-                <p className="mt-2 text-sm text-destructive">{error}</p>
-              )}
-              <ul className="mt-6 space-y-3 flex-1">
-                {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex gap-2 text-sm font-body">
-                    <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> {f}
-                  </li>
-                ))}
-              </ul>
-              {alreadyPro ? (
-                <Button className="mt-8 gap-2" onClick={() => navigate('/account')}>
-                  Manage Subscription
-                </Button>
-              ) : (
-                <Button className="mt-8 gap-2" size="lg" onClick={handleSubscribe} disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
-                  Upgrade to Pro
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        {(['monthly', 'yearly'] as const).map((period, i) => {
+          const plan = PRO_PRICES[period]
+          const nativePkg = nativePkgFor(period)
+          const isYearly = period === 'yearly'
+          return (
+            <motion.div
+              key={period}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.1 }}
+            >
+              <Card className={cn('h-full relative overflow-hidden', isYearly && 'border-primary/40 shadow-glow-lg')}>
+                {isYearly && (
+                  <div className="absolute top-0 right-0 bg-gold-gradient text-primary-foreground text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-bl-xl flex items-center gap-1.5">
+                    <Crown className="h-3.5 w-3.5" /> Best Value
+                  </div>
+                )}
+                <CardContent className="p-8 flex flex-col h-full">
+                  <h3 className={cn('font-display text-2xl tracking-wide', isYearly && 'text-gradient-gold')}>
+                    PRO {period === 'monthly' ? 'MONTHLY' : 'YEARLY'}
+                  </h3>
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="font-display text-4xl">{nativePkg?.product.priceString ?? plan.priceLabel}</span>
+                    <span className="text-sm text-muted-foreground">/{period === 'monthly' ? 'mo' : 'yr'}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                    {isYearly
+                      ? `${plan.perMonthLabel} effective`
+                      : native
+                        ? 'Billed monthly, cancel anytime'
+                        : 'One-time payment for 30 days — renew anytime after'}
+                    {isYearly && plan.savingsLabel && (
+                      <Badge variant="success" className="py-0 px-1.5">
+                        {plan.savingsLabel}
+                      </Badge>
+                    )}
+                  </p>
+                  {error && loadingPeriod === null && (
+                    <p className="mt-2 text-sm text-destructive">{error}</p>
+                  )}
+                  <ul className="mt-6 space-y-3 flex-1">
+                    {PRO_FEATURES.map((f) => (
+                      <li key={f} className="flex gap-2 text-sm font-body">
+                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {alreadyPro ? (
+                    <Button className="mt-8 gap-2" onClick={() => navigate('/account')}>
+                      Manage Subscription
+                    </Button>
+                  ) : (
+                    <Button
+                      className="mt-8 gap-2"
+                      size="lg"
+                      onClick={() => handleSubscribe(period)}
+                      disabled={loadingPeriod !== null}
+                    >
+                      {loadingPeriod === period ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
+                      Upgrade to Pro
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )
+        })}
       </div>
 
       <p className="text-center text-xs text-muted-foreground mt-8">

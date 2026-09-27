@@ -14,8 +14,8 @@ function php(amount: number): string {
   return `₱${PHP_FORMATTER.format(amount)}`
 }
 
-const MONTHLY_PRICE = 399.99
-const YEARLY_PRICE = 3999
+const MONTHLY_PRICE = 300
+const YEARLY_PRICE = 2600
 const YEARLY_PER_MONTH = YEARLY_PRICE / 12
 const SAVINGS_PERCENT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100)
 
