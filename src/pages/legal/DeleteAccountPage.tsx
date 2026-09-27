@@ -12,7 +12,7 @@ export default function DeleteAccountPage() {
 
       <h2>Can't Sign In?</h2>
       <p>
-        Email <a href="mailto:privacy@forgefit.app">privacy@forgefit.app</a> from the address on your account
+        Email <a href="mailto:ttagayona1985@outlook.com">ttagayona1985@outlook.com</a> from the address on your account
         (or with whatever proof of ownership you can provide) and ask us to delete it. We'll confirm your
         identity and complete the deletion within 5 business days.
       </p>

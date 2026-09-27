@@ -75,7 +75,7 @@ export default function TermsPage() {
       <p>We may update these Terms from time to time. Continued use of the Service after changes take effect constitutes acceptance.</p>
 
       <h2>11. Contact</h2>
-      <p>Questions about these Terms? Contact us at support@forgefit.app.</p>
+      <p>Questions about these Terms? Contact us at ttagayona1985@outlook.com.</p>
     </LegalLayout>
   )
 }

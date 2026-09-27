@@ -25,7 +25,7 @@ export default function RefundPage() {
 
       <h2>How to Request a Refund</h2>
       <p>
-        Email billing@forgefit.app with your account email and the reason for your request. We aim to
+        Email ttagayona1985@outlook.com with your account email and the reason for your request. We aim to
         respond within 2 business days; approved refunds are returned to your original payment method within
         5–10 business days depending on your bank/card issuer.
       </p>
