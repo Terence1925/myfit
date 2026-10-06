@@ -1,5 +1,6 @@
 import { calculateNutrition } from '../tdee'
 import { isPro } from '../billing'
+import { isNativeApp } from '../platform'
 import type {
   ActivityLogEntry,
   BodyMetricEntry,
@@ -16,6 +17,10 @@ import type { BillingResult } from './types'
 import { generateAlternate, generateProgram } from './programGenerator'
 import { EXERCISES } from './exerciseLibrary'
 import { supabase } from './supabaseClient'
+
+// Public website URL — must also be listed under Supabase → Authentication → URL Configuration
+// → Redirect URLs (as `<this>/reset-password`) or password-reset links will be rejected.
+const WEB_APP_URL = 'https://forgefit-gray.vercel.app'
 
 // Free tier programs expire fast (1 week) so people who like the app hit a natural decision
 // point to subscribe. Pro's "unlimited saved programs" means their programs effectively never
@@ -145,8 +150,12 @@ export const auth = {
   },
 
   async requestPasswordReset(email: string): Promise<void> {
+    // The native app's WebView origin is https://localhost, which doesn't exist on the user's
+    // phone — so a reset link built from it would be dead. Send native users to the real website
+    // instead, where they can set a new password in their browser.
+    const baseUrl = isNativeApp() ? WEB_APP_URL : window.location.origin
     const { error } = await sb().auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${baseUrl}/reset-password`,
     })
     if (error) throw new Error(error.message)
   },
