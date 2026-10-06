@@ -1,4 +1,4 @@
-import { Dumbbell, LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck } from 'lucide-react'
+import { Dumbbell, LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, UserRound } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -25,12 +25,12 @@ export function NavBar() {
             <span className="font-display text-2xl tracking-wider text-gradient-gold">FORGEFIT</span>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-4">
             <span className="hidden sm:block font-body text-sm text-muted-foreground">
               Welcome, <span className="text-foreground font-semibold">{profile.displayName}</span>
             </span>
 
-            <button onClick={() => navigate('/account')}>
+            <button onClick={() => navigate('/account')} className="hidden sm:block">
               <Badge variant={proAccess ? 'default' : 'outline'} className="gap-1 cursor-pointer">
                 {isAdmin ? <ShieldCheck className="h-3 w-3" /> : pro && <Crown className="h-3 w-3" />}
                 {isAdmin ? 'Admin' : pro ? 'Pro' : 'Free'}
@@ -61,6 +61,11 @@ export function NavBar() {
               </Button>
             )}
 
+            {/* Phones don't have room for Sign Out here — it lives on the Account page instead. */}
+            <Button variant="ghost" size="sm" onClick={() => navigate('/account')} className="sm:hidden" aria-label="Account">
+              <UserRound className="h-4 w-4" />
+            </Button>
+
             <Button
               variant="outline"
               size="sm"
@@ -68,7 +73,7 @@ export function NavBar() {
                 signOut()
                 navigate('/auth')
               }}
-              className="gap-1.5"
+              className="hidden sm:inline-flex gap-1.5"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sign Out</span>

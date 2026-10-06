@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, ShieldCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,7 +18,7 @@ const ANDROID_PACKAGE_ID = 'com.forgefit.app'
 const OWNER_EMAIL = 'ttagayona1985@gmail.com'
 
 export default function AccountPage() {
-  const { profile, refreshProfile, role, deleteAccount, updatePassword } = useAuth()
+  const { profile, refreshProfile, role, deleteAccount, updatePassword, signOut } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [syncing, setSyncing] = React.useState(false)
@@ -160,6 +160,17 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
+
+        <Button
+          variant="outline"
+          className="w-full gap-2"
+          onClick={() => {
+            signOut()
+            navigate('/auth')
+          }}
+        >
+          <LogOut className="h-4 w-4" /> Sign Out
+        </Button>
 
         {isSupabaseConfigured && (
           <Card>
