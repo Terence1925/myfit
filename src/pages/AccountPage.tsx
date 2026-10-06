@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Crown, Loader2, Lock, ShieldCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, ShieldCheck, Trash2 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
+import { isSupabaseConfigured } from '@/lib/backend/api'
 import { hasProAccess, isPro, PRO_PRICES } from '@/lib/billing'
 import { isNativeApp } from '@/lib/platform'
 
@@ -18,7 +19,7 @@ const ANDROID_PACKAGE_ID = 'com.forgefit.app'
 const OWNER_EMAIL = 'ttagayona1985@gmail.com'
 
 export default function AccountPage() {
-  const { profile, refreshProfile, role, deleteAccount } = useAuth()
+  const { profile, refreshProfile, role, deleteAccount, updatePassword } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [syncing, setSyncing] = React.useState(false)
@@ -26,6 +27,12 @@ export default function AccountPage() {
   const [deleteConfirmText, setDeleteConfirmText] = React.useState('')
   const [deleting, setDeleting] = React.useState(false)
   const [deleteError, setDeleteError] = React.useState<string | null>(null)
+  const [changingPassword, setChangingPassword] = React.useState(false)
+  const [newPassword, setNewPassword] = React.useState('')
+  const [confirmPassword, setConfirmPassword] = React.useState('')
+  const [passwordSaving, setPasswordSaving] = React.useState(false)
+  const [passwordError, setPasswordError] = React.useState<string | null>(null)
+  const [passwordChanged, setPasswordChanged] = React.useState(false)
 
   React.useEffect(() => {
     if (searchParams.get('checkout') !== 'success') return
@@ -50,6 +57,31 @@ export default function AccountPage() {
     // Google requires subscription management to go through Play Store's own UI.
     const sku = profile.subscriptionPeriod === 'monthly' ? 'pro_monthly' : 'pro_yearly'
     window.location.href = `https://play.google.com/store/account/subscriptions?sku=${sku}&package=${ANDROID_PACKAGE_ID}`
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError(null)
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters.')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.')
+      return
+    }
+    setPasswordSaving(true)
+    try {
+      await updatePassword(newPassword)
+      setPasswordChanged(true)
+      setChangingPassword(false)
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setPasswordSaving(false)
+    }
   }
 
   const handleDeleteAccount = async () => {
@@ -139,6 +171,78 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
+
+        {isSupabaseConfigured && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-primary" /> Password
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm font-body">
+              {passwordChanged && !changingPassword && (
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-emerald-400">
+                  <Check className="h-4 w-4" /> Password updated.
+                </div>
+              )}
+              {!changingPassword ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setPasswordChanged(false)
+                    setChangingPassword(true)
+                  }}
+                >
+                  Change Password
+                </Button>
+              ) : (
+                <form onSubmit={handleChangePassword} className="space-y-3 max-w-xs">
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New password"
+                    minLength={6}
+                    required
+                  />
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    minLength={6}
+                    required
+                  />
+                  {passwordError && (
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+                      {passwordError}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Button type="submit" size="sm" className="gap-1.5" disabled={passwordSaving}>
+                      {passwordSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      Update Password
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setChangingPassword(false)
+                        setNewPassword('')
+                        setConfirmPassword('')
+                        setPasswordError(null)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-destructive/30">
           <CardHeader>

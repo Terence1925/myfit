@@ -54,6 +54,10 @@ export default function AuthPage() {
     } catch (err) {
       if (err instanceof Error && err.message === 'EMAIL_CONFIRMATION_REQUIRED') {
         setCheckEmail(true)
+      } else if (err instanceof Error && /already registered/i.test(err.message)) {
+        setError(
+          'An account with this email already exists. Switch to Sign In above — and tap "Forgot password?" there if you can\'t remember it.',
+        )
       } else {
         setError(err instanceof Error ? err.message : 'Something went wrong.')
       }
@@ -93,6 +97,14 @@ export default function AuthPage() {
           <p className="mt-3 text-sm text-muted-foreground font-body">
             If an account exists for <span className="text-foreground">{email}</span>, we sent a link to reset your
             password. Click it to set a new one.
+          </p>
+          <p className="mt-3 text-xs text-muted-foreground font-body">
+            Nothing after a couple of minutes? Check your spam folder and make sure you used the email you signed up
+            with. Still stuck? Email{' '}
+            <a href="mailto:ttagayona1985@outlook.com" className="text-primary underline underline-offset-2">
+              ttagayona1985@outlook.com
+            </a>{' '}
+            and we'll help you get back in.
           </p>
           <Button
             className="mt-6"
@@ -153,6 +165,12 @@ export default function AuthPage() {
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                   Send Reset Link
                 </Button>
+                <p className="text-center text-xs text-muted-foreground">
+                  Can't get the email? Contact{' '}
+                  <a href="mailto:ttagayona1985@outlook.com" className="text-primary underline underline-offset-2">
+                    ttagayona1985@outlook.com
+                  </a>
+                </p>
                 <button
                   type="button"
                   onClick={() => {
