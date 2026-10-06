@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils'
 interface TabsContextValue {
   value: string
   setValue: (v: string) => void
+  // Unique per <Tabs> so two tab rows on one page don't fight over the same animated highlight.
+  pillId: string
 }
 const TabsContext = React.createContext<TabsContextValue | null>(null)
 
@@ -19,8 +21,9 @@ export function Tabs({
   className?: string
   children: React.ReactNode
 }) {
+  const pillId = React.useId()
   return (
-    <TabsContext.Provider value={{ value, setValue: onValueChange }}>
+    <TabsContext.Provider value={{ value, setValue: onValueChange, pillId }}>
       <div className={className}>{children}</div>
     </TabsContext.Provider>
   )
@@ -62,7 +65,7 @@ export function TabsTrigger({
     >
       {active && (
         <motion.div
-          layoutId="tab-pill"
+          layoutId={ctx.pillId}
           className="absolute inset-0 -z-10 rounded-lg bg-gold-gradient shadow-glow"
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
         />

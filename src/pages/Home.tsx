@@ -5,17 +5,18 @@ import { Crown, Lock, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { IntakeWizard } from '@/components/intake/IntakeWizard'
 import { ProgramView } from '@/components/program/ProgramView'
+import { ProgramPaywall } from '@/components/program/ProgramPaywall'
 import { Button } from '@/components/ui/button'
 import { programs } from '@/lib/backend/api'
-import { isPro } from '@/lib/billing'
+import { hasProAccess } from '@/lib/billing'
 import type { IntakeAnswers, WorkoutProgram } from '@/lib/types'
 
 type Mode = 'loading' | 'intake' | 'program' | 'limit'
 
 export default function Home() {
-  const { profile, role } = useAuth()
+  const { profile, role, roleLoading } = useAuth()
   const navigate = useNavigate()
-  const pro = profile ? isPro(profile) : false
+  const proAccess = hasProAccess(profile, role)
   const [mode, setMode] = React.useState<Mode>('loading')
   const [program, setProgram] = React.useState<WorkoutProgram | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
@@ -95,6 +96,10 @@ export default function Home() {
   }
 
   if (mode === 'program' && program) {
+    // Wait for the role lookup so an admin never sees a flash of the paywall.
+    if (roleLoading) return null
+    // Everyone can build their program (that's the hook); using it needs a subscription.
+    if (!proAccess) return <ProgramPaywall program={program} />
     return (
       <div className="container py-8 sm:py-12">
         <div className="mb-4 flex justify-end">
@@ -102,7 +107,7 @@ export default function Home() {
             variant="outline"
             size="sm"
             className="gap-1.5"
-            onClick={() => (role === 'admin' || pro ? setMode('intake') : setMode('limit'))}
+            onClick={() => (proAccess ? setMode('intake') : setMode('limit'))}
           >
             <Plus className="h-4 w-4" /> New Program
           </Button>

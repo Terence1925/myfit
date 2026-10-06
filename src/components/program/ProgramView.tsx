@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Crown, FileDown } from 'lucide-react'
+import { Crown, FileDown, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { OverviewTab } from './OverviewTab'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
-import { ProgramPrintView } from './ProgramPrintView'
+import { exportProgramPdf } from '@/lib/exportProgramPdf'
 import { GOAL_TAILWIND_CLASS, GOAL_LABELS } from '@/lib/tdee'
 import { programs } from '@/lib/backend/api'
 import { hasProAccess } from '@/lib/billing'
@@ -29,6 +29,8 @@ export function ProgramView({
   const navigate = useNavigate()
   const [tab, setTab] = React.useState('overview')
   const [activeDay, setActiveDay] = React.useState(1)
+  const [exporting, setExporting] = React.useState(false)
+  const [exportError, setExportError] = React.useState<string | null>(null)
   const proAccess = hasProAccess(profile, role)
 
   const handleSwap = async (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => {
@@ -43,17 +45,27 @@ export function ProgramView({
     await programs.update(program.id, updatedProgramData)
   }
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     if (!profile || !proAccess) {
       navigate('/pricing')
       return
     }
-    window.print()
+    setExporting(true)
+    setExportError(null)
+    try {
+      await exportProgramPdf(program)
+    } catch (err) {
+      // Dismissing the share sheet rejects on some Android versions — that's not a failure.
+      const msg = err instanceof Error ? err.message : ''
+      if (!/cancel|dismiss/i.test(msg)) setExportError('Could not create the PDF. Please try again.')
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
     <div className="space-y-8">
-      <div className="print:hidden space-y-8">
+      <div className="space-y-8">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -70,10 +82,25 @@ export function ProgramView({
               </h1>
               <p className="mt-3 font-body text-foreground/80 max-w-2xl">{program.programData.tagline}</p>
             </div>
-            <Button variant="outline" size="sm" className="gap-1.5 shrink-0 bg-background/40" onClick={handleExportPdf}>
-              {proAccess ? <FileDown className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
-              Export PDF
-            </Button>
+            <div className="flex flex-col items-end gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 shrink-0 bg-background/40"
+                onClick={handleExportPdf}
+                disabled={exporting}
+              >
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : proAccess ? (
+                  <FileDown className="h-4 w-4" />
+                ) : (
+                  <Crown className="h-4 w-4" />
+                )}
+                Export PDF
+              </Button>
+              {exportError && <p className="text-xs text-destructive">{exportError}</p>}
+            </div>
           </div>
           <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-current opacity-[0.08] blur-3xl" />
         </motion.div>
@@ -121,8 +148,6 @@ export function ProgramView({
           </TabsContent>
         </Tabs>
       </div>
-
-      <ProgramPrintView program={program} />
     </div>
   )
 }

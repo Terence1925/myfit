@@ -4,7 +4,6 @@ import { Lock, ShieldCheck, ShieldOff } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { roles } from '@/lib/backend/api'
-import { useAuth } from '@/context/AuthContext'
 import type { Profile } from '@/lib/types'
 
 // Must match supabase/migrations/0006_protect_owner_admin_role.sql — the database is the real
@@ -20,7 +19,6 @@ export function AdminsTab({
   clients: Profile[]
   onRoleChange: () => void
 }) {
-  const { profile } = useAuth()
   const [demoteError, setDemoteError] = React.useState<string | null>(null)
   return (
     <div className="space-y-8">
@@ -34,8 +32,7 @@ export function AdminsTab({
         <div className="space-y-3">
           {admins.map((a, i) => {
             const isOwnerRow = a.email === OWNER_EMAIL
-            const isSelf = profile?.id === a.id
-            const canDemote = !isOwnerRow || isSelf
+            const canDemote = !isOwnerRow
             return (
               <motion.div
                 key={a.id}

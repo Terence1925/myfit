@@ -35,12 +35,8 @@ export const PRO_PRICES: Record<SubscriptionPeriod, PlanPrice> = {
   },
 }
 
-export const FREE_FEATURES = [
-  '1 active AI-generated program',
-  'Full TDEE & macro breakdown',
-  'Recovery-adjusted training volume',
-  'Exercise swap & form demos',
-]
+/** Must match the free-trial length configured on the Play Console subscription offers. */
+export const TRIAL_DAYS = 7
 
 export const PRO_FEATURES = [
   'Unlimited saved programs',
@@ -57,8 +53,8 @@ export function isPro(
 ): boolean {
   if (!profile) return false
   if (profile.subscriptionTier !== 'pro' || profile.subscriptionStatus !== 'active') return false
-  // Web payments are pay-per-period (no auto-charge), so Pro access ends at the period's renewal
-  // date unless the user pays again — there's no separate webhook to flip subscriptionStatus.
+  // Pro comes from Google Play (via the RevenueCat webhook), which keeps the renewal date current; access ends at that
+  // date if the subscription lapses and no renewal arrives.
   if (profile.subscriptionRenewsAt && new Date(profile.subscriptionRenewsAt).getTime() < Date.now()) return false
   return true
 }

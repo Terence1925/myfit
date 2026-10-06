@@ -48,6 +48,10 @@ async function deactivatePro(userId: string) {
 }
 
 Deno.serve(async (req) => {
+  // Fail closed: if the secret was never configured, an attacker could otherwise match the literal
+  // string "Bearer undefined" and grant themselves Pro.
+  if (!webhookSecret) return new Response('Webhook not configured', { status: 500 })
+
   const auth = req.headers.get('authorization')
   if (auth !== `Bearer ${webhookSecret}` && auth !== webhookSecret) {
     return new Response('Unauthorized', { status: 401 })

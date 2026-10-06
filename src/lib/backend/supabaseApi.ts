@@ -22,12 +22,10 @@ import { supabase } from './supabaseClient'
 // → Redirect URLs (as `<this>/reset-password`) or password-reset links will be rejected.
 const WEB_APP_URL = 'https://forgefit-gray.vercel.app'
 
-// Free tier programs expire fast (1 week) so people who like the app hit a natural decision
-// point to subscribe. Pro's "unlimited saved programs" means their programs effectively never
-// expire — a 100-year lifetime avoids nullable-column edge cases in the .gt('expires_at', ...)
-// queries below while behaving as permanent in practice.
-const FREE_PROGRAM_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000
-const PRO_PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
+// Programs effectively never expire. Everyone builds their program before subscribing, so a short
+// lifetime would delete it out from under someone who subscribes on day 3. A 100-year lifetime
+// avoids nullable-column edge cases in the .gt('expires_at', ...) queries below.
+const PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
 
 function sb() {
   if (!supabase) throw new Error('Supabase is not configured.')
@@ -265,7 +263,6 @@ export const programs = {
     await new Promise((r) => setTimeout(r, 1400))
     const programData = generateProgram(answers, nutrition)
     const now = Date.now()
-    const lifetimeMs = isProUser ? PRO_PROGRAM_LIFETIME_MS : FREE_PROGRAM_LIFETIME_MS
 
     const { data, error } = await sb()
       .from('workout_programs')
@@ -276,7 +273,7 @@ export const programs = {
         answers,
         nutrition,
         recovery_score: nutrition.recoveryScore,
-        expires_at: new Date(now + lifetimeMs).toISOString(),
+        expires_at: new Date(now + PROGRAM_LIFETIME_MS).toISOString(),
       })
       .select()
       .single()

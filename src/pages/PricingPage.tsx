@@ -7,15 +7,15 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/context/AuthContext'
-import { billing } from '@/lib/backend/api'
-import { FREE_FEATURES, PRO_FEATURES, PRO_PRICES, isPro } from '@/lib/billing'
+import { PRO_FEATURES, PRO_PRICES, TRIAL_DAYS, isPro } from '@/lib/billing'
 import { isNativeApp } from '@/lib/platform'
+import { syncTrialReminder } from '@/lib/trialReminder'
 import { configureRevenueCat, getOfferingPackages, purchase } from '@/lib/backend/revenuecat'
 import { cn } from '@/lib/utils'
 import type { SubscriptionPeriod } from '@/lib/types'
 
 export default function PricingPage() {
-  const { profile, refreshProfile, role } = useAuth()
+  const { profile, role } = useAuth()
   const navigate = useNavigate()
   const [loadingPeriod, setLoadingPeriod] = React.useState<SubscriptionPeriod | null>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -38,22 +38,7 @@ export default function PricingPage() {
   const nativePkgFor = (period: SubscriptionPeriod) =>
     native ? nativePackages.find((p) => p.packageType === (period === 'monthly' ? 'MONTHLY' : 'ANNUAL')) : undefined
 
-  const handleSubscribeWeb = async (period: SubscriptionPeriod) => {
-    setLoadingPeriod(period)
-    try {
-      const result = await billing.subscribe(profile.id, period)
-      if (result.redirectUrl) {
-        window.location.href = result.redirectUrl
-        return
-      }
-      refreshProfile()
-      navigate('/account')
-    } finally {
-      setLoadingPeriod(null)
-    }
-  }
-
-  const handleSubscribeNative = async (period: SubscriptionPeriod) => {
+  const handleSubscribe = async (period: SubscriptionPeriod) => {
     setLoadingPeriod(period)
     setError(null)
     try {
@@ -64,6 +49,7 @@ export default function PricingPage() {
       if (!pkg) throw new Error('That plan is not available right now.')
       const entitled = await purchase(pkg)
       if (entitled) {
+        void syncTrialReminder(profile.id)
         navigate('/account?checkout=success')
       }
     } catch (err) {
@@ -73,8 +59,6 @@ export default function PricingPage() {
       setLoadingPeriod(null)
     }
   }
-
-  const handleSubscribe = native ? handleSubscribeNative : handleSubscribeWeb
 
   if (isAdmin && !alreadyPro) {
     return (
@@ -110,35 +94,17 @@ export default function PricingPage() {
           TRAIN WITHOUT LIMITS
         </h1>
         <p className="mt-3 font-body text-muted-foreground max-w-lg mx-auto">
-          Unlock unlimited programs, progress tracking, and priority AI regeneration.
+          Unlock your personalized program, progress tracking, and unlimited regenerations.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="h-full">
-            <CardContent className="p-8 flex flex-col h-full">
-              <h3 className="font-display text-2xl tracking-wide">FREE</h3>
-              <div className="mt-3 font-display text-4xl">₱0</div>
-              <p className="text-sm text-muted-foreground mt-1">Forever</p>
-              <ul className="mt-6 space-y-3 flex-1">
-                {FREE_FEATURES.map((f) => (
-                  <li key={f} className="flex gap-2 text-sm font-body">
-                    <Check className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Button variant="outline" className="mt-8" disabled>
-                {alreadyPro ? 'Downgrade in Account' : 'Current Plan'}
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
         {(['monthly', 'yearly'] as const).map((period, i) => {
           const plan = PRO_PRICES[period]
           const nativePkg = nativePkgFor(period)
           const isYearly = period === 'yearly'
+          // Only promise a trial when Google Play actually reports one on this product.
+          const hasTrial = !!nativePkg?.product.introPrice
           return (
             <motion.div
               key={period}
@@ -160,12 +126,13 @@ export default function PricingPage() {
                     <span className="font-display text-4xl">{nativePkg?.product.priceString ?? plan.priceLabel}</span>
                     <span className="text-sm text-muted-foreground">/{period === 'monthly' ? 'mo' : 'yr'}</span>
                   </div>
+                  {hasTrial && (
+                    <p className="mt-2 inline-flex w-fit items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                      {TRIAL_DAYS}-day free trial included
+                    </p>
+                  )}
                   <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-                    {isYearly
-                      ? `${plan.perMonthLabel} effective`
-                      : native
-                        ? 'Billed monthly, cancel anytime'
-                        : 'One-time payment for 30 days — renew anytime after'}
+                    {isYearly ? `${plan.perMonthLabel} effective` : 'Billed monthly, cancel anytime'}
                     {isYearly && plan.savingsLabel && (
                       <Badge variant="success" className="py-0 px-1.5">
                         {plan.savingsLabel}
@@ -186,7 +153,7 @@ export default function PricingPage() {
                     <Button className="mt-8 gap-2" onClick={() => navigate('/account')}>
                       Manage Subscription
                     </Button>
-                  ) : (
+                  ) : native ? (
                     <Button
                       className="mt-8 gap-2"
                       size="lg"
@@ -194,7 +161,11 @@ export default function PricingPage() {
                       disabled={loadingPeriod !== null}
                     >
                       {loadingPeriod === period ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
-                      Upgrade to Pro
+                      {hasTrial ? 'Start Free Trial' : 'Subscribe'}
+                    </Button>
+                  ) : (
+                    <Button className="mt-8" variant="outline" size="lg" disabled>
+                      Subscribe in the mobile app
                     </Button>
                   )}
                 </CardContent>
@@ -204,10 +175,10 @@ export default function PricingPage() {
         })}
       </div>
 
-      <p className="text-center text-xs text-muted-foreground mt-8">
+      <p className="text-center text-xs text-muted-foreground mt-8 max-w-xl mx-auto leading-relaxed">
         {native
-          ? 'Payment is processed securely by Google Play.'
-          : 'Payment is processed securely by PayMongo.'}
+          ? 'Payment is processed securely by Google Play. Subscriptions renew automatically each period until you cancel in your Google Play subscription settings. If a free trial is shown, it converts to a paid subscription at the price above unless you cancel at least 24 hours before it ends.'
+          : 'Pro is purchased in the FORGEFIT mobile app through Google Play — once subscribed, it also unlocks Pro when you sign in on the web.'}
       </p>
     </div>
   )

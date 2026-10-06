@@ -37,8 +37,7 @@ const ACTIVITY_KEY = 'activity'
 const METRICS_KEY = 'metrics'
 const SESSIONS_KEY = 'sessions'
 
-const FREE_PROGRAM_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000
-const PRO_PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
+const PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
 
 function ensureSeedAdmin() {
   const users = readAll<StoredUser>(USERS_KEY)
@@ -255,7 +254,6 @@ export const programs = {
     await new Promise((r) => setTimeout(r, 1400))
     const programData = generateProgram(answers, nutrition)
     const now = Date.now()
-    const lifetimeMs = isProUser ? PRO_PROGRAM_LIFETIME_MS : FREE_PROGRAM_LIFETIME_MS
     const program: WorkoutProgram = {
       id: uid(),
       userId,
@@ -265,7 +263,7 @@ export const programs = {
       nutrition,
       recoveryScore: nutrition.recoveryScore,
       createdAt: new Date(now).toISOString(),
-      expiresAt: new Date(now + lifetimeMs).toISOString(),
+      expiresAt: new Date(now + PROGRAM_LIFETIME_MS).toISOString(),
     }
     const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
     all.push(program)

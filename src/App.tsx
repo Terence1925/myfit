@@ -1,3 +1,4 @@
+import * as React from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
@@ -16,6 +17,8 @@ import PrivacyPage from '@/pages/legal/PrivacyPage'
 import RefundPage from '@/pages/legal/RefundPage'
 import DeleteAccountPage from '@/pages/legal/DeleteAccountPage'
 import { Footer } from '@/components/layout/Footer'
+import { hasProAccess } from '@/lib/billing'
+import { syncTrialReminder } from '@/lib/trialReminder'
 import NotFound from '@/pages/NotFound'
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -25,8 +28,24 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+function RequirePro({ children }: { children: ReactNode }) {
+  const { profile, role, loading, roleLoading } = useAuth()
+  if (loading || roleLoading) return null
+  if (!profile) return <Navigate to="/auth" replace />
+  if (!hasProAccess(profile, role)) return <Navigate to="/pricing" replace />
+  return <>{children}</>
+}
+
 function AppShell() {
   const { profile } = useAuth()
+  const profileId = profile?.id
+
+  // Re-check the trial on every app open so the "trial ends tomorrow" reminder always reflects reality
+  // (e.g. it disappears if the user cancelled in Google Play).
+  React.useEffect(() => {
+    if (profileId) void syncTrialReminder(profileId)
+  }, [profileId])
+
   return (
     <div className="min-h-screen">
       <GlowBackground />
@@ -45,9 +64,9 @@ function AppShell() {
         <Route
           path="/saved"
           element={
-            <RequireAuth>
+            <RequirePro>
               <SavedPrograms />
-            </RequireAuth>
+            </RequirePro>
           }
         />
         <Route
@@ -77,9 +96,9 @@ function AppShell() {
         <Route
           path="/progress"
           element={
-            <RequireAuth>
+            <RequirePro>
               <ProgressPage />
-            </RequireAuth>
+            </RequirePro>
           }
         />
         <Route path="/terms" element={<TermsPage />} />

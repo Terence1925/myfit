@@ -27,7 +27,7 @@ export default function DeleteAccountPage() {
         <li>Your account's activity history</li>
       </ul>
       <p>
-        Billing records may be retained separately by our payment processors (PayMongo, Google Play) as
+        Billing records may be retained separately by our payment provider (Google Play) as
         required for tax, accounting, and fraud-prevention law — we don't control retention on their systems.
       </p>
 

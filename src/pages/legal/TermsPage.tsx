@@ -31,13 +31,21 @@ export default function TermsPage() {
 
       <h2>4. Subscriptions &amp; Billing</h2>
       <ul>
-        <li>The Free plan is limited to one active saved program at a time.</li>
         <li>
-          Pro plans (Monthly at ₱300, Yearly at ₱2,600) are priced per period. On the Android app,
-          purchases are billed and automatically renewed through Google Play until canceled from your
-          Google Play subscription settings. On the web, Pro is a one-time payment per period processed by
-          PayMongo — it does not auto-renew; access ends at the end of the paid period unless you purchase
-          again beforehand.
+          You can build your personalized program for free, but viewing and using it requires a Pro
+          subscription.
+        </li>
+        <li>
+          New subscribers may be offered a free trial (7 days). If you don't cancel in your Google Play
+          subscription settings at least 24 hours before the trial ends, it converts automatically into a
+          paid subscription at the price shown when you started the trial. Each Google account is eligible
+          for one trial.
+        </li>
+        <li>
+          Pro plans (Monthly at ₱300, Yearly at ₱2,600) are purchased in the FORGEFIT mobile app through
+          Google Play. They are billed and automatically renewed each period until you cancel from your
+          Google Play subscription settings; you keep access until the end of the period you already paid
+          for. A Pro subscription also applies when you sign in to FORGEFIT on the web.
         </li>
         <li>Prices are listed in Philippine Peso (₱) and may change with prior notice for future billing periods.</li>
         <li>Refunds are handled under our <a href="/refund-policy">Refund Policy</a>.</li>

@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured } from '@/lib/backend/api'
 import { hasProAccess, isPro, PRO_PRICES } from '@/lib/billing'
-import { isNativeApp } from '@/lib/platform'
 
 // Must match capacitor.config.ts's appId
 const ANDROID_PACKAGE_ID = 'com.forgefit.app'
@@ -50,7 +49,6 @@ export default function AccountPage() {
   const pro = isPro(profile)
   const isAdmin = role === 'admin'
   const proAccess = hasProAccess(profile, role)
-  const native = isNativeApp()
   const isOwner = profile.email === OWNER_EMAIL
 
   const handleManageNative = () => {
@@ -103,8 +101,7 @@ export default function AccountPage() {
 
       {syncing && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" /> Confirming your{' '}
-          {native ? 'Google Play' : 'PayMongo'} payment...
+          <Loader2 className="h-4 w-4 animate-spin text-primary" /> Confirming your Google Play payment...
         </div>
       )}
 
@@ -139,20 +136,12 @@ export default function AccountPage() {
                 </p>
                 {profile.subscriptionRenewsAt && (
                   <p className="text-muted-foreground">
-                    {native ? 'Renews on' : 'Pro access until'}{' '}
-                    {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}
-                    {!native && ' — renew below anytime before then to keep it active.'}
+                    Renews on {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}
                   </p>
                 )}
-                {native ? (
-                  <Button variant="outline" size="sm" onClick={handleManageNative}>
-                    Manage in Google Play
-                  </Button>
-                ) : (
-                  <Button size="sm" className="gap-1.5" onClick={() => navigate('/pricing')}>
-                    <Crown className="h-3.5 w-3.5" /> Renew Now
-                  </Button>
-                )}
+                <Button variant="outline" size="sm" onClick={handleManageNative}>
+                  Manage in Google Play
+                </Button>
               </>
             ) : isAdmin ? (
               <p className="text-muted-foreground">
@@ -162,10 +151,10 @@ export default function AccountPage() {
             ) : (
               <>
                 <p className="text-muted-foreground">
-                  You're on the Free plan — 1 active program, core features.
+                  You don't have an active subscription. Subscribe to unlock your program and everything in Pro.
                 </p>
                 <Button className="gap-2" onClick={() => navigate('/pricing')}>
-                  <Crown className="h-4 w-4" /> Upgrade to Pro
+                  <Crown className="h-4 w-4" /> See Plans
                 </Button>
               </>
             )}
