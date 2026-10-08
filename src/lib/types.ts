@@ -117,6 +117,8 @@ export interface Profile {
   subscriptionStatus: SubscriptionStatus
   subscriptionRenewsAt?: string
   subscriptionStartedAt?: string
+  /** True while the Pro subscription is still inside its free trial (no payment taken yet). */
+  subscriptionIsTrial?: boolean
   createdAt: string
 }
 
@@ -202,4 +204,46 @@ export interface WorkoutSession {
   dayName: string
   date: string
   exercises: ExerciseLog[]
+}
+
+export type DiscountCodeKind = 'campaign' | 'influencer'
+
+export interface DiscountCode {
+  id: string
+  /** Always upper-case. What the customer types. */
+  code: string
+  /** Admin-facing name, e.g. "Summer sale". */
+  label: string
+  kind: DiscountCodeKind
+  /** For influencer codes: who the code belongs to. */
+  ownerName?: string
+  /** Shown to users; the real price comes from the Google Play offer. */
+  percentOff?: number
+  /** Tag of the discounted offer created in Google Play Console. */
+  offerTag: string
+  maxRedemptions?: number
+  expiresAt?: string
+  active: boolean
+  createdAt: string
+}
+
+export type NewDiscountCode = Omit<DiscountCode, 'id' | 'createdAt' | 'active'>
+
+export interface CodeRedemption {
+  id: string
+  codeId: string
+  userId: string
+  redeemedAt: string
+  /** Set once the user actually completes a purchase using the code. */
+  subscribedAt?: string
+  /** Which plan they bought with the code. */
+  plan?: SubscriptionPeriod
+}
+
+/** What the app gets back after a customer enters a valid code. */
+export interface AppliedCode {
+  code: string
+  label: string
+  percentOff?: number
+  offerTag: string
 }

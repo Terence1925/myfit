@@ -1,8 +1,12 @@
 import type {
   ActivityLogEntry,
+  AppliedCode,
   BodyMetricEntry,
+  CodeRedemption,
+  DiscountCode,
   Exercise,
   IntakeAnswers,
+  NewDiscountCode,
   NutritionPlan,
   ProgramData,
   Profile,
@@ -70,4 +74,14 @@ export interface SessionsApi {
 export interface BillingApi {
   subscribe(userId: string, period: SubscriptionPeriod): Promise<BillingResult>
   listActiveSubscribers(): Promise<Profile[]>
+}
+
+export interface CodesApi {
+  /** Admin only. */
+  listAll(): Promise<{ codes: DiscountCode[]; redemptions: CodeRedemption[] }>
+  create(input: NewDiscountCode): Promise<DiscountCode>
+  setActive(id: string, active: boolean): Promise<void>
+  remove(id: string): Promise<void>
+  /** Any signed-in user. Returns null for an unknown / expired / used-up code. */
+  apply(code: string): Promise<AppliedCode | null>
 }

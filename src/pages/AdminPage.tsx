@@ -7,6 +7,7 @@ import { ClientsTab } from '@/components/admin/ClientsTab'
 import { AdminsTab } from '@/components/admin/AdminsTab'
 import { ProgramsTab } from '@/components/admin/ProgramsTab'
 import { ActivityTab } from '@/components/admin/ActivityTab'
+import { CodesTab } from '@/components/admin/CodesTab'
 import { activity, profiles, programs, roles } from '@/lib/backend/api'
 import type { ActivityLogEntry, Profile, WorkoutProgram } from '@/lib/types'
 
@@ -60,6 +61,7 @@ export default function AdminPage() {
           <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="admins">Admins</TabsTrigger>
           <TabsTrigger value="programs">Programs</TabsTrigger>
+          <TabsTrigger value="codes">Codes</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
@@ -83,6 +85,10 @@ export default function AdminPage() {
 
         <TabsContent value="programs" className="mt-6">
           <ProgramsTab programList={programList} people={allProfiles} />
+        </TabsContent>
+
+        <TabsContent value="codes" className="mt-6">
+          <CodesTab people={allProfiles} />
         </TabsContent>
 
         <TabsContent value="activity" className="mt-6">

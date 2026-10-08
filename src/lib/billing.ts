@@ -14,8 +14,8 @@ function php(amount: number): string {
   return `₱${PHP_FORMATTER.format(amount)}`
 }
 
-const MONTHLY_PRICE = 300
-const YEARLY_PRICE = 2600
+const MONTHLY_PRICE = 299
+const YEARLY_PRICE = 2999
 const YEARLY_PER_MONTH = YEARLY_PRICE / 12
 const SAVINGS_PERCENT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100)
 
@@ -43,7 +43,7 @@ export const PRO_FEATURES = [
   'Regenerate anytime — no cooldown',
   'Progressive overload tracking with PR alerts',
   'Progress tracking & body-metric charts',
-  'PDF export of any program',
+  'PDF export of any program (after your free trial)',
   'Priority AI regeneration queue',
   'Early access to new training templates',
 ]
@@ -70,4 +70,21 @@ export function hasProAccess(
   role: Role,
 ): boolean {
   return role === 'admin' || isPro(profile)
+}
+
+/** True while the user has Pro only because of a free trial — no payment taken yet. */
+export function isOnTrial(profile: Pick<Profile, 'subscriptionIsTrial'> | null): boolean {
+  return !!profile?.subscriptionIsTrial
+}
+
+/**
+ * PDF export is held back until the first real payment, so nobody can start a free trial, export
+ * their program, and cancel before paying. Admins are never restricted.
+ */
+export function canExportPdf(
+  profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionRenewsAt' | 'subscriptionIsTrial'> | null,
+  role: Role,
+): boolean {
+  if (role === 'admin') return true
+  return isPro(profile) && !isOnTrial(profile)
 }

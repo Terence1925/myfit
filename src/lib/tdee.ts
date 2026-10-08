@@ -70,6 +70,14 @@ export function calculateRecoveryScore(
   return Math.max(0, Math.min(100, raw))
 }
 
+/** Points each answer contributed to the recovery score — used to show users the math. */
+export function getRecoveryBreakdown(answers: Pick<IntakeAnswers, 'sleepHours' | 'sleepQuality' | 'stressLevel'>) {
+  const sleepHours = SLEEP_HOURS_SCORE[answers.sleepHours]
+  const sleepQuality = SLEEP_QUALITY_SCORE[answers.sleepQuality]
+  const stress = STRESS_SCORE[answers.stressLevel]
+  return { base: 50, sleepHours, sleepQuality, stress, raw: 50 + sleepHours + sleepQuality + stress }
+}
+
 export function getRecoveryTier(score: number): RecoveryTier {
   if (score < 50) {
     return {

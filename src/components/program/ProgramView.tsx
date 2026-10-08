@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Crown, FileDown, Loader2 } from 'lucide-react'
+import { Crown, FileDown, Loader2, Lock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import { RecoveryTab } from './RecoveryTab'
 import { exportProgramPdf } from '@/lib/exportProgramPdf'
 import { GOAL_TAILWIND_CLASS, GOAL_LABELS } from '@/lib/tdee'
 import { programs } from '@/lib/backend/api'
-import { hasProAccess } from '@/lib/billing'
+import { canExportPdf, hasProAccess } from '@/lib/billing'
 import { useAuth } from '@/context/AuthContext'
 import type { WorkoutProgram } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -32,6 +32,7 @@ export function ProgramView({
   const [exporting, setExporting] = React.useState(false)
   const [exportError, setExportError] = React.useState<string | null>(null)
   const proAccess = hasProAccess(profile, role)
+  const exportAllowed = canExportPdf(profile, role)
 
   const handleSwap = async (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => {
     const swap = await programs.alternate(userId, exerciseName, dayFocus, program.answers)
@@ -48,6 +49,11 @@ export function ProgramView({
   const handleExportPdf = async () => {
     if (!profile || !proAccess) {
       navigate('/pricing')
+      return
+    }
+    if (!exportAllowed) {
+      // Subscribed, but still inside the free trial.
+      setExportError('PDF export unlocks after your free trial ends and your first payment goes through.')
       return
     }
     setExporting(true)
@@ -92,14 +98,16 @@ export function ProgramView({
               >
                 {exporting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : proAccess ? (
+                ) : exportAllowed ? (
                   <FileDown className="h-4 w-4" />
+                ) : proAccess ? (
+                  <Lock className="h-4 w-4" />
                 ) : (
                   <Crown className="h-4 w-4" />
                 )}
                 Export PDF
               </Button>
-              {exportError && <p className="text-xs text-destructive">{exportError}</p>}
+              {exportError && <p className="max-w-[16rem] text-right text-xs text-destructive">{exportError}</p>}
             </div>
           </div>
           <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-current opacity-[0.08] blur-3xl" />

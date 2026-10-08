@@ -1,8 +1,8 @@
-import { BatteryMedium, Moon, Brain, Zap } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
+import { BatteryMedium, CalendarCheck, Dumbbell, Zap } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getRecoveryTier } from '@/lib/tdee'
+import { RecoveryLearnMore, RecoveryScale, ScoreBreakdown, tierMeaning } from './RecoveryScoreExplainer'
 import type { IntakeAnswers } from '@/lib/types'
 
 const TIER_BADGE: Record<string, 'danger' | 'warning' | 'success' | 'default'> = {
@@ -23,86 +23,79 @@ export function RecoveryTab({
 }) {
   const tier = getRecoveryTier(recoveryScore)
 
+  const impact = [
+    { icon: Dumbbell, label: 'Training volume', text: tier.volumeAdjustment },
+    {
+      icon: CalendarCheck,
+      label: 'Rest days',
+      text: tier.extraRest
+        ? 'An extra recovery day was added to your weekly split.'
+        : 'Full training frequency was preserved — no extra rest days required.',
+    },
+    { icon: Zap, label: 'Effort per set', text: `Aim for ${tier.targetRIR}.` },
+  ]
+
   return (
     <div className="space-y-8">
       <Card className="border-primary/20">
-        <CardContent className="p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <CardContent className="space-y-5 p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-gradient shadow-glow">
                 <BatteryMedium className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Recovery Score
-                </div>
+                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Recovery Score</div>
                 <div className="font-display text-4xl tracking-wide text-gradient-gold">{recoveryScore}/100</div>
               </div>
             </div>
-            <Badge variant={TIER_BADGE[tier.tier]} className="text-sm px-4 py-1.5">
+            <Badge variant={TIER_BADGE[tier.tier]} className="px-4 py-1.5 text-sm">
               {tier.tier} Tier
             </Badge>
           </div>
-          <Progress value={recoveryScore} className="h-3" />
+          <RecoveryScale score={recoveryScore} currentTier={tier.tier} />
+          <p className="font-body text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">What this means: </span>
+            {tierMeaning(tier.tier)}
+          </p>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <ScoreBreakdown answers={answers} score={recoveryScore} />
+
+      <section>
+        <h3 className="mb-3 font-display text-xl tracking-wide">What this means for your training</h3>
         <Card>
-          <CardContent className="p-5 flex items-center gap-3">
-            <Moon className="h-5 w-5 text-primary shrink-0" />
-            <div>
-              <div className="text-xs text-muted-foreground">Sleep</div>
-              <div className="font-body font-semibold capitalize">
-                {answers.sleepHours} hrs &middot; {answers.sleepQuality}
+          <CardContent className="divide-y divide-border/60 p-0">
+            {impact.map(({ icon: Icon, label, text }) => (
+              <div key={label} className="flex gap-3 p-4">
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <div className="font-body text-sm font-bold">{label}</div>
+                  <p className="font-body text-sm text-muted-foreground">{text}</p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5 flex items-center gap-3">
-            <Brain className="h-5 w-5 text-accent shrink-0" />
-            <div>
-              <div className="text-xs text-muted-foreground">Stress Level</div>
-              <div className="font-body font-semibold capitalize">{answers.stressLevel.replace('-', ' ')}</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5 flex items-center gap-3">
-            <Zap className="h-5 w-5 text-primary shrink-0" />
-            <div>
-              <div className="text-xs text-muted-foreground">Target Effort</div>
-              <div className="font-body font-semibold">{tier.targetRIR}</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">How Recovery Shaped Your Training</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm font-body text-muted-foreground space-y-2">
-          <p>{tier.volumeAdjustment}</p>
-          <p>{tier.extraRest ? 'An extra recovery day was added to your weekly split.' : 'Full training frequency was preserved — no extra rest days required.'}</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">AI Recovery Advice</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-3">
-            {advice.map((a, i) => (
-              <li key={i} className="flex gap-2 text-sm font-body text-foreground/90">
-                <span className="text-primary shrink-0">•</span> {a}
-              </li>
             ))}
-          </ul>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </section>
+
+      <RecoveryLearnMore currentTier={tier.tier} />
+
+      <section>
+        <h3 className="mb-3 font-display text-xl tracking-wide">AI Recovery Advice</h3>
+        <Card>
+          <CardContent className="p-5">
+            <ul className="space-y-3">
+              {advice.map((a, i) => (
+                <li key={i} className="flex gap-2 font-body text-sm text-foreground/90">
+                  <span className="shrink-0 text-primary">•</span> {a}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   )
 }

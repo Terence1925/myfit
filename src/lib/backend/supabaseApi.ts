@@ -2,6 +2,10 @@ import { calculateNutrition } from '../tdee'
 import { isPro } from '../billing'
 import { isNativeApp } from '../platform'
 import type {
+  AppliedCode,
+  CodeRedemption,
+  DiscountCode,
+  NewDiscountCode,
   ActivityLogEntry,
   BodyMetricEntry,
   IntakeAnswers,
@@ -58,6 +62,7 @@ function mapProfile(row: Record<string, unknown>): Profile {
     subscriptionStatus: (row.subscription_status as Profile['subscriptionStatus']) ?? 'none',
     subscriptionRenewsAt: row.subscription_renews_at as string | undefined,
     subscriptionStartedAt: row.subscription_started_at as string | undefined,
+    subscriptionIsTrial: (row.subscription_is_trial as boolean | null) ?? false,
     createdAt: row.created_at as string,
   }
 }
@@ -446,5 +451,91 @@ export const sessions = {
       .order('date', { ascending: false })
     if (error) throw new Error(error.message)
     return data.map(mapSession)
+  },
+}
+
+function mapCode(row: Record<string, unknown>): DiscountCode {
+  return {
+    id: row.id as string,
+    code: row.code as string,
+    label: row.label as string,
+    kind: row.kind as DiscountCode['kind'],
+    ownerName: (row.owner_name as string | null) ?? undefined,
+    percentOff: (row.percent_off as number | null) ?? undefined,
+    offerTag: row.offer_tag as string,
+    maxRedemptions: (row.max_redemptions as number | null) ?? undefined,
+    expiresAt: (row.expires_at as string | null) ?? undefined,
+    active: row.active as boolean,
+    createdAt: row.created_at as string,
+  }
+}
+
+function mapRedemption(row: Record<string, unknown>): CodeRedemption {
+  return {
+    id: row.id as string,
+    codeId: row.code_id as string,
+    userId: row.user_id as string,
+    redeemedAt: row.redeemed_at as string,
+    subscribedAt: (row.subscribed_at as string | null) ?? undefined,
+    plan: (row.plan as SubscriptionPeriod | null) ?? undefined,
+  }
+}
+
+export const codes = {
+  async listAll(): Promise<{ codes: DiscountCode[]; redemptions: CodeRedemption[] }> {
+    const [c, r] = await Promise.all([
+      sb().from('discount_codes').select('*').order('created_at', { ascending: false }),
+      sb().from('code_redemptions').select('*'),
+    ])
+    if (c.error) throw new Error(c.error.message)
+    if (r.error) throw new Error(r.error.message)
+    return { codes: c.data.map(mapCode), redemptions: r.data.map(mapRedemption) }
+  },
+
+  async create(input: NewDiscountCode): Promise<DiscountCode> {
+    const { data: userData } = await sb().auth.getUser()
+    const { data, error } = await sb()
+      .from('discount_codes')
+      .insert({
+        code: input.code.trim().toUpperCase(),
+        label: input.label.trim(),
+        kind: input.kind,
+        owner_name: input.kind === 'influencer' ? input.ownerName?.trim() || null : null,
+        percent_off: input.percentOff ?? null,
+        offer_tag: input.offerTag.trim(),
+        max_redemptions: input.maxRedemptions ?? null,
+        expires_at: input.expiresAt ?? null,
+        created_by: userData.user?.id ?? null,
+      })
+      .select('*')
+      .single()
+    if (error) {
+      if (error.code === '23505') throw new Error('That code already exists. Pick a different one.')
+      throw new Error(error.message)
+    }
+    return mapCode(data)
+  },
+
+  async setActive(id: string, active: boolean): Promise<void> {
+    const { error } = await sb().from('discount_codes').update({ active }).eq('id', id)
+    if (error) throw new Error(error.message)
+  },
+
+  async remove(id: string): Promise<void> {
+    const { error } = await sb().from('discount_codes').delete().eq('id', id)
+    if (error) throw new Error(error.message)
+  },
+
+  async apply(code: string): Promise<AppliedCode | null> {
+    const { data, error } = await sb().rpc('apply_discount_code', { p_code: code })
+    if (error) throw new Error(error.message)
+    const row = (data as Record<string, unknown>[] | null)?.[0]
+    if (!row) return null
+    return {
+      code: row.code as string,
+      label: row.label as string,
+      percentOff: (row.percent_off as number | null) ?? undefined,
+      offerTag: row.offer_tag as string,
+    }
   },
 }

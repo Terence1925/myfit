@@ -9,7 +9,7 @@ export default function RefundPage() {
         subscription, the rules below apply.
       </p>
 
-      <h2>Monthly Pro (₱300/mo)</h2>
+      <h2>Monthly Pro (₱299/mo)</h2>
       <p>
         Monthly Pro is purchased through Google Play and auto-renews each month. You can cancel anytime from
         your Google Play subscription settings; cancelling stops future billing and you keep Pro until the end
@@ -17,7 +17,7 @@ export default function RefundPage() {
         period.
       </p>
 
-      <h2>Yearly Pro (₱2,600/yr)</h2>
+      <h2>Yearly Pro (₱2,999/yr)</h2>
       <p>
         Yearly Pro follows the same rules as Monthly: cancel anytime in Google Play to stop renewal, with no
         partial refund for the remainder of the paid year. Because purchases are processed by Google Play,

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured } from '@/lib/backend/api'
-import { hasProAccess, isPro, PRO_PRICES } from '@/lib/billing'
+import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
 
 // Must match capacitor.config.ts's appId
 const ANDROID_PACKAGE_ID = 'com.forgefit.app'
@@ -134,6 +134,11 @@ export default function AccountPage() {
                   {profile.subscriptionPeriod ? PRO_PRICES[profile.subscriptionPeriod].priceLabel : ''}
                   {profile.subscriptionPeriod === 'yearly' ? '/yr' : '/mo'}
                 </p>
+                {isOnTrial(profile) && (
+                  <p className="text-muted-foreground">
+                    You're on your free trial. PDF export unlocks once your first payment goes through.
+                  </p>
+                )}
                 {profile.subscriptionRenewsAt && (
                   <p className="text-muted-foreground">
                     Renews on {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}

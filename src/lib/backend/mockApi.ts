@@ -1,6 +1,10 @@
 import { calculateNutrition } from '../tdee'
 import { isPro, PRO_PRICES } from '../billing'
 import type {
+  AppliedCode,
+  CodeRedemption,
+  DiscountCode,
+  NewDiscountCode,
   ActivityLogEntry,
   BodyMetricEntry,
   IntakeAnswers,
@@ -404,5 +408,66 @@ export const sessions = {
     return readAll<WorkoutSession>(SESSIONS_KEY)
       .filter((s) => s.userId === userId)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  },
+}
+
+const CODES_KEY = 'discount_codes'
+const REDEMPTIONS_KEY = 'code_redemptions'
+
+export const codes = {
+  async listAll(): Promise<{ codes: DiscountCode[]; redemptions: CodeRedemption[] }> {
+    return {
+      codes: readAll<DiscountCode>(CODES_KEY).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      redemptions: readAll<CodeRedemption>(REDEMPTIONS_KEY),
+    }
+  },
+
+  async create(input: NewDiscountCode): Promise<DiscountCode> {
+    const all = readAll<DiscountCode>(CODES_KEY)
+    const code = input.code.trim().toUpperCase()
+    if (all.some((c) => c.code === code)) throw new Error('That code already exists. Pick a different one.')
+    const created: DiscountCode = {
+      ...input,
+      code,
+      label: input.label.trim(),
+      ownerName: input.kind === 'influencer' ? input.ownerName?.trim() || undefined : undefined,
+      id: uid(),
+      active: true,
+      createdAt: new Date().toISOString(),
+    }
+    writeAll(CODES_KEY, [...all, created])
+    return created
+  },
+
+  async setActive(id: string, active: boolean): Promise<void> {
+    writeAll(
+      CODES_KEY,
+      readAll<DiscountCode>(CODES_KEY).map((c) => (c.id === id ? { ...c, active } : c)),
+    )
+  },
+
+  async remove(id: string): Promise<void> {
+    writeAll(CODES_KEY, readAll<DiscountCode>(CODES_KEY).filter((c) => c.id !== id))
+    writeAll(REDEMPTIONS_KEY, readAll<CodeRedemption>(REDEMPTIONS_KEY).filter((r) => r.codeId !== id))
+  },
+
+  async apply(code: string): Promise<AppliedCode | null> {
+    const session = readOne<{ userId: string }>(SESSION_KEY)
+    if (!session) return null
+    const found = readAll<DiscountCode>(CODES_KEY).find((c) => c.code === code.trim().toUpperCase())
+    if (!found || !found.active) return null
+    if (found.expiresAt && new Date(found.expiresAt).getTime() < Date.now()) return null
+    const redemptions = readAll<CodeRedemption>(REDEMPTIONS_KEY)
+    if (found.maxRedemptions != null) {
+      const used = redemptions.filter((r) => r.codeId === found.id && r.subscribedAt).length
+      if (used >= found.maxRedemptions) return null
+    }
+    if (!redemptions.some((r) => r.codeId === found.id && r.userId === session.userId)) {
+      writeAll(REDEMPTIONS_KEY, [
+        ...redemptions,
+        { id: uid(), codeId: found.id, userId: session.userId, redeemedAt: new Date().toISOString() },
+      ])
+    }
+    return { code: found.code, label: found.label, percentOff: found.percentOff, offerTag: found.offerTag }
   },
 }

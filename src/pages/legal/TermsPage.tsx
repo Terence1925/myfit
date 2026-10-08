@@ -42,7 +42,7 @@ export default function TermsPage() {
           for one trial.
         </li>
         <li>
-          Pro plans (Monthly at ₱300, Yearly at ₱2,600) are purchased in the FORGEFIT mobile app through
+          Pro plans (Monthly at ₱299, Yearly at ₱2,999) are purchased in the FORGEFIT mobile app through
           Google Play. They are billed and automatically renewed each period until you cancel from your
           Google Play subscription settings; you keep access until the end of the period you already paid
           for. A Pro subscription also applies when you sign in to FORGEFIT on the web.

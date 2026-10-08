@@ -10,7 +10,7 @@
 //   5. Copy the public "Google Play API key" into VITE_REVENUECAT_ANDROID_KEY (.env.local) — this
 //      key is meant to ship in client apps (unlike a secret/server key).
 
-import { Purchases, type PurchasesPackage } from '@revenuecat/purchases-capacitor'
+import { Purchases, type PurchasesPackage, type SubscriptionOption } from '@revenuecat/purchases-capacitor'
 
 export const PRO_ENTITLEMENT_ID = 'pro'
 
@@ -35,6 +35,31 @@ export async function getOfferingPackages(): Promise<PurchasesPackage[]> {
 
 export async function purchase(pkg: PurchasesPackage): Promise<boolean> {
   const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg })
+  return Boolean(customerInfo.entitlements.active[PRO_ENTITLEMENT_ID])
+}
+
+/**
+ * The Google Play offer on this package that carries the given tag (set when the offer was created in
+ * Play Console). Null if the offer doesn't exist or the user isn't eligible for it.
+ */
+export function findOptionByTag(pkg: PurchasesPackage, tag: string): SubscriptionOption | null {
+  return pkg.product.subscriptionOptions?.find((o) => o.tags.includes(tag)) ?? null
+}
+
+/** The price a customer pays once any free trial ends, for display. */
+export function discountedPriceLabel(option: SubscriptionOption): string | undefined {
+  return option.pricingPhases.find((p) => p.price.amountMicros > 0)?.price.formatted
+}
+
+/**
+ * Buys the discounted Play offer behind a discount code. The code is also attached to the purchase
+ * (a RevenueCat subscriber attribute) so revenuecat-webhook can credit it to the right influencer.
+ */
+export async function purchaseWithOfferTag(pkg: PurchasesPackage, tag: string, code: string): Promise<boolean> {
+  const option = findOptionByTag(pkg, tag)
+  if (!option) throw new Error('That discount is not available for this plan right now.')
+  await Purchases.setAttributes({ promo_code: code })
+  const { customerInfo } = await Purchases.purchaseSubscriptionOption({ subscriptionOption: option })
   return Boolean(customerInfo.entitlements.active[PRO_ENTITLEMENT_ID])
 }
 

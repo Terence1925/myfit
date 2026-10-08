@@ -1,11 +1,13 @@
 import * as React from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircle2, Clock, ClipboardList, History, Save } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseCard } from './ExerciseCard'
+import { RestTimerBar, type RestState } from './RestTimerBar'
 import { sessions } from '@/lib/backend/api'
+import { cancelRestAlert, parseRestSeconds, scheduleRestAlert } from '@/lib/restTimer'
 import type { ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
 
 function buildLog(exercises: ProgramData['days'][number]['exercises']): ExerciseLog[] {
@@ -43,21 +45,60 @@ export function WeeklyPlanTab({
   const [history, setHistory] = React.useState<WorkoutSession[]>([])
   const [userSessions, setUserSessions] = React.useState<WorkoutSession[]>([])
   const [justSaved, setJustSaved] = React.useState(false)
+  const [rest, setRest] = React.useState<RestState | null>(null)
 
   const day = program.days.find((d) => d.day === activeDay) ?? program.days[0]
+
+  const stopRest = React.useCallback(() => {
+    setRest(null)
+    void cancelRestAlert()
+  }, [])
+
+  // Don't leave a phone alert scheduled if the user navigates away mid-rest.
+  React.useEffect(() => () => void cancelRestAlert(), [])
+
+  React.useEffect(() => {
+    if (!loggingMode) stopRest()
+  }, [loggingMode, stopRest])
+
+  const startRest = (exerciseIndex: number, setIndex: number) => {
+    const ex = day.exercises[exerciseIndex]
+    // No rest after the last set of an exercise — you're moving on to the next one.
+    if (!ex || setIndex + 1 >= ex.sets) {
+      stopRest()
+      return
+    }
+    const totalSeconds = parseRestSeconds(ex.rest)
+    const next: RestState = {
+      endsAt: Date.now() + totalSeconds * 1000,
+      totalSeconds,
+      nextLabel: `start set ${setIndex + 2}`,
+      exerciseName: ex.name,
+    }
+    setRest(next)
+    void scheduleRestAlert(next.endsAt, `Rest over — ${next.nextLabel}`, ex.name)
+  }
+
+  const addRestTime = () => {
+    if (!rest) return
+    const next = { ...rest, endsAt: Math.max(rest.endsAt, Date.now()) + 15_000, totalSeconds: rest.totalSeconds + 15 }
+    setRest(next)
+    void scheduleRestAlert(next.endsAt, `Rest over — ${next.nextLabel}`, next.exerciseName)
+  }
 
   React.useEffect(() => {
     let cancelled = false
     setLog(buildLog(day.exercises))
     setLoggingMode(false)
     setJustSaved(false)
+    stopRest()
     sessions.listForProgramDay(programId, day.day).then((h) => {
       if (!cancelled) setHistory(h)
     })
     return () => {
       cancelled = true
     }
-  }, [day, programId])
+  }, [day, programId, stopRest])
 
   React.useEffect(() => {
     let cancelled = false
@@ -80,6 +121,7 @@ export function WeeklyPlanTab({
   }
 
   const updateSet = (exerciseIndex: number, setIndex: number, field: 'weight' | 'reps' | 'completed', value: number | boolean) => {
+    if (field === 'completed' && value === true) startRest(exerciseIndex, setIndex)
     setLog((prev) =>
       prev.map((exLog, i) =>
         i !== exerciseIndex
@@ -108,12 +150,13 @@ export function WeeklyPlanTab({
     setUserSessions(await sessions.listForUser(userId))
     setLog(buildLog(day.exercises))
     setLoggingMode(false)
+    stopRest()
     setJustSaved(true)
     setTimeout(() => setJustSaved(false), 3000)
   }
 
   return (
-    <div className="space-y-6">
+    <div className={rest ? 'space-y-6 pb-40' : 'space-y-6'}>
       <Tabs value={String(activeDay)} onValueChange={(v) => onActiveDayChange(Number(v))}>
         <TabsList>
           {program.days.map((d) => (
@@ -207,6 +250,10 @@ export function WeeklyPlanTab({
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {rest && <RestTimerBar key={rest.exerciseName + rest.nextLabel} rest={rest} onAddTime={addRestTime} onSkip={stopRest} />}
+      </AnimatePresence>
     </div>
   )
 }

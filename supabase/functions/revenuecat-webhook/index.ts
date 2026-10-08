@@ -20,7 +20,7 @@ function periodFromProductId(productId: string): 'monthly' | 'yearly' {
   return productId.includes('year') ? 'yearly' : 'monthly'
 }
 
-async function activatePro(userId: string, productId: string, expirationMs: number | null) {
+async function activatePro(userId: string, productId: string, expirationMs: number | null, isTrial: boolean) {
   await supabaseAdmin
     .from('profiles')
     .update({
@@ -28,6 +28,7 @@ async function activatePro(userId: string, productId: string, expirationMs: numb
       subscription_status: 'active',
       subscription_period: periodFromProductId(productId),
       subscription_renews_at: expirationMs ? new Date(expirationMs).toISOString() : null,
+      subscription_is_trial: isTrial,
     })
     .eq('id', userId)
 
@@ -38,8 +39,24 @@ async function activatePro(userId: string, productId: string, expirationMs: numb
   })
 }
 
+// Marks the user's discount-code redemption as converted. Only works if the user already applied this
+// code in the app (apply_discount_code created the row), so a made-up attribute can't credit anyone.
+async function markCodeSubscribed(userId: string, code: string, plan: 'monthly' | 'yearly') {
+  const { data: found } = await supabaseAdmin.from('discount_codes').select('id').eq('code', code.toUpperCase()).maybeSingle()
+  if (!found) return
+  await supabaseAdmin
+    .from('code_redemptions')
+    .update({ subscribed_at: new Date().toISOString(), plan })
+    .eq('code_id', found.id)
+    .eq('user_id', userId)
+    .is('subscribed_at', null)
+}
+
 async function deactivatePro(userId: string) {
-  await supabaseAdmin.from('profiles').update({ subscription_status: 'canceled' }).eq('id', userId)
+  await supabaseAdmin
+    .from('profiles')
+    .update({ subscription_status: 'canceled', subscription_is_trial: false })
+    .eq('id', userId)
   await supabaseAdmin.from('activity_log').insert({
     user_id: userId,
     action: 'canceled_subscription',
@@ -72,7 +89,12 @@ Deno.serve(async (req) => {
       case 'PRODUCT_CHANGE':
       case 'UNCANCELLATION':
         if (productId && entitlements.includes(PRO_ENTITLEMENT_ID)) {
-          await activatePro(userId, productId, event.expiration_at_ms ?? null)
+          // period_type is TRIAL during the free trial; the first paid renewal arrives as NORMAL.
+          await activatePro(userId, productId, event.expiration_at_ms ?? null, event.period_type === 'TRIAL')
+          const promoCode: unknown = event.subscriber_attributes?.promo_code?.value
+          if (event.type === 'INITIAL_PURCHASE' && typeof promoCode === 'string' && promoCode) {
+            await markCodeSubscribed(userId, promoCode, periodFromProductId(productId))
+          }
         }
         break
 

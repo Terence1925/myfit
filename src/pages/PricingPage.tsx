@@ -1,18 +1,27 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Check, Crown, Loader2, ShieldCheck, Sparkles } from 'lucide-react'
+import { Check, Crown, Loader2, ShieldCheck, Sparkles, Tag } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { PurchasesPackage } from '@revenuecat/purchases-capacitor'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { PRO_FEATURES, PRO_PRICES, TRIAL_DAYS, isPro } from '@/lib/billing'
 import { isNativeApp } from '@/lib/platform'
 import { syncTrialReminder } from '@/lib/trialReminder'
-import { configureRevenueCat, getOfferingPackages, purchase } from '@/lib/backend/revenuecat'
+import { codes } from '@/lib/backend/api'
+import {
+  configureRevenueCat,
+  discountedPriceLabel,
+  findOptionByTag,
+  getOfferingPackages,
+  purchase,
+  purchaseWithOfferTag,
+} from '@/lib/backend/revenuecat'
 import { cn } from '@/lib/utils'
-import type { SubscriptionPeriod } from '@/lib/types'
+import type { AppliedCode, SubscriptionPeriod } from '@/lib/types'
 
 export default function PricingPage() {
   const { profile, role } = useAuth()
@@ -20,6 +29,11 @@ export default function PricingPage() {
   const [loadingPeriod, setLoadingPeriod] = React.useState<SubscriptionPeriod | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [nativePackages, setNativePackages] = React.useState<PurchasesPackage[]>([])
+  const [codeOpen, setCodeOpen] = React.useState(false)
+  const [codeInput, setCodeInput] = React.useState('')
+  const [codeChecking, setCodeChecking] = React.useState(false)
+  const [codeError, setCodeError] = React.useState<string | null>(null)
+  const [appliedCode, setAppliedCode] = React.useState<AppliedCode | null>(null)
   const native = isNativeApp()
 
   React.useEffect(() => {
@@ -38,6 +52,31 @@ export default function PricingPage() {
   const nativePkgFor = (period: SubscriptionPeriod) =>
     native ? nativePackages.find((p) => p.packageType === (period === 'monthly' ? 'MONTHLY' : 'ANNUAL')) : undefined
 
+  const handleApplyCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const value = codeInput.trim()
+    if (!value) {
+      setCodeError('Enter a code first.')
+      return
+    }
+    setCodeChecking(true)
+    setCodeError(null)
+    try {
+      const result = await codes.apply(value)
+      if (result) {
+        setAppliedCode(result)
+        setCodeOpen(false)
+        setCodeInput('')
+      } else {
+        setCodeError("That code isn't valid. Check the spelling, or it may have expired.")
+      }
+    } catch {
+      setCodeError('Could not check the code. Please try again.')
+    } finally {
+      setCodeChecking(false)
+    }
+  }
+
   const handleSubscribe = async (period: SubscriptionPeriod) => {
     setLoadingPeriod(period)
     setError(null)
@@ -47,7 +86,9 @@ export default function PricingPage() {
       const wantedType = period === 'monthly' ? 'MONTHLY' : 'ANNUAL'
       const pkg = packages.find((p: PurchasesPackage) => p.packageType === wantedType)
       if (!pkg) throw new Error('That plan is not available right now.')
-      const entitled = await purchase(pkg)
+      const entitled = appliedCode
+        ? await purchaseWithOfferTag(pkg, appliedCode.offerTag, appliedCode.code)
+        : await purchase(pkg)
       if (entitled) {
         void syncTrialReminder(profile.id)
         navigate('/account?checkout=success')
@@ -98,10 +139,61 @@ export default function PricingPage() {
         </p>
       </motion.div>
 
+      {native && !alreadyPro && (
+        <div className="mx-auto mb-8 max-w-md text-center">
+          {appliedCode ? (
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
+              <Tag className="h-4 w-4" />
+              <span>
+                <span className="font-bold">{appliedCode.code}</span> applied
+                {appliedCode.percentOff ? ` — ${appliedCode.percentOff}% off` : ''}
+              </span>
+              <button
+                type="button"
+                onClick={() => setAppliedCode(null)}
+                className="text-xs font-semibold underline underline-offset-2"
+              >
+                Remove
+              </button>
+            </div>
+          ) : codeOpen ? (
+            <form onSubmit={handleApplyCode} className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  value={codeInput}
+                  onChange={(e) => {
+                    setCodeInput(e.target.value.toUpperCase())
+                    setCodeError(null)
+                  }}
+                  placeholder="Enter your code"
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  maxLength={32}
+                />
+                <Button type="submit" disabled={codeChecking} className="gap-1.5">
+                  {codeChecking && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Apply
+                </Button>
+              </div>
+              {codeError && <p className="text-sm text-destructive">{codeError}</p>}
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCodeOpen(true)}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              <Tag className="h-4 w-4" /> Have a discount code?
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
         {(['monthly', 'yearly'] as const).map((period, i) => {
           const plan = PRO_PRICES[period]
           const nativePkg = nativePkgFor(period)
+          const discountOption = appliedCode && nativePkg ? findOptionByTag(nativePkg, appliedCode.offerTag) : null
           const isYearly = period === 'yearly'
           // Only promise a trial when Google Play actually reports one on this product.
           const hasTrial = !!nativePkg?.product.introPrice
@@ -129,6 +221,13 @@ export default function PricingPage() {
                   {hasTrial && (
                     <p className="mt-2 inline-flex w-fit items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                       {TRIAL_DAYS}-day free trial included
+                    </p>
+                  )}
+                  {appliedCode && nativePkg && (
+                    <p className="mt-2 text-sm font-semibold text-emerald-400">
+                      {discountOption
+                        ? `With ${appliedCode.code}: ${discountedPriceLabel(discountOption) ?? 'discounted price'}`
+                        : "This code isn't available for this plan."}
                     </p>
                   )}
                   <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
@@ -177,7 +276,7 @@ export default function PricingPage() {
 
       <p className="text-center text-xs text-muted-foreground mt-8 max-w-xl mx-auto leading-relaxed">
         {native
-          ? 'Payment is processed securely by Google Play. Subscriptions renew automatically each period until you cancel in your Google Play subscription settings. If a free trial is shown, it converts to a paid subscription at the price above unless you cancel at least 24 hours before it ends.'
+          ? 'Payment is processed securely by Google Play. Subscriptions renew automatically each period until you cancel in your Google Play subscription settings. If a free trial is shown, it converts to a paid subscription at the price above unless you cancel at least 24 hours before it ends. PDF export unlocks after your first payment.'
           : 'Pro is purchased in the FORGEFIT mobile app through Google Play — once subscribed, it also unlocks Pro when you sign in on the web.'}
       </p>
     </div>
