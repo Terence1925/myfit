@@ -9,6 +9,7 @@ import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
 import { exportProgramPdf } from '@/lib/exportProgramPdf'
+import { loadView, saveView } from '@/lib/workoutLog'
 import { GOAL_TAILWIND_CLASS, GOAL_LABELS } from '@/lib/tdee'
 import { programs } from '@/lib/backend/api'
 import { canExportPdf, hasProAccess } from '@/lib/billing'
@@ -27,15 +28,21 @@ export function ProgramView({
 }) {
   const { profile, role } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = React.useState('overview')
-  const [activeDay, setActiveDay] = React.useState(1)
+  // Reopen where the person left off (e.g. Weekly Plan, Day 3) if the app was closed or reloaded while
+  // it was in the background.
+  const [tab, setTab] = React.useState(() => loadView(program.id)?.tab ?? 'overview')
+  const [activeDay, setActiveDay] = React.useState(() => loadView(program.id)?.day ?? 1)
+  React.useEffect(() => {
+    saveView(program.id, tab, activeDay)
+  }, [program.id, tab, activeDay])
   const [exporting, setExporting] = React.useState(false)
   const [exportError, setExportError] = React.useState<string | null>(null)
   const proAccess = hasProAccess(profile, role)
   const exportAllowed = canExportPdf(profile, role)
 
   const handleSwap = async (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => {
-    const swap = await programs.alternate(userId, exerciseName, dayFocus, program.answers)
+    const today = program.programData.days.find((d) => d.day === dayNumber)?.exercises.map((e) => e.name) ?? []
+    const swap = await programs.alternate(userId, exerciseName, dayFocus, program.answers, today)
     const updatedDays = program.programData.days.map((d) =>
       d.day === dayNumber
         ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) }

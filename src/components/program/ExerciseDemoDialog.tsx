@@ -2,7 +2,7 @@ import * as React from 'react'
 import { ExternalLink, Loader2, SearchX } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { findExerciseVideoId, searchUrl } from '@/lib/youtube'
+import { demoTitle, findExerciseVideoId, searchUrl } from '@/lib/youtube'
 
 export function ExerciseDemoDialog({
   exerciseName,
@@ -33,7 +33,7 @@ export function ExerciseDemoDialog({
   }, [open, exerciseName])
 
   return (
-    <Dialog open={open} onClose={onClose} title={`${exerciseName} — Form Demo`}>
+    <Dialog open={open} onClose={onClose} title={demoTitle(exerciseName)}>
       <div className="aspect-video w-full overflow-hidden rounded-xl bg-black flex items-center justify-center">
         {loading ? (
           <Loader2 className="h-8 w-8 animate-spin text-primary" />

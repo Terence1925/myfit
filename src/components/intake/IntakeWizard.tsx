@@ -273,12 +273,12 @@ function Step11Goal({ answers, update }: StepProps) {
 function Step12Equipment({ answers, update }: StepProps) {
   const options: ChoiceOption[] = [
     { value: 'full-gym', label: 'Full Commercial Gym' },
-    { value: 'barbells-racks', label: 'Barbells & Racks' },
     { value: 'dumbbells-only', label: 'Dumbbells Only' },
-    { value: 'machines-only', label: 'Machines Only' },
     { value: 'home-workout', label: 'Home Workout' },
-    { value: 'calisthenics', label: 'Calisthenics' },
+    { value: 'calisthenics', label: 'Bodyweight / Calisthenics' },
     { value: 'resistance-bands', label: 'Resistance Bands' },
+    { value: 'yoga', label: 'Yoga', description: 'Mat only. Poses held for time, no sets or reps' },
+    { value: 'pilates', label: 'Pilates', description: 'Mat Pilates. Slow, controlled moves, no machine' },
   ]
   return (
     <StepShell title="Equipment Access" subtitle="We'll only program exercises you can actually perform.">

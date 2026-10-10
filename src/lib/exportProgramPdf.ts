@@ -83,7 +83,14 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
     text(`Day ${day.day}: ${day.name}  (${day.duration})`, { size: 12, bold: true, gap: 0 })
     text(day.focus, { size: 9, color: 100, gap: 4 })
     for (const [i, ex] of day.exercises.entries()) {
-      text(`${i + 1}. ${ex.name}  —  ${ex.sets} sets × ${ex.reps}  ·  rest ${ex.rest}`, {
+      // Yoga: held for time. Pilates: reps (and rounds). Lifting: sets and rest.
+      const detail =
+        ex.format === 'yoga'
+          ? `${ex.reps}${ex.eachSide ? ' each side' : ''}`
+          : ex.format === 'pilates'
+            ? `${ex.reps}${/sec|min|pumps/.test(ex.reps) ? '' : ' reps'}${ex.eachSide ? ' each side' : ''}${ex.sets > 1 ? `  ·  ${ex.sets} rounds` : ''}`
+            : `${ex.sets} sets × ${ex.reps}  ·  rest ${ex.rest}`
+      text(`${i + 1}. ${ex.name}  —  ${detail}`, {
         bold: true,
         indent: 8,
         gap: 0,

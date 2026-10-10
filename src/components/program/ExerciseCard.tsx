@@ -33,7 +33,9 @@ export function ExerciseCard({
   const navigate = useNavigate()
   const [demoOpen, setDemoOpen] = React.useState(false)
   const [historyOpen, setHistoryOpen] = React.useState(false)
-  const hint = logging ? lastSessionHint(userSessions, exercise.name) : null
+  // Yoga and Pilates flow from move to move: no sets table, no rest, no weights to track.
+  const mindBody = exercise.format === 'yoga' || exercise.format === 'pilates'
+  const hint = logging && !mindBody ? lastSessionHint(userSessions, exercise.name) : null
 
   const handleHistoryClick = () => {
     if (!hasProgressAccess) {
@@ -57,11 +59,17 @@ export function ExerciseCard({
         <div className="min-w-0 flex-1">
           <h4 className="font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
           <div className="mt-2 flex flex-wrap gap-2">
-            <Badge variant="default">{exercise.sets} sets</Badge>
-            {/* Hold-based exercises (e.g. Plank) store a time range like "30-45 sec" in `reps` —
-                appending "reps" to that reads wrong, so only add the suffix for rep counts. */}
-            <Badge variant="outline">{exercise.reps}{exercise.reps.includes('sec') ? '' : ' reps'}</Badge>
-            <Badge variant="outline">{exercise.rest} rest</Badge>
+            {!mindBody && <Badge variant="default">{exercise.sets} sets</Badge>}
+            {/* Timed moves (Plank, yoga poses) store a time like "30-45 sec" in `reps`, and a few
+                Pilates moves a count like "100 pumps" — appending "reps" to those reads wrong, so
+                only add the suffix for plain rep counts. */}
+            <Badge variant={mindBody ? 'default' : 'outline'}>
+              {exercise.reps}
+              {/sec|min|pumps/.test(exercise.reps) ? '' : ' reps'}
+            </Badge>
+            {exercise.eachSide && <Badge variant="outline">each side</Badge>}
+            {exercise.format === 'pilates' && exercise.sets > 1 && <Badge variant="outline">{exercise.sets} rounds</Badge>}
+            {!mindBody && <Badge variant="outline">{exercise.rest} rest</Badge>}
           </div>
           {exercise.notes && (
             <p className="mt-2 text-sm text-muted-foreground font-body">{exercise.notes}</p>
@@ -87,6 +95,7 @@ export function ExerciseCard({
               <PlayCircle className="h-3.5 w-3.5" />
               Demo
             </button>
+            {!mindBody && (
             <button
               onClick={handleHistoryClick}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
@@ -94,9 +103,26 @@ export function ExerciseCard({
               {hasProgressAccess ? <TrendingUp className="h-3.5 w-3.5" /> : <Crown className="h-3.5 w-3.5" />}
               History
             </button>
+            )}
           </div>
 
-          {logging && setLogs && onSetChange && (
+          {logging && mindBody && setLogs?.[0] && onSetChange && (
+            <button
+              type="button"
+              onClick={() => onSetChange(0, 'completed', !setLogs[0].completed)}
+              className={cn(
+                'mt-4 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm font-semibold transition-colors',
+                setLogs[0].completed
+                  ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                  : 'border-border text-muted-foreground hover:border-primary/40',
+              )}
+            >
+              {setLogs[0].completed ? 'Done' : 'Mark as done'}
+              <Check className="h-4 w-4" />
+            </button>
+          )}
+
+          {logging && !mindBody && setLogs && onSetChange && (
             <div className="mt-4 space-y-2 rounded-lg border border-border/60 bg-background/40 p-3">
               <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground px-1">
                 <span>Set</span>

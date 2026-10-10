@@ -23,6 +23,8 @@ export interface BillingResult {
 export interface AuthApi {
   signUp(email: string, password: string, displayName: string): Promise<Profile>
   signIn(email: string, password: string): Promise<Profile>
+  /** Phone app: the Google account picker. Web: redirects to Google and returns null. */
+  signInWithGoogle(): Promise<Profile | null>
   signOut(): Promise<void>
   currentSession(): Promise<Profile | null>
   requestPasswordReset(email: string): Promise<void>
@@ -46,7 +48,7 @@ export interface RolesApi {
 
 export interface ProgramsApi {
   generate(userId: string, answers: IntakeAnswers): Promise<WorkoutProgram>
-  alternate(userId: string, exerciseName: string, dayFocus: string, answers: IntakeAnswers): Promise<Exercise>
+  alternate(userId: string, exerciseName: string, dayFocus: string, answers: IntakeAnswers, avoid?: string[]): Promise<Exercise>
   listForUser(userId: string): Promise<WorkoutProgram[]>
   listAll(): Promise<WorkoutProgram[]>
   get(id: string): Promise<WorkoutProgram | null>

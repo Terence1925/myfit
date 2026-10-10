@@ -15,6 +15,7 @@ const TIERS: {
   bar: string
   meaning: string
   plan: string
+  planMindBody: string
 }[] = [
   {
     tier: 'Poor',
@@ -24,6 +25,7 @@ const TIERS: {
     bar: 'bg-red-500/80',
     meaning: 'Your body is short on rest right now, so it needs more time to bounce back between workouts.',
     plan: 'About 25% fewer sets, focused on the big main lifts, plus an extra rest day.',
+    planMindBody: 'About 25% fewer poses per session, with gentler poses and more restorative holds, plus an extra rest day.',
   },
   {
     tier: 'Moderate',
@@ -33,6 +35,7 @@ const TIERS: {
     bar: 'bg-amber-500/80',
     meaning: 'Your recovery is okay but not great. Hard training could pile up faster than you can recover from it.',
     plan: 'About 10 to 15% fewer sets, and an extra rest day.',
+    planMindBody: 'About 10 to 15% fewer poses per session, and an extra rest day.',
   },
   {
     tier: 'Good',
@@ -42,6 +45,7 @@ const TIERS: {
     bar: 'bg-emerald-500/80',
     meaning: 'Your body recovers well. You can handle a normal amount of training.',
     plan: 'The standard program, with no cuts and no extra rest days.',
+    planMindBody: 'The standard program, with no cuts and no extra rest days.',
   },
   {
     tier: 'Elite',
@@ -51,6 +55,7 @@ const TIERS: {
     bar: 'bg-primary',
     meaning: 'You sleep well and manage stress well, so you can recover from more training than most people.',
     plan: 'A little extra volume and tougher top sets.',
+    planMindBody: 'A few extra poses per session and slightly longer holds.',
   },
 ]
 
@@ -158,7 +163,7 @@ function Disclosure({ title, children }: { title: string; children: React.ReactN
 }
 
 /** The extra detail, tucked into dropdowns so the page stays easy to scan. */
-export function RecoveryLearnMore({ currentTier }: { currentTier: TierName }) {
+export function RecoveryLearnMore({ currentTier, mindBody = false }: { currentTier: TierName; mindBody?: boolean }) {
   return (
     <section className="space-y-3">
       <h3 className="font-display text-xl tracking-wide">Learn more</h3>
@@ -184,7 +189,7 @@ export function RecoveryLearnMore({ currentTier }: { currentTier: TierName }) {
                 </div>
                 <p className="mt-1">{t.meaning}</p>
                 <p className="mt-1 text-foreground/90">
-                  <span className="font-semibold">Your program:</span> {t.plan}
+                  <span className="font-semibold">Your program:</span> {mindBody ? t.planMindBody : t.plan}
                 </p>
               </div>
             )
@@ -193,22 +198,48 @@ export function RecoveryLearnMore({ currentTier }: { currentTier: TierName }) {
       </Disclosure>
 
       <Disclosure title="New to training? Quick words">
-        <ul className="space-y-2">
-          <li>
-            <span className="font-semibold text-foreground">Volume:</span> the total number of sets you do in a
-            week. More sets means more work for your body to recover from.
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">RIR (reps in reserve):</span> how many more reps you
-            could still do when you stop a set. "3 RIR" means you stop with 3 reps left in the tank, so it feels
-            challenging but not all-out. Newer lifters should keep a few reps in reserve to learn good form and
-            avoid injury.
-          </li>
-          <li>
-            <span className="font-semibold text-foreground">Rest day:</span> a day with no lifting. This is when
-            your body repairs itself and gets stronger.
-          </li>
-        </ul>
+        {mindBody ? (
+          <ul className="space-y-2">
+            <li>
+              <span className="font-semibold text-foreground">Hold time:</span> how long you stay in a pose, shown in
+              seconds. Breathe slowly through your nose the whole time. If a pose feels too strong, ease out of it
+              early or make it smaller.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Each side:</span> do the pose on one side, then repeat it
+              on the other so your body stays balanced.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Round:</span> one full pass through a Pilates move. A
+              beginner does one round, and you add a second as it gets easier.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Savasana:</span> the final rest at the end of yoga. You
+              lie still and let your body relax. It is part of the practice, not a break from it.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Rest day:</span> a day with no training. Your body
+              repairs itself and recovers, so it can do more next time.
+            </li>
+          </ul>
+        ) : (
+          <ul className="space-y-2">
+            <li>
+              <span className="font-semibold text-foreground">Volume:</span> the total number of sets you do in a
+              week. More sets means more work for your body to recover from.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">RIR (reps in reserve):</span> how many more reps you
+              could still do when you stop a set. "3 RIR" means you stop with 3 reps left in the tank, so it feels
+              challenging but not all-out. Newer lifters should keep a few reps in reserve to learn good form and
+              avoid injury.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Rest day:</span> a day with no lifting. This is when
+              your body repairs itself and gets stronger.
+            </li>
+          </ul>
+        )}
       </Disclosure>
 
       <Disclosure title="How to raise your score">

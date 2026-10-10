@@ -1,6 +1,8 @@
 import { GOAL_LABELS, getRecoveryTier } from '../tdee'
 import type { Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
-import { EXERCISES, poolFor } from './exerciseLibrary'
+import { EXERCISES, isAllowed, poolFor, type LibraryExercise } from './exerciseLibrary'
+import { disciplineOf, normalizeEquipment } from '../discipline'
+import { generateMindBodyAlternate, generateMindBodyProgram } from './mindBodyGenerator'
 
 function pick<T>(arr: T[], seed: number): T | undefined {
   if (arr.length === 0) return undefined
@@ -150,32 +152,140 @@ function withFocusCoverage(
   })
 }
 
+type DayTemplate = { name: string; muscles: FocusArea[]; injected: FocusArea[] }
+
+/** How many days a week each focus muscle should be trained (or every day, on a 3-day plan). */
+const FOCUS_DAYS_PER_WEEK = 3
+
+/** A session longer than this is more than most people will finish. */
+const MAX_EXERCISES_PER_DAY = 12
+
+/**
+ * A focus area only means something if it is trained often enough. After the anatomical placement above,
+ * any focus muscle that still shows up on fewer than 3 days is added to more days as a finisher: the
+ * lightest days first, and away from days that already train it so it gets recovery between sessions.
+ */
+function withFocusFrequency(templates: DayTemplate[], focusAreas: FocusArea[]): DayTemplate[] {
+  const days = templates.map((d) => ({ ...d, muscles: [...d.muscles], injected: [...d.injected] }))
+  const target = Math.min(FOCUS_DAYS_PER_WEEK, days.length)
+  for (const focus of focusAreas) {
+    if (focus === 'full-body') continue
+    let have = days.filter((d) => d.muscles.includes(focus)).length
+    while (have < target) {
+      const candidates = days.filter((d) => !d.muscles.includes(focus))
+      if (candidates.length === 0) break
+      const neighbours = (d: DayTemplate) => {
+        const i = days.indexOf(d)
+        return [days[i - 1], days[i + 1]].filter((n) => n && n.muscles.includes(focus)).length
+      }
+      candidates.sort((a, b) => neighbours(a) - neighbours(b) || a.muscles.length - b.muscles.length)
+      candidates[0].muscles.push(focus)
+      candidates[0].injected.push(focus)
+      have++
+    }
+  }
+  return days
+}
+
 export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan): ProgramData {
+  // Yoga and Pilates are timed, flowing sessions rather than sets and reps, so they have their own builder.
+  if (disciplineOf(answers.equipment) !== 'strength') return generateMindBodyProgram(answers, nutrition)
+
   const tier = getRecoveryTier(nutrition.recoveryScore)
   const scheme = repSchemeFor(answers.goal, answers.experience)
   const holdTime = holdTimeFor(answers.experience)
 
-  const templates = withFocusCoverage(splitForDays(answers.trainingDays)[0], answers.focusAreas)
+  const templates = withFocusFrequency(
+    withFocusCoverage(splitForDays(answers.trainingDays)[0], answers.focusAreas),
+    answers.focusAreas,
+  )
   const usedNames = new Set<string>()
 
+  const makeEntry = (ex: LibraryExercise, isCompound: boolean, extraSet = false): Exercise => {
+    if (ex.holdBased) {
+      return {
+        name: ex.name,
+        sets: Math.max(2, scheme.compoundSets - 1),
+        reps: holdTime,
+        rest: '45-60 sec',
+        notes: `Hold with a neutral spine and braced core — stop the set early if form breaks down.`,
+        format: 'strength',
+      }
+    }
+    return {
+      name: ex.name,
+      sets: Math.min(5, (isCompound ? scheme.compoundSets : Math.max(2, scheme.compoundSets - 1)) + (extraSet ? 1 : 0)),
+      reps: isCompound ? scheme.compoundReps : scheme.accessoryReps,
+      rest: isCompound ? scheme.rest : '60-75 sec',
+      notes: isCompound
+        ? `Target ${tier.targetRIR}. Focus on controlled tempo and full range of motion.`
+        : `Isolation work — squeeze at peak contraction, ${tier.targetRIR}.`,
+      format: 'strength',
+    }
+  }
+
+  // A focus muscle gets an extra set on its exercises, unless recovery is poor and volume is being cut.
+  const focusExtraSet = tier.tier !== 'Poor'
+
+  interface Entry {
+    exercise: Exercise
+    muscle: FocusArea
+    focus: boolean
+    /** First exercise for its muscle that day (the main lift); never trimmed. */
+    main: boolean
+    injected: boolean
+  }
+
   const days: ProgramDay[] = templates.map((template, dayIdx) => {
-    const exercises: Exercise[] = []
-    template.muscles.forEach((muscle, muscleIdx) => {
-      const isFocus = answers.focusAreas.includes(muscle)
+    const entries: Entry[] = []
+    const natural = template.muscles.filter((m) => !template.injected.includes(m))
+    const isFocusMuscle = (m: FocusArea) => answers.focusAreas.includes(m)
+    // Focus muscles first, while you are fresh; core next-to-last; extra "finisher" work for focus
+    // muscles that were added to this day comes last.
+    const orderedMuscles: FocusArea[] = [
+      ...natural.filter((m) => isFocusMuscle(m)),
+      ...natural.filter((m) => !isFocusMuscle(m) && m !== 'core'),
+      ...natural.filter((m) => !isFocusMuscle(m) && m === 'core'),
+      ...template.injected,
+    ]
+
+    orderedMuscles.forEach((muscle, muscleIdx) => {
+      const isFocus = isFocusMuscle(muscle)
+      const injected = template.injected.includes(muscle)
       const perMuscleCount = exercisesPerMuscle(answers.experience, tier.tier, isFocus)
-      const pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => !usedNames.has(e.name))
-      // A muscle injected onto a day that wouldn't naturally train it (e.g. glutes added to a
-      // Full Body day, or a full-body finisher added anywhere) gets a light touch — 1 exercise —
-      // rather than the full per-muscle count. Otherwise the first day to process that muscle
-      // would grab the whole (often small) exercise pool for it, leaving nothing for the other
-      // days it was also injected into, which defeats the point of spreading it across the week.
-      const count = muscle === 'core' ? Math.max(1, perMuscleCount - 1) : template.injected.includes(muscle) ? 1 : perMuscleCount
-      // Shuffled (not just filtered) so two people with identical stats — or the same person
-      // hitting Regenerate — don't get the exact same exercise selection every time. Compounds
-      // stay ordered before isolations so slot 0 is reliably a compound lift when one's available.
-      const compounds = shuffle(pool.filter((e) => e.compound))
-      const isolations = shuffle(pool.filter((e) => !e.compound))
-      const chosenPool = [...compounds, ...isolations]
+      const dayNames = new Set(entries.map((e) => e.exercise.name))
+      const allForMuscle = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => !dayNames.has(e.name))
+      // Prefer exercises no earlier day has used. With limited equipment (or an injury) the fresh
+      // pool runs out on 5-6 day splits, so fall back to reusing one rather than leaving a day empty.
+      const fresh = allForMuscle.filter((e) => !usedNames.has(e.name))
+      const reused = allForMuscle.filter((e) => usedNames.has(e.name))
+      // A focus muscle added to a day that would not naturally train it is a finisher: 2 exercises
+      // (1 when recovery is poor, and 1 for full-body conditioning). It stays small so the first day
+      // to process the muscle cannot grab the whole exercise pool and starve the other days.
+      const count = injected
+        ? muscle === 'full-body' || tier.tier === 'Poor'
+          ? 1
+          : 2
+        : muscle === 'core'
+          ? Math.max(1, perMuscleCount - 1)
+          : perMuscleCount
+      // Shuffled (not just filtered) so two people with identical stats, or the same person
+      // hitting Regenerate, do not get the exact same exercise selection every time. Compounds
+      // stay ordered before isolations so slot 0 is reliably a compound lift when one is available.
+      const ordered = (list: LibraryExercise[]) => [
+        ...shuffle(list.filter((e) => e.compound)),
+        ...shuffle(list.filter((e) => !e.compound)),
+      ]
+      // Exercises where this muscle is the main target come first. One that only works it as a side
+      // effect (a back row also tagged "core") is a last resort, so a leg day does not fill up with
+      // back work just because the muscle tags overlap.
+      const isPrimary = (e: LibraryExercise) => e.muscle[0] === muscle
+      const chosenPool = [
+        ...ordered(fresh.filter(isPrimary)),
+        ...ordered(reused.filter(isPrimary)),
+        ...ordered(fresh.filter((e) => !isPrimary(e))),
+        ...ordered(reused.filter((e) => !isPrimary(e))),
+      ]
 
       for (let i = 0; i < count && i < chosenPool.length; i++) {
         const seed = dayIdx * 7 + muscleIdx * 3 + i
@@ -183,43 +293,91 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
         if (!ex) continue
         usedNames.add(ex.name)
         const isCompound = ex.compound && i === 0
-        if (ex.holdBased) {
-          exercises.push({
-            name: ex.name,
-            sets: Math.max(2, scheme.compoundSets - 1),
-            reps: holdTime,
-            rest: '45-60 sec',
-            notes: `Hold with a neutral spine and braced core — stop the set early if form breaks down.`,
-          })
-          continue
-        }
-        exercises.push({
-          name: ex.name,
-          sets: isCompound ? scheme.compoundSets : Math.max(2, scheme.compoundSets - 1),
-          reps: isCompound ? scheme.compoundReps : scheme.accessoryReps,
-          rest: isCompound ? scheme.rest : '60-75 sec',
-          notes: isCompound
-            ? `Target ${tier.targetRIR}. Focus on controlled tempo and full range of motion.`
-            : `Isolation work — squeeze at peak contraction, ${tier.targetRIR}.`,
+        entries.push({
+          exercise: makeEntry(ex, isCompound, isFocus && focusExtraSet),
+          muscle,
+          focus: isFocus,
+          main: i === 0,
+          injected,
         })
       }
     })
 
-    if (tier.extraRest && dayIdx % 2 === 1 && exercises.length > 4) {
-      exercises.pop()
+    // Focus work added to this day takes time, so trim the same number of accessory exercises for
+    // other muscles from the end of the session (never a main lift, never a focus muscle).
+    let toTrim = entries.filter((e) => e.injected).length
+    while (toTrim > 0 && entries.length > 4) {
+      let idx = -1
+      for (let i = entries.length - 1; i >= 0; i--) {
+        if (!entries[i].focus && !entries[i].main) {
+          idx = i
+          break
+        }
+      }
+      if (idx === -1) break
+      entries.splice(idx, 1)
+      toTrim--
+    }
+
+    // Remove the last exercise that is neither a main lift nor focus work (or, failing that, the last
+    // focus accessory), so cutting volume never removes the main lifts.
+    const dropOne = () => {
+      for (const keepFocus of [false, true]) {
+        for (let i = entries.length - 1; i >= 0; i--) {
+          const e = entries[i]
+          if (!e.main && (keepFocus || !e.focus)) {
+            entries.splice(i, 1)
+            return true
+          }
+        }
+      }
+      return false
+    }
+
+    // Poor / moderate recovery: drop one exercise from every other session.
+    if (tier.extraRest && dayIdx % 2 === 1 && entries.length > 4) dropOne()
+    // Many focus areas can stack up; keep a session to a length people will actually finish.
+    while (entries.length > MAX_EXERCISES_PER_DAY && dropOne()) {
+      // dropOne() does the trimming
+    }
+
+    const exercises: Exercise[] = entries.map((e) => e.exercise)
+
+    // Very limited equipment plus an injury can leave a day nearly empty. Top it up with whatever is
+    // still safe and available instead of handing over an empty day.
+    const addedMuscles: FocusArea[] = []
+    if (exercises.length < 3) {
+      const inDay = new Set(exercises.map((e) => e.name))
+      const extras = shuffle(
+        EXERCISES.filter(
+          (e) =>
+            isAllowed(e, answers.equipment, answers.injuries) &&
+            !inDay.has(e.name) &&
+            e.muscle.some((m) => m === 'core' || m === 'legs' || m === 'glutes' || m === 'full-body'),
+        ),
+      )
+      const ordered = [...extras.filter((e) => e.compound), ...extras.filter((e) => !e.compound)]
+      for (const ex of ordered) {
+        if (exercises.length >= 4) break
+        exercises.push(makeEntry(ex, ex.compound && exercises.length === 0))
+        usedNames.add(ex.name)
+        for (const m of ex.muscle) if (!addedMuscles.includes(m)) addedMuscles.push(m)
+      }
     }
 
     return {
       day: dayIdx + 1,
       name: template.name,
-      focus: template.muscles.map((m) => m.replace('-', ' ')).join(' / '),
+      focus: [...orderedMuscles, ...addedMuscles.filter((m) => !orderedMuscles.includes(m))]
+        .map((m) => m.replace('-', ' '))
+        .join(' / '),
       duration: exercises.length > 6 ? '60-70 min' : '45-55 min',
       exercises,
     }
   })
 
   const goalLabel = GOAL_LABELS[answers.goal]
-  const equipmentLabel = answers.equipment.replace(/-/g, ' ')
+  const equipmentLabel = normalizeEquipment(answers.equipment).replace(/-/g, ' ')
 
   const splitTypeLabel =
     answers.trainingDays === 3
@@ -252,8 +410,10 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
 
   if (answers.focusAreas.length > 0) {
     const labels = answers.focusAreas.map((f) => FOCUS_LABELS[f]).join(', ')
+    const perWeek = Math.min(FOCUS_DAYS_PER_WEEK, answers.trainingDays)
+    const frequency = perWeek >= answers.trainingDays ? 'in every session' : `at least ${perWeek} times a week`
     personalizationNotes.push(
-      `You flagged ${labels} as a focus area — ${answers.focusAreas.length > 1 ? 'those muscles get' : 'it gets'} an extra exercise slot on every day it's trained, and was added to days that wouldn't otherwise include it so it gets consistent weekly attention.`,
+      `You flagged ${labels} as a focus area, so ${answers.focusAreas.length > 1 ? 'those muscles are' : 'it is'} trained ${frequency}, placed early in the session while you are fresh, with an extra exercise and an extra set on its lifts. To keep sessions a reasonable length, a few accessory exercises for other muscles were trimmed to make room.`,
     )
   }
 
@@ -325,8 +485,13 @@ export function generateAlternate(
   exerciseName: string,
   muscle: FocusArea,
   answers: IntakeAnswers,
+  /** Names already in today's session, so a swap doesn't repeat one. */
+  avoid: string[] = [],
 ): Exercise {
+  if (disciplineOf(answers.equipment) !== 'strength') return generateMindBodyAlternate(exerciseName, answers, avoid)
   let pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName)
+  const withoutToday = pool.filter((e) => !avoid.includes(e.name))
+  if (withoutToday.length > 0) pool = withoutToday
   // Prefer staying within the same specific movement (e.g. biceps vs triceps within "arms", or
   // which deltoid head within "shoulders") so a swap still feels like a reasonable substitute —
   // otherwise "arms" alone would happily swap a triceps exercise like Dip for a biceps one like

@@ -2,6 +2,7 @@ import { BatteryMedium, CalendarCheck, Dumbbell, Zap } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getRecoveryTier } from '@/lib/tdee'
+import { isMindBody } from '@/lib/discipline'
 import { RecoveryLearnMore, RecoveryScale, ScoreBreakdown, tierMeaning } from './RecoveryScoreExplainer'
 import type { IntakeAnswers } from '@/lib/types'
 
@@ -21,10 +22,11 @@ export function RecoveryTab({
   answers: IntakeAnswers
   advice: string[]
 }) {
-  const tier = getRecoveryTier(recoveryScore)
+  const mindBody = isMindBody(answers.equipment)
+  const tier = getRecoveryTier(recoveryScore, mindBody ? 'mind-body' : 'strength')
 
   const impact = [
-    { icon: Dumbbell, label: 'Training volume', text: tier.volumeAdjustment },
+    { icon: Dumbbell, label: mindBody ? 'Session length' : 'Training volume', text: tier.volumeAdjustment },
     {
       icon: CalendarCheck,
       label: 'Rest days',
@@ -32,7 +34,7 @@ export function RecoveryTab({
         ? 'An extra recovery day was added to your weekly split.'
         : 'Full training frequency was preserved — no extra rest days required.',
     },
-    { icon: Zap, label: 'Effort per set', text: `Aim for ${tier.targetRIR}.` },
+    { icon: Zap, label: mindBody ? 'Effort level' : 'Effort per set', text: `Aim for ${tier.targetRIR}.` },
   ]
 
   return (
@@ -80,7 +82,7 @@ export function RecoveryTab({
         </Card>
       </section>
 
-      <RecoveryLearnMore currentTier={tier.tier} />
+      <RecoveryLearnMore currentTier={tier.tier} mindBody={mindBody} />
 
       <section>
         <h3 className="mb-3 font-display text-xl tracking-wide">AI Recovery Advice</h3>

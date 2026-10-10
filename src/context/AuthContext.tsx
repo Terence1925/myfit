@@ -10,6 +10,7 @@ interface AuthContextValue {
   loading: boolean
   signUp: (email: string, password: string, displayName: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => void
   requestPasswordReset: (email: string) => Promise<void>
@@ -83,6 +84,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(p)
   }, [])
 
+  const signInWithGoogle = React.useCallback(async () => {
+    // In a browser this leaves the page for Google (no profile yet); on the phone it returns the profile.
+    const p = await auth.signInWithGoogle()
+    if (p) setProfile(p)
+  }, [])
+
   const signOut = React.useCallback(async () => {
     await auth.signOut()
     setProfile(null)
@@ -110,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         signUp,
         signIn,
+        signInWithGoogle,
         signOut,
         refreshProfile,
         requestPasswordReset,

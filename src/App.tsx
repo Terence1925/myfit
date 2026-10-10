@@ -19,6 +19,8 @@ import DeleteAccountPage from '@/pages/legal/DeleteAccountPage'
 import { Footer } from '@/components/layout/Footer'
 import { hasProAccess } from '@/lib/billing'
 import { syncTrialReminder } from '@/lib/trialReminder'
+import { stopRestTimer, useRestTimer } from '@/lib/restTimerStore'
+import { RestTimerHost } from '@/components/program/RestTimerBar'
 import NotFound from '@/pages/NotFound'
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -37,8 +39,9 @@ function RequirePro({ children }: { children: ReactNode }) {
 }
 
 function AppShell() {
-  const { profile } = useAuth()
+  const { profile, loading } = useAuth()
   const profileId = profile?.id
+  const rest = useRestTimer()
 
   // Re-check the trial on every app open so the "trial ends tomorrow" reminder always reflects reality
   // (e.g. it disappears if the user cancelled in Google Play).
@@ -46,8 +49,13 @@ function AppShell() {
     if (profileId) void syncTrialReminder(profileId)
   }, [profileId])
 
+  // Signing out ends any running rest (but wait for the session check on startup before judging).
+  React.useEffect(() => {
+    if (!loading && !profile) stopRestTimer()
+  }, [loading, profile])
+
   return (
-    <div className="min-h-screen">
+    <div className={rest && profile ? 'min-h-screen pb-40' : 'min-h-screen'}>
       <GlowBackground />
       {profile && <NavBar />}
       <Routes>
@@ -108,6 +116,7 @@ function AppShell() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
+      {profile && <RestTimerHost />}
     </div>
   )
 }

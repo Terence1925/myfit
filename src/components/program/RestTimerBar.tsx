@@ -1,15 +1,10 @@
 import * as React from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { BellRing, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-
-export interface RestState {
-  endsAt: number
-  totalSeconds: number
-  /** Short text for what's next, e.g. "start set 2" or "next up: Walking Lunge". */
-  nextLabel: string
-  exerciseName: string
-}
+import { isNativeApp } from '@/lib/platform'
+import { isRestAlarmRinging, openExactAlarmSettings } from '@/lib/restTimer'
+import { addRestTime, stopRestTimer, useRestTimer, type RestState } from '@/lib/restTimerStore'
 
 function fmt(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60)
@@ -17,7 +12,7 @@ function fmt(totalSeconds: number) {
   return `${m}:${s < 10 ? '0' : ''}${s}`
 }
 
-export function RestTimerBar({
+function RestTimerBar({
   rest,
   onAddTime,
   onSkip,
@@ -38,9 +33,10 @@ export function RestTimerBar({
   const over = leftSeconds === 0
   const progress = Math.min(100, Math.max(0, ((rest.totalSeconds - leftSeconds) / rest.totalSeconds) * 100))
 
-  // Buzz once when the countdown reaches zero while the app is open (the phone's own
-  // notification covers the screen-off case).
+  // In the phone app, the native alarm (RestAlarmPlugin) does the buzzing — repeatedly, until "Got it".
+  // On the web there's no native alarm, so buzz once if the browser supports it.
   React.useEffect(() => {
+    if (isNativeApp()) return
     if (over && vibratedFor.current !== rest.endsAt) {
       vibratedFor.current = rest.endsAt
       try {
@@ -50,6 +46,26 @@ export function RestTimerBar({
       }
     }
   }, [over, rest.endsAt])
+
+  // If "Got it" was tapped on the notification while the app was in the background, the bar would
+  // otherwise sit on "Rest over". Once we've seen the alarm ringing and it stops, close the bar.
+  const sawRinging = React.useRef(false)
+  React.useEffect(() => {
+    if (!over || !isNativeApp()) return
+    let cancelled = false
+    const check = async () => {
+      const ringing = await isRestAlarmRinging()
+      if (cancelled || ringing === null) return
+      if (ringing) sawRinging.current = true
+      else if (sawRinging.current) onSkip()
+    }
+    void check()
+    const id = setInterval(check, 1000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [over, onSkip])
 
   return (
     <motion.div
@@ -63,6 +79,16 @@ export function RestTimerBar({
       aria-live="polite"
     >
       <div className="container max-w-2xl py-3">
+        {rest.alertProblem && (
+          <div className="mb-2 flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs text-destructive">
+            <span>{rest.alertProblem}</span>
+            {rest.needsExactPermission && (
+              <Button size="sm" variant="outline" className="h-7 shrink-0 px-2 text-xs" onClick={() => void openExactAlarmSettings()}>
+                Allow
+              </Button>
+            )}
+          </div>
+        )}
         {over ? (
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 font-body text-base font-bold text-emerald-400">
@@ -95,5 +121,15 @@ export function RestTimerBar({
         )}
       </div>
     </motion.div>
+  )
+}
+
+/** Mounted once for the whole app, so the timer stays on screen whichever page the user is on. */
+export function RestTimerHost() {
+  const rest = useRestTimer()
+  return (
+    <AnimatePresence>
+      {rest && <RestTimerBar key={rest.exerciseName + rest.nextLabel} rest={rest} onAddTime={addRestTime} onSkip={stopRestTimer} />}
+    </AnimatePresence>
   )
 }

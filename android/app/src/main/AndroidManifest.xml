@@ -34,12 +34,20 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Fires when a rest ends and keeps the phone vibrating until the user taps "Got it". -->
+        <receiver android:name=".RestAlarmReceiver" android:exported="false" />
     </application>
 
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- The trial reminder doesn't need to fire at the exact second, and Play restricts exact alarms. -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
+    <!-- Lets the rest timer buzz the phone while the app is open. Normal permission: no prompt. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- The rest timer must ring at the exact moment a rest ends, even with the app in the background. Android
+         asks the person to switch this on (Settings > Alarms & reminders); without it the app falls back to a
+         normal notification. Google Play asks for a short declaration of this use when the app is submitted. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 </manifest>

@@ -21,6 +21,7 @@ import type { BillingResult } from './types'
 import { generateAlternate, generateProgram } from './programGenerator'
 import { EXERCISES } from './exerciseLibrary'
 import { supabase } from './supabaseClient'
+import { getGoogleIdToken, googleSignOut } from './googleAuth'
 
 // Public website URL — must also be listed under Supabase → Authentication → URL Configuration
 // → Redirect URLs (as `<this>/reset-password`) or password-reset links will be rejected.
@@ -142,8 +143,35 @@ export const auth = {
     return profile
   },
 
+  async signInWithGoogle(): Promise<Profile | null> {
+    if (!isNativeApp()) {
+      // In a normal browser, Google's own page handles the sign-in and sends the person back here.
+      const { error } = await sb().auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      })
+      if (error) throw new Error(error.message)
+      return null
+    }
+    // The phone app can't use Google's web page (Google blocks sign-in inside an embedded WebView),
+    // so it uses the phone's own account picker and trades the signed token for a session.
+    const token = await getGoogleIdToken()
+    const { data, error } = await sb().auth.signInWithIdToken({ provider: 'google', token })
+    if (error) throw new Error(error.message)
+    if (!data.user) throw new Error('Google sign-in did not return an account.')
+    // The profile is created by a database trigger; give it a moment if it is not visible yet.
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const profile = await profiles.get(data.user.id)
+      if (profile) return profile
+      await new Promise((r) => setTimeout(r, 300))
+    }
+    throw new Error('Signed in with Google, but your profile is not ready yet. Please try again.')
+  },
+
   async signOut(): Promise<void> {
     await sb().auth.signOut()
+    // Also forget the Google account on this phone, so the next sign-in shows the account picker.
+    void googleSignOut()
   },
 
   async currentSession(): Promise<Profile | null> {
@@ -288,11 +316,11 @@ export const programs = {
     return mapProgram(data)
   },
 
-  async alternate(userId: string, exerciseName: string, dayFocus: string, answers: IntakeAnswers) {
+  async alternate(userId: string, exerciseName: string, dayFocus: string, answers: IntakeAnswers, avoid: string[] = []) {
     await new Promise((r) => setTimeout(r, 700))
     const muscle = (EXERCISES.find((e) => e.name === exerciseName)?.muscle[0] ??
       dayFocus.split(' / ')[0].replace(' ', '-')) as IntakeAnswers['focusAreas'][number]
-    const swap = generateAlternate(exerciseName, muscle, answers)
+    const swap = generateAlternate(exerciseName, muscle, answers, avoid)
     await logActivity(userId, 'swapped_exercise', { from: exerciseName, to: swap.name })
     return swap
   },

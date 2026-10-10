@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
+import { isNativeApp } from '@/lib/platform'
+import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
 
 // Must match capacitor.config.ts's appId
 const ANDROID_PACKAGE_ID = 'com.forgefit.app'
@@ -176,6 +178,8 @@ export default function AccountPage() {
         >
           <LogOut className="h-4 w-4" /> Sign Out
         </Button>
+
+        {isNativeApp() && <RestAlarmCheck />}
 
         {isSupabaseConfigured && (
           <Card>

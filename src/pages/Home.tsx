@@ -22,11 +22,15 @@ export default function Home() {
   const [submitting, setSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
+  // Keyed on the user's id, not the whole profile object: the profile is re-fetched whenever the app
+  // resumes or the session refreshes, and reloading the program each time would hand every screen below a
+  // brand-new copy of it and wipe whatever was being typed.
+  const profileId = profile?.id
   React.useEffect(() => {
-    if (!profile) return
+    if (!profileId) return
     let cancelled = false
     ;(async () => {
-      const existing = await programs.listForUser(profile.id)
+      const existing = await programs.listForUser(profileId)
       if (cancelled) return
       if (existing.length > 0) {
         setProgram(existing[0])
@@ -38,7 +42,7 @@ export default function Home() {
     return () => {
       cancelled = true
     }
-  }, [profile])
+  }, [profileId])
 
   if (!profile) return null
 

@@ -8,6 +8,12 @@ const config: CapacitorConfig = {
   android: {
     backgroundColor: '#0a0805',
   },
+  plugins: {
+    // Only Google sign-in is used (turn on `apple` when the iPhone app is added).
+    SocialLogin: {
+      providers: { google: true, facebook: false, apple: false, twitter: false },
+    },
+  },
 }
 
 export default config

@@ -25,12 +25,12 @@ export type Goal =
 
 export type Equipment =
   | 'full-gym'
-  | 'barbells-racks'
   | 'dumbbells-only'
-  | 'machines-only'
   | 'home-workout'
   | 'calisthenics'
   | 'resistance-bands'
+  | 'yoga'
+  | 'pilates'
 
 export type FocusArea =
   | 'chest'
@@ -124,12 +124,21 @@ export interface Profile {
 
 export type Role = 'admin' | 'user'
 
+export type ExerciseFormat = 'strength' | 'yoga' | 'pilates'
+
 export interface Exercise {
   name: string
+  /** Strength: working sets. Pilates: rounds. Yoga: always 1 (poses are held for time). */
   sets: number
+  /** Strength / Pilates: rep range. Yoga (and timed Pilates moves): a time like "30-45 sec". */
   reps: string
+  /** Empty for yoga and Pilates, which flow from one move to the next. */
   rest: string
   notes: string
+  /** How to present it. Missing means strength (programs saved before yoga and Pilates existed). */
+  format?: ExerciseFormat
+  /** Do this on both sides, one after the other. */
+  eachSide?: boolean
 }
 
 export interface ProgramDay {

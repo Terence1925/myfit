@@ -10,7 +10,7 @@ export default function PrivacyPage() {
 
       <h2>1. Data We Collect</h2>
       <ul>
-        <li><strong>Account data:</strong> name, email address, hashed password.</li>
+        <li><strong>Account data:</strong> name, email address, and a hashed password (if you sign up with email). If you choose "Continue with Google", we receive your name and email address from Google. We never receive your Google password.</li>
         <li><strong>Body &amp; lifestyle data:</strong> age, sex, weight, height, sleep, stress, activity level, training goal — used to calculate your BMR/TDEE and generate your program.</li>
         <li><strong>Usage data:</strong> generated programs, logged workouts, body-metric entries, activity history.</li>
         <li><strong>Billing data:</strong> your subscription plan and status. Payments are handled entirely by Google Play — we never see or store your card number.</li>

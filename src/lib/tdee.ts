@@ -78,40 +78,53 @@ export function getRecoveryBreakdown(answers: Pick<IntakeAnswers, 'sleepHours' |
   return { base: 50, sleepHours, sleepQuality, stress, raw: 50 + sleepHours + sleepQuality + stress }
 }
 
-export function getRecoveryTier(score: number): RecoveryTier {
+export type RecoveryStyle = 'strength' | 'mind-body'
+
+export function getRecoveryTier(score: number, style: RecoveryStyle = 'strength'): RecoveryTier {
+  const mindBody = style === 'mind-body'
   if (score < 50) {
     return {
       tier: 'Poor',
       score,
-      volumeAdjustment: 'Cut training volume by 25%. Prioritize compound lifts, drop isolation work.',
+      volumeAdjustment: mindBody
+        ? 'About 25% fewer poses per session, with gentler poses and more restorative holds. Skip anything that feels forced.'
+        : 'Cut training volume by 25%. Prioritize compound lifts, drop isolation work.',
       extraRest: true,
-      targetRIR: '3+ RIR (leave 3+ reps in the tank every set)',
+      targetRIR: mindBody
+        ? 'a gentle, easy effort. You should be able to breathe slowly and talk comfortably'
+        : '3+ RIR (leave 3+ reps in the tank every set)',
     }
   }
   if (score < 70) {
     return {
       tier: 'Moderate',
       score,
-      volumeAdjustment: 'Cut training volume by 10-15%. Keep intensity, trim total sets.',
+      volumeAdjustment: mindBody
+        ? 'About 10 to 15% fewer poses per session. Keep the effort comfortable and the breathing steady.'
+        : 'Cut training volume by 10-15%. Keep intensity, trim total sets.',
       extraRest: true,
-      targetRIR: '2-3 RIR',
+      targetRIR: mindBody ? 'a comfortable effort with steady breathing' : '2-3 RIR',
     }
   }
   if (score < 85) {
     return {
       tier: 'Good',
       score,
-      volumeAdjustment: 'Standard programmed volume. Progress as planned.',
+      volumeAdjustment: mindBody
+        ? 'The standard program. Progress as planned.'
+        : 'Standard programmed volume. Progress as planned.',
       extraRest: false,
-      targetRIR: '1-2 RIR',
+      targetRIR: mindBody ? 'a moderate effort: challenging, but smooth and controlled' : '1-2 RIR',
     }
   }
   return {
     tier: 'Elite',
     score,
-    volumeAdjustment: 'Cleared for +10-15% extra volume and higher training density.',
+    volumeAdjustment: mindBody
+      ? 'Room for a few extra poses per session and slightly longer holds.'
+      : 'Cleared for +10-15% extra volume and higher training density.',
     extraRest: false,
-    targetRIR: '0-1 RIR on top sets',
+    targetRIR: mindBody ? 'a strong effort, always controlled and never rushed' : '0-1 RIR on top sets',
   }
 }
 

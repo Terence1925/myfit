@@ -51,7 +51,9 @@ export async function syncTrialReminder(userId: string): Promise<void> {
           channelId: CHANNEL_ID,
           title: 'Your FORGEFIT free trial ends tomorrow',
           body: "You'll be charged when it ends unless you cancel in Google Play → Subscriptions.",
-          schedule: { at: remindAt },
+          // Same reason as the rest timer: never send the user to the exact-alarm settings screen.
+          isExactNotification: false,
+          schedule: { at: remindAt, allowWhileIdle: true },
         },
       ],
     })
