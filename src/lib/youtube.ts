@@ -4,7 +4,7 @@ const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string | undefined
 
 export const isYoutubeApiConfigured = Boolean(API_KEY)
 
-const CACHE_KEY = 'forgefit_youtube_cache'
+const CACHE_KEY = 'myfit_youtube_cache'
 
 function readCache(): Record<string, string> {
   try {

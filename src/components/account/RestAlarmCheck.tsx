@@ -45,7 +45,7 @@ export function RestAlarmCheck() {
             {lines.map((line, i) => (
               <li key={i} className="flex gap-2">
                 {line.ok === true ? (
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 ) : line.ok === false ? (
                   <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                 ) : (

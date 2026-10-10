@@ -4,19 +4,19 @@ export default function TermsPage() {
   return (
     <LegalLayout title="Terms of Service" updated="September 6, 2026">
       <p>
-        These Terms of Service ("Terms") govern your use of FORGEFIT (the "Service"), operated from the
+        These Terms of Service ("Terms") govern your use of MyFit (the "Service"), operated from the
         Philippines. By creating an account or using the Service, you agree to these Terms.
       </p>
 
       <h2>1. Eligibility</h2>
       <p>
-        You must be at least 16 years old to use FORGEFIT. By using the Service you represent that you meet
+        You must be at least 16 years old to use MyFit. By using the Service you represent that you meet
         this requirement and that the information you provide (age, weight, health details) is accurate.
       </p>
 
       <h2>2. Health &amp; Fitness Disclaimer</h2>
       <p>
-        FORGEFIT generates training and nutrition guidance based on the information you provide. It is
+        MyFit generates training and nutrition guidance based on the information you provide. It is
         <strong> not medical advice</strong> and is not a substitute for consultation with a physician or
         registered dietitian. Consult a doctor before beginning any new exercise or nutrition program,
         especially if you have a pre-existing health condition, injury, or are pregnant. You use the Service,
@@ -42,10 +42,10 @@ export default function TermsPage() {
           for one trial.
         </li>
         <li>
-          Pro plans (Monthly at ₱299, Yearly at ₱2,999) are purchased in the FORGEFIT mobile app through
+          Pro plans (Monthly at ₱299, Yearly at ₱2,999) are purchased in the MyFit mobile app through
           Google Play. They are billed and automatically renewed each period until you cancel from your
           Google Play subscription settings; you keep access until the end of the period you already paid
-          for. A Pro subscription also applies when you sign in to FORGEFIT on the web.
+          for. A Pro subscription also applies when you sign in to MyFit on the web.
         </li>
         <li>Prices are listed in Philippine Peso (₱) and may change with prior notice for future billing periods.</li>
         <li>Refunds are handled under our <a href="/refund-policy">Refund Policy</a>.</li>
@@ -59,7 +59,7 @@ export default function TermsPage() {
 
       <h2>6. Intellectual Property</h2>
       <p>
-        The Service, its design, and underlying software are owned by FORGEFIT. Programs generated for your
+        The Service, its design, and underlying software are owned by MyFit. Programs generated for your
         account are yours to use personally; you may not resell or redistribute the Service itself.
       </p>
 
@@ -72,7 +72,7 @@ export default function TermsPage() {
       <h2>8. Limitation of Liability</h2>
       <p>
         The Service is provided "as is" without warranties of any kind. To the maximum extent permitted by
-        law, FORGEFIT is not liable for any injury, loss, or damage arising from your use of the Service or
+        law, MyFit is not liable for any injury, loss, or damage arising from your use of the Service or
         reliance on any program it generates.
       </p>
 

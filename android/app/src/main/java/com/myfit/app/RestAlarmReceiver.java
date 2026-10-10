@@ -1,4 +1,4 @@
-package com.forgefit.app;
+package com.myfit.app;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -27,7 +27,7 @@ public class RestAlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "RestAlarm";
     static final String EXTRA_TITLE = "title";
     static final String EXTRA_BODY = "body";
-    static final String ACTION_DISMISS = "com.forgefit.app.REST_DISMISS";
+    static final String ACTION_DISMISS = "com.myfit.app.REST_DISMISS";
 
     // Channel settings (sound, vibration) can't be changed after a channel exists, so a new sound means
     // a new channel id. Older ids are removed in ensureChannel().

@@ -100,7 +100,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
         </CardHeader>
         <CardContent className="space-y-5">
           <MacroBar
-            icon={<Beef className="h-4 w-4 text-red-400" />}
+            icon={<Beef className="h-4 w-4 text-red-600 dark:text-red-400" />}
             label="Protein"
             grams={nutrition.proteinG}
             kcal={proteinKcal}
@@ -108,7 +108,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
             colorClass="bg-red-500"
           />
           <MacroBar
-            icon={<Wheat className="h-4 w-4 text-amber-400" />}
+            icon={<Wheat className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
             label="Carbs"
             grams={nutrition.carbsG}
             kcal={carbsKcal}
@@ -116,7 +116,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
             colorClass="bg-gold-gradient"
           />
           <MacroBar
-            icon={<Droplet className="h-4 w-4 text-cyan-400" />}
+            icon={<Droplet className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />}
             label="Fat"
             grams={nutrition.fatG}
             kcal={fatKcal}

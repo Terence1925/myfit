@@ -11,9 +11,10 @@ import { isSupabaseConfigured } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
 import { isNativeApp } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
+import { useTheme, type ThemeChoice } from '@/lib/theme'
 
 // Must match capacitor.config.ts's appId
-const ANDROID_PACKAGE_ID = 'com.forgefit.app'
+const ANDROID_PACKAGE_ID = 'com.myfit.app'
 
 // Must match supabase/functions/delete-account's OWNER_EMAIL — the server is the real
 // enforcement; this just avoids offering a delete flow that would only fail at the last step.
@@ -24,6 +25,7 @@ export default function AccountPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [syncing, setSyncing] = React.useState(false)
+  const { choice: themeChoice, setChoice: setThemeChoice } = useTheme()
   const [confirmingDelete, setConfirmingDelete] = React.useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = React.useState('')
   const [deleting, setDeleting] = React.useState(false)
@@ -179,6 +181,30 @@ export default function AccountPage() {
           <LogOut className="h-4 w-4" /> Sign Out
         </Button>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Appearance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex rounded-lg border border-border p-1">
+              {(['light', 'dark', 'system'] as ThemeChoice[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setThemeChoice(option)}
+                  className={
+                    'flex-1 rounded-md py-2 text-sm font-semibold capitalize transition-colors ' +
+                    (themeChoice === option ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground')
+                  }
+                >
+                  {option === 'system' ? 'Auto' : option}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Auto follows your phone's light or dark setting.</p>
+          </CardContent>
+        </Card>
+
         {isNativeApp() && <RestAlarmCheck />}
 
         {isSupabaseConfigured && (
@@ -190,7 +216,7 @@ export default function AccountPage() {
             </CardHeader>
             <CardContent className="space-y-4 text-sm font-body">
               {passwordChanged && !changingPassword && (
-                <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-emerald-400">
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-emerald-600 dark:text-emerald-400">
                   <Check className="h-4 w-4" /> Password updated.
                 </div>
               )}

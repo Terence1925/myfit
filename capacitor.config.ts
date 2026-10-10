@@ -1,12 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.forgefit.app',
-  appName: 'FORGEFIT',
+  appId: 'com.myfit.app',
+  appName: 'MyFit',
   webDir: 'dist',
-  backgroundColor: '#0a0805',
+  backgroundColor: '#191a1f',
   android: {
-    backgroundColor: '#0a0805',
+    backgroundColor: '#191a1f',
   },
   plugins: {
     // Only Google sign-in is used (turn on `apple` when the iPhone app is added).

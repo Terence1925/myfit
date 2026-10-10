@@ -1,4 +1,4 @@
-package com.forgefit.app;
+package com.myfit.app;
 
 import android.app.AlarmManager;
 import android.app.NotificationChannel;

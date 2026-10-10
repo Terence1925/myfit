@@ -49,7 +49,7 @@ export async function syncTrialReminder(userId: string): Promise<void> {
         {
           id: REMINDER_ID,
           channelId: CHANNEL_ID,
-          title: 'Your FORGEFIT free trial ends tomorrow',
+          title: 'Your MyFit free trial ends tomorrow',
           body: "You'll be charged when it ends unless you cancel in Google Play → Subscriptions.",
           // Same reason as the rest timer: never send the user to the exact-alarm settings screen.
           isExactNotification: false,

@@ -33,7 +33,7 @@ const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('
 
 // Centavos, matching src/lib/billing.ts's MONTHLY_PRICE / YEARLY_PRICE.
 const AMOUNTS = { monthly: 30_000, yearly: 260_000 }
-const LABELS = { monthly: 'FORGEFIT Pro — Monthly', yearly: 'FORGEFIT Pro — Yearly' }
+const LABELS = { monthly: 'MyFit Pro — Monthly', yearly: 'MyFit Pro — Yearly' }
 
 function paymongoAuthHeader(): string {
   return `Basic ${btoa(`${PAYMONGO_SECRET_KEY}:`)}`
@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
             success_url: `${SITE_URL}/account?checkout=success`,
             cancel_url: `${SITE_URL}/pricing`,
             customer_email: profile.email,
-            description: `FORGEFIT Pro (${period})`,
+            description: `MyFit Pro (${period})`,
             metadata: { supabase_user_id: userId, period },
           },
         },

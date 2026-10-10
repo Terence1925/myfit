@@ -25,7 +25,7 @@ import { getGoogleIdToken, googleSignOut } from './googleAuth'
 
 // Public website URL — must also be listed under Supabase → Authentication → URL Configuration
 // → Redirect URLs (as `<this>/reset-password`) or password-reset links will be rejected.
-const WEB_APP_URL = 'https://forgefit-gray.vercel.app'
+const WEB_APP_URL = 'https://getmyfit.vercel.app'
 
 // Programs effectively never expire. Everyone builds their program before subscribing, so a short
 // lifetime would delete it out from under someone who subscribes on day 3. A 100-year lifetime

@@ -1,8 +1,10 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Dumbbell, Loader2, MailCheck } from 'lucide-react'
+import { Loader2, MailCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/Logo'
+import { Wordmark } from '@/components/ui/Wordmark'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
@@ -10,6 +12,7 @@ import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured } from '@/lib/backend/api'
 import { GOOGLE_CANCELLED, isGoogleSignInConfigured } from '@/lib/backend/googleAuth'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle, requestPasswordReset } = useAuth()
@@ -148,9 +151,7 @@ export default function AuthPage() {
           className="w-full max-w-md"
         >
           <div className="mb-8 flex flex-col items-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg animate-float">
-              <Dumbbell className="h-8 w-8 text-primary-foreground" strokeWidth={2.5} />
-            </div>
+            <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
             <h1 className="font-display text-4xl tracking-wide text-gradient-gold">RESET PASSWORD</h1>
             <p className="mt-1 text-sm text-muted-foreground font-body">
               Enter your email and we'll send you a reset link.
@@ -208,7 +209,8 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="relative flex min-h-screen items-center justify-center px-4">
+      <ThemeToggle className="absolute right-4 top-4" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -216,11 +218,11 @@ export default function AuthPage() {
         className="w-full max-w-md"
       >
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg animate-float">
-            <Dumbbell className="h-8 w-8 text-primary-foreground" strokeWidth={2.5} />
-          </div>
-          <h1 className="font-display text-4xl tracking-wide text-gradient-gold">FORGEFIT</h1>
-          <p className="mt-1 text-sm text-muted-foreground font-body">AI-forged training programs, built around you.</p>
+          <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
+          <h1>
+            <Wordmark className="text-5xl" />
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground font-body">All-in-One Workout &amp; Calorie Tracker</p>
         </div>
 
         <Card className="shadow-glow-lg border-primary/10">
@@ -336,7 +338,7 @@ export default function AuthPage() {
 
             {!isSupabaseConfigured && (
               <p className="mt-5 text-center text-xs text-muted-foreground">
-                Demo admin: <span className="text-foreground/80">admin@forgefit.app</span> / admin123
+                Demo admin: <span className="text-foreground/80">admin@myfit.app</span> / admin123
               </p>
             )}
           </CardContent>

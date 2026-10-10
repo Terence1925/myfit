@@ -1,4 +1,4 @@
-package com.forgefit.app;
+package com.myfit.app;
 
 import android.os.Bundle;
 

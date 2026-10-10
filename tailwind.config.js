@@ -12,6 +12,8 @@ export default {
       fontFamily: {
         display: ['"Bebas Neue"', 'sans-serif'],
         body: ['"Barlow"', 'sans-serif'],
+        // The MyFit wordmark: bold and rounded, with real lowercase letters.
+        brand: ['"Outfit"', 'system-ui', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -60,13 +62,15 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       backgroundImage: {
-        'gold-gradient': 'linear-gradient(135deg, hsl(38 100% 50%), hsl(25 100% 55%))',
-        'gold-gradient-hover': 'linear-gradient(135deg, hsl(38 100% 56%), hsl(25 100% 60%))',
+        // Names kept from the old gold theme so every component picks up the new look; these are now flat lime.
+        'gold-gradient': 'linear-gradient(hsl(var(--primary)), hsl(var(--primary)))',
+        'gold-gradient-hover': 'linear-gradient(hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.9))',
       },
       boxShadow: {
-        glow: '0 0 40px -8px hsl(38 100% 50% / 0.45)',
-        'glow-lg': '0 0 80px -12px hsl(38 100% 50% / 0.5)',
-        card: '0 4px 24px -4px hsl(220 20% 0% / 0.6)',
+        // A soft lime glow in dark mode, a barely-there neutral shadow in light mode (see --glow in index.css).
+        glow: '0 0 40px -8px hsl(var(--glow) / var(--glow-alpha))',
+        'glow-lg': '0 0 80px -12px hsl(var(--glow) / var(--glow-alpha))',
+        card: '0 4px 24px -4px hsl(225 20% 5% / var(--shadow-alpha))',
       },
       keyframes: {
         'fade-up': {

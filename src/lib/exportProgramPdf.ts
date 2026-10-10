@@ -59,7 +59,7 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
   text(p.programName, { size: 24, bold: true, gap: 2 })
   text(p.tagline, { size: 11, color: 90 })
   text(
-    `Goal: ${GOAL_LABELS[program.answers.goal]}  ·  Generated ${new Date(program.createdAt).toLocaleDateString()} by FORGEFIT`,
+    `Goal: ${GOAL_LABELS[program.answers.goal]}  ·  Generated ${new Date(program.createdAt).toLocaleDateString()} by MyFit`,
     { size: 8, color: 130, gap: 8 },
   )
 
@@ -111,7 +111,7 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
   text(`Recovery Score: ${n.recoveryScore}/100 (${n.recoveryTier})`)
   bullets(p.recoveryAdvice)
 
-  const fileName = `${p.programName.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'FORGEFIT-program'}.pdf`
+  const fileName = `${p.programName.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'MyFit-program'}.pdf`
 
   if (!Capacitor.isNativePlatform()) {
     doc.save(fileName)

@@ -1,4 +1,4 @@
--- FORGEFIT schema: profiles, roles, programs, activity log, RLS.
+-- MyFit schema: profiles, roles, programs, activity log, RLS.
 -- Run via `supabase db push` (or paste into the SQL editor) once a project is linked.
 
 create type public.app_role as enum ('admin', 'user');

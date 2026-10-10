@@ -124,7 +124,7 @@ export function ScoreBreakdown({ answers, score }: { answers: IntakeAnswers; sco
               <div
                 className={cn(
                   'mt-1 font-display text-3xl tracking-wide tabular-nums',
-                  t.points > 0 && 'text-emerald-400',
+                  t.points > 0 && 'text-emerald-600 dark:text-emerald-400',
                   t.points < 0 && 'text-destructive',
                 )}
               >

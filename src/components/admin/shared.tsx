@@ -13,15 +13,15 @@ import {
 } from 'lucide-react'
 
 export const ACTION_ICON: Record<string, ReactNode> = {
-  signed_up: <UserPlus className="h-4 w-4 text-emerald-400" />,
+  signed_up: <UserPlus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
   signed_in: <LogIn className="h-4 w-4 text-primary" />,
   signed_out: <LogOut className="h-4 w-4 text-muted-foreground" />,
-  completed_intake: <ClipboardCheck className="h-4 w-4 text-cyan-400" />,
+  completed_intake: <ClipboardCheck className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />,
   generated_program: <Dumbbell className="h-4 w-4 text-primary" />,
   swapped_exercise: <RefreshCw className="h-4 w-4 text-accent" />,
   deleted_program: <Trash2 className="h-4 w-4 text-destructive" />,
-  promoted_to_admin: <ShieldCheck className="h-4 w-4 text-emerald-400" />,
-  demoted_to_user: <ShieldOff className="h-4 w-4 text-orange-400" />,
+  promoted_to_admin: <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
+  demoted_to_user: <ShieldOff className="h-4 w-4 text-orange-600 dark:text-orange-400" />,
 }
 
 export function actionIcon(action: string) {

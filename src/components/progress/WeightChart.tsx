@@ -71,8 +71,8 @@ export function WeightChart({ points, unitLabel }: { points: ChartPoint[]; unitL
       >
         <defs>
           <linearGradient id="weightAreaGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(38 100% 50%)" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="hsl(38 100% 50%)" stopOpacity="0" />
+            <stop offset="0%" stopColor="hsl(var(--primary-ink))" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="hsl(var(--primary-ink))" stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -83,17 +83,17 @@ export function WeightChart({ points, unitLabel }: { points: ChartPoint[]; unitL
               x2={WIDTH - PAD.right}
               y1={yFor(v)}
               y2={yFor(v)}
-              stroke="hsl(220 12% 20%)"
+              stroke="hsl(var(--border))"
               strokeWidth={1}
             />
-            <text x={PAD.left - 8} y={yFor(v) + 4} textAnchor="end" fontSize={11} fill="hsl(220 8% 55%)">
+            <text x={PAD.left - 8} y={yFor(v) + 4} textAnchor="end" fontSize={11} fill="hsl(var(--muted-foreground))">
               {v.toFixed(1)}
             </text>
           </g>
         ))}
 
         <path d={areaPath} fill="url(#weightAreaGradient)" />
-        <path d={linePath} fill="none" stroke="hsl(38 100% 50%)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        <path d={linePath} fill="none" stroke="hsl(var(--primary-ink))" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
 
         {points.map((p, i) => {
           const isHover = hoverIdx === i
@@ -105,8 +105,8 @@ export function WeightChart({ points, unitLabel }: { points: ChartPoint[]; unitL
               cx={xFor(i)}
               cy={yFor(p.value)}
               r={isHover ? 6 : 4}
-              fill={isHover ? 'hsl(38 100% 50%)' : 'hsl(220 15% 8%)'}
-              stroke="hsl(38 100% 50%)"
+              fill={isHover ? 'hsl(var(--primary-ink))' : 'hsl(var(--card))'}
+              stroke="hsl(var(--primary-ink))"
               strokeWidth={2}
             />
           )
@@ -118,13 +118,13 @@ export function WeightChart({ points, unitLabel }: { points: ChartPoint[]; unitL
             x2={xFor(hoverIdx!)}
             y1={PAD.top}
             y2={PAD.top + innerH}
-            stroke="hsl(220 8% 55%)"
+            stroke="hsl(var(--muted-foreground))"
             strokeWidth={1}
             strokeDasharray="3 3"
           />
         )}
 
-        <text x={WIDTH - PAD.right} y={yFor(last.value) - 12} textAnchor="end" fontSize={12} fill="hsl(40 20% 96%)" fontWeight={700}>
+        <text x={WIDTH - PAD.right} y={yFor(last.value) - 12} textAnchor="end" fontSize={12} fill="hsl(var(--foreground))" fontWeight={700}>
           {last.value.toFixed(1)} {unitLabel}
         </text>
       </svg>

@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Dumbbell, Loader2, ShieldCheck } from 'lucide-react'
+import { Loader2, ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/Logo'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
@@ -63,7 +64,7 @@ export default function ResetPasswordPage() {
             <ShieldCheck className="h-8 w-8 text-primary-foreground" />
           </div>
           <h1 className="font-display text-3xl tracking-wide text-gradient-gold">PASSWORD UPDATED</h1>
-          <p className="mt-3 text-sm text-muted-foreground font-body">Taking you back to FORGEFIT...</p>
+          <p className="mt-3 text-sm text-muted-foreground font-body">Taking you back to MyFit...</p>
         </motion.div>
       </div>
     )
@@ -94,9 +95,7 @@ export default function ResetPasswordPage() {
         className="w-full max-w-md"
       >
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg animate-float">
-            <Dumbbell className="h-8 w-8 text-primary-foreground" strokeWidth={2.5} />
-          </div>
+          <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
           <h1 className="font-display text-4xl tracking-wide text-gradient-gold">SET NEW PASSWORD</h1>
         </div>
 

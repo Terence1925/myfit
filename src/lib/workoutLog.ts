@@ -35,7 +35,7 @@ export function reconcileLog(exercises: Exercises, previous: ExerciseLog[] | nul
 
 // An unsaved workout is kept on the phone so it survives leaving the app: Android may close or reload
 // the app while it is in the background, and anything held only in memory would be lost.
-const DRAFT_PREFIX = 'forgefit_workout_draft_'
+const DRAFT_PREFIX = 'myfit_workout_draft_'
 const DRAFT_MAX_AGE_MS = 24 * 60 * 60 * 1000
 
 const draftKey = (programId: string, day: number) => `${DRAFT_PREFIX}${programId}_${day}`
@@ -69,7 +69,7 @@ export function clearDraft(programId: string, day: number): void {
 }
 
 // Where the person was in a program (which tab, which day), so coming back lands them in the same place.
-const VIEW_PREFIX = 'forgefit_view_'
+const VIEW_PREFIX = 'myfit_view_'
 const VIEW_MAX_AGE_MS = 12 * 60 * 60 * 1000
 
 export function loadView(programId: string): { tab: string; day: number } | null {

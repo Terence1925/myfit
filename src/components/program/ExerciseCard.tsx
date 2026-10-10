@@ -113,7 +113,7 @@ export function ExerciseCard({
               className={cn(
                 'mt-4 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm font-semibold transition-colors',
                 setLogs[0].completed
-                  ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                  ? 'border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
                   : 'border-border text-muted-foreground hover:border-primary/40',
               )}
             >
@@ -151,7 +151,7 @@ export function ExerciseCard({
                     onClick={() => onSetChange(si, 'completed', !s.completed)}
                     className={cn(
                       'flex h-9 w-9 items-center justify-center rounded-md border transition-colors',
-                      s.completed ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400' : 'border-border text-muted-foreground',
+                      s.completed ? 'border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'border-border text-muted-foreground',
                     )}
                   >
                     <Check className="h-4 w-4" />

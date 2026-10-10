@@ -113,7 +113,7 @@ export default function PricingPage() {
             Admin accounts get every Pro feature automatically — no subscription needed.
           </p>
           <Button size="lg" className="mt-6" onClick={() => navigate('/')}>
-            Back to FORGEFIT
+            Back to MyFit
           </Button>
         </motion.div>
       </div>
@@ -142,7 +142,7 @@ export default function PricingPage() {
       {native && !alreadyPro && (
         <div className="mx-auto mb-8 max-w-md text-center">
           {appliedCode ? (
-            <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400">
               <Tag className="h-4 w-4" />
               <span>
                 <span className="font-bold">{appliedCode.code}</span> applied
@@ -224,7 +224,7 @@ export default function PricingPage() {
                     </p>
                   )}
                   {appliedCode && nativePkg && (
-                    <p className="mt-2 text-sm font-semibold text-emerald-400">
+                    <p className="mt-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                       {discountOption
                         ? `With ${appliedCode.code}: ${discountedPriceLabel(discountOption) ?? 'discounted price'}`
                         : "This code isn't available for this plan."}
@@ -277,7 +277,7 @@ export default function PricingPage() {
       <p className="text-center text-xs text-muted-foreground mt-8 max-w-xl mx-auto leading-relaxed">
         {native
           ? 'Payment is processed securely by Google Play. Subscriptions renew automatically each period until you cancel in your Google Play subscription settings. If a free trial is shown, it converts to a paid subscription at the price above unless you cancel at least 24 hours before it ends. PDF export unlocks after your first payment.'
-          : 'Pro is purchased in the FORGEFIT mobile app through Google Play — once subscribed, it also unlocks Pro when you sign in on the web.'}
+          : 'Pro is purchased in the MyFit mobile app through Google Play — once subscribed, it also unlocks Pro when you sign in on the web.'}
       </p>
     </div>
   )

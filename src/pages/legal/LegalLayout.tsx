@@ -14,7 +14,7 @@ export function LegalLayout({
   return (
     <div className="container max-w-3xl py-10 sm:py-16">
       <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-8">
-        <ArrowLeft className="h-4 w-4" /> Back to FORGEFIT
+        <ArrowLeft className="h-4 w-4" /> Back to MyFit
       </Link>
 
       <h1 className="font-display text-4xl tracking-wide mb-2">{title}</h1>

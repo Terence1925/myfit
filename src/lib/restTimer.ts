@@ -2,7 +2,7 @@ import { registerPlugin } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { isNativeApp } from './platform'
 
-// Our own small Android plugin (android/app/src/main/java/com/forgefit/app/RestAlarmPlugin.java).
+// Our own small Android plugin (android/app/src/main/java/com/myfit/app/RestAlarmPlugin.java).
 interface RestAlarmPlugin {
   start(options: { endsAt: number; title: string; body: string }): Promise<void>
   stop(): Promise<void>
@@ -72,7 +72,7 @@ export async function scheduleRestAlert(endsAt: number, title: string, body: str
     if (permission.display !== 'granted') permission = await LocalNotifications.requestPermissions()
     if (permission.display !== 'granted') {
       return {
-        problem: 'Notifications are turned off for FORGEFIT, so the phone alert cannot show. Turn them on in Settings > Apps > FORGEFIT > Notifications.',
+        problem: 'Notifications are turned off for MyFit, so the phone alert cannot show. Turn them on in Settings > Apps > MyFit > Notifications.',
         needsExactPermission: false,
       }
     }
@@ -81,7 +81,7 @@ export async function scheduleRestAlert(endsAt: number, title: string, body: str
     if (!allowed) {
       await scheduleFallbackAlert(endsAt, title, body)
       return {
-        problem: 'For an alert that rings and keeps going until you tap Got it, allow "Alarms & reminders" for FORGEFIT.',
+        problem: 'For an alert that rings and keeps going until you tap Got it, allow "Alarms & reminders" for MyFit.',
         needsExactPermission: true,
       }
     }
@@ -97,7 +97,7 @@ export async function scheduleRestAlert(endsAt: number, title: string, body: str
   }
 }
 
-/** Opens Android's "Alarms & reminders" screen for FORGEFIT. */
+/** Opens Android's "Alarms & reminders" screen for MyFit. */
 export async function openExactAlarmSettings(): Promise<void> {
   if (!isNativeApp()) return
   try {
@@ -113,7 +113,7 @@ async function scheduleFallbackAlert(endsAt: number, title: string, body: string
     let permission = await LocalNotifications.checkPermissions()
     if (permission.display !== 'granted') permission = await LocalNotifications.requestPermissions()
     if (permission.display !== 'granted') {
-      return 'Notifications are turned off for FORGEFIT, so the phone alert cannot show. Turn them on in Settings > Apps > FORGEFIT > Notifications.'
+      return 'Notifications are turned off for MyFit, so the phone alert cannot show. Turn them on in Settings > Apps > MyFit > Notifications.'
     }
     await LocalNotifications.cancel({ notifications: [{ id: FALLBACK_NOTIFICATION_ID }] })
     await LocalNotifications.createChannel({
@@ -197,10 +197,10 @@ export async function runRestAlarmCheck(report: (lines: CheckLine[]) => void): P
   try {
     const info = await RestAlarm.diagnose()
     add(true, 'The app can reach the phone alarm code.')
-    add(info.notificationsEnabled === true, info.notificationsEnabled ? 'Notifications are allowed for FORGEFIT.' : 'Notifications are OFF for FORGEFIT. Turn them on in Settings > Apps > FORGEFIT > Notifications.')
+    add(info.notificationsEnabled === true, info.notificationsEnabled ? 'Notifications are allowed for MyFit.' : 'Notifications are OFF for MyFit. Turn them on in Settings > Apps > MyFit > Notifications.')
     if (info.channelImportance !== undefined) {
       const loud = info.channelImportance >= 4
-      add(loud, loud ? 'The "Rest timer alarm" notification type is set to urgent.' : `The "Rest timer alarm" notification type is set to quiet (level ${info.channelImportance}). In Settings > Apps > FORGEFIT > Notifications > Rest timer alarm, choose Urgent.`)
+      add(loud, loud ? 'The "Rest timer alarm" notification type is set to urgent.' : `The "Rest timer alarm" notification type is set to quiet (level ${info.channelImportance}). In Settings > Apps > MyFit > Notifications > Rest timer alarm, choose Urgent.`)
       add(info.channelHasSound === true, info.channelHasSound ? 'Sound is on for it.' : 'Sound is OFF for the "Rest timer alarm" notification type. Turn it on in the same place.')
       add(info.channelVibrates === true, info.channelVibrates ? 'Vibration is on for it.' : 'Vibration is OFF for the "Rest timer alarm" notification type. Turn it on in the same place.')
     }
@@ -215,10 +215,10 @@ export async function runRestAlarmCheck(report: (lines: CheckLine[]) => void): P
     }
     add(info.hasVibrator === true, info.hasVibrator ? 'This phone can vibrate.' : 'This phone reports no vibration motor.')
     if (info.canScheduleExact === false) {
-      add(false, 'Exact alarms are NOT allowed for FORGEFIT. Tap "Allow exact alerts" above, switch it on, then come back and test again.')
+      add(false, 'Exact alarms are NOT allowed for MyFit. Tap "Allow exact alerts" above, switch it on, then come back and test again.')
       return
     }
-    add(true, 'Exact alarms are allowed for FORGEFIT.')
+    add(true, 'Exact alarms are allowed for MyFit.')
   } catch (err) {
     add(false, `The app cannot reach the phone alarm code (${errorText(err)}). The app may need a fresh install with Run in Android Studio.`)
     return

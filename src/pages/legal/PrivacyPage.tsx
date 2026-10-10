@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <LegalLayout title="Privacy Policy" updated="September 6, 2026">
       <p>
-        FORGEFIT ("we") respects your privacy. This policy explains what data we collect, why, and the
+        MyFit ("we") respects your privacy. This policy explains what data we collect, why, and the
         rights you have over it under the Philippines' Data Privacy Act of 2012 (RA 10173) and similar laws.
       </p>
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
       <h2>3. Who We Share It With</h2>
       <p>
-        Only the service providers necessary to run FORGEFIT: our database/auth provider (Supabase) and our
+        Only the service providers necessary to run MyFit: our database/auth provider (Supabase) and our
         payment provider (Google Play, via RevenueCat for subscription status). We do not share your health or body data with advertisers.
       </p>
 
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
       <p>We use local browser storage to keep you signed in and remember your preferences. We do not use third-party advertising trackers.</p>
 
       <h2>8. Children's Privacy</h2>
-      <p>FORGEFIT is not directed at children under 16 and we do not knowingly collect their data.</p>
+      <p>MyFit is not directed at children under 16 and we do not knowingly collect their data.</p>
 
       <h2>9. Changes to This Policy</h2>
       <p>We'll post updates here and update the date above. Material changes will be notified to you by email.</p>

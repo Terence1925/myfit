@@ -1,7 +1,9 @@
-import { Dumbbell, LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, UserRound } from 'lucide-react'
+import { LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, UserRound } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/Logo'
+import { Wordmark } from '@/components/ui/Wordmark'
 import { Badge } from '@/components/ui/badge'
 import { hasProAccess, isPro } from '@/lib/billing'
 
@@ -19,10 +21,8 @@ export function NavBar() {
       <div className="glass border-b border-border">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold-gradient shadow-glow transition-transform group-hover:scale-110">
-              <Dumbbell className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
-            </div>
-            <span className="font-display text-2xl tracking-wider text-gradient-gold">FORGEFIT</span>
+            <Logo className="h-9 w-9 rounded-lg" />
+            <Wordmark className="text-2xl" />
           </Link>
 
           <div className="flex items-center gap-1 sm:gap-4">

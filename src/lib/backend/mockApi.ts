@@ -48,13 +48,13 @@ function ensureSeedAdmin() {
   if (users.length > 0) return
   const adminId = uid()
   writeAll<StoredUser>(USERS_KEY, [
-    { id: adminId, email: 'admin@forgefit.app', password: 'admin123' },
+    { id: adminId, email: 'admin@myfit.app', password: 'admin123' },
   ])
   const profiles = readAll<Profile>(PROFILES_KEY)
   profiles.push({
     id: adminId,
     displayName: 'Founder Admin',
-    email: 'admin@forgefit.app',
+    email: 'admin@myfit.app',
     createdAt: new Date().toISOString(),
     subscriptionTier: 'pro',
     subscriptionStatus: 'active',

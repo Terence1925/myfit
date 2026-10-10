@@ -91,7 +91,7 @@ function RestTimerBar({
         )}
         {over ? (
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 font-body text-base font-bold text-emerald-400">
+            <div className="flex items-center gap-2 font-body text-base font-bold text-emerald-600 dark:text-emerald-400">
               <BellRing className="h-5 w-5" /> Rest over — {rest.nextLabel}
             </div>
             <Button size="sm" variant="outline" onClick={onSkip}>

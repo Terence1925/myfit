@@ -1,4 +1,4 @@
-# FORGEFIT
+# MyFit
 
 AI-powered workout & nutrition program generator, with Pro subscriptions (₱299/mo or ₱2,999/yr, 7-day free trial).
 
@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Demo admin account: `admin@forgefit.app` / `admin123`. Data lives in your browser's `localStorage` — nothing is shared across devices, and no real payment is ever collected. This mode requires zero configuration and is what runs when no Supabase env vars are set.
+Demo admin account: `admin@myfit.app` / `admin123`. Data lives in your browser's `localStorage` — nothing is shared across devices, and no real payment is ever collected. This mode requires zero configuration and is what runs when no Supabase env vars are set.
 
 ## Going to production
 
@@ -56,7 +56,7 @@ The app automatically switches from the mock backend to a real one the moment `V
 
 Google requires in-app digital subscriptions to go through Google Play Billing, not Stripe — so the app detects whether it's running as a native app (`src/lib/platform.ts`) and switches checkout flow accordingly: Stripe on web, RevenueCat (which wraps Play Billing) inside the Android app.
 
-1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.forgefit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱299/mo) and `pro_yearly` (₱2,999/yr), each with a 7-day free-trial offer.
+1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.myfit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱299/mo) and `pro_yearly` (₱2,999/yr), each with a 7-day free-trial offer.
 2. **RevenueCat** — [revenuecat.com](https://revenuecat.com), free up to $2.5k/mo tracked revenue. Create a project, add a Google Play app, and link it to your Play Console app (RevenueCat's setup wizard walks you through creating a Google service account key for this — needed so RevenueCat can verify purchases server-side).
    - Products: add `pro_monthly` and `pro_yearly` (matching Play Console).
    - Entitlements: create one called `pro`, attach both products to it.

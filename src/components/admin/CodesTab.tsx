@@ -319,7 +319,7 @@ export function CodesTab({ people }: { people: Profile[] }) {
                       <div className="text-xs text-muted-foreground">entered code</div>
                     </div>
                     <div>
-                      <div className="font-display text-2xl tabular-nums text-emerald-400">{s.subscribed}</div>
+                      <div className="font-display text-2xl tabular-nums text-emerald-600 dark:text-emerald-400">{s.subscribed}</div>
                       <div className="text-xs text-muted-foreground">subscribed</div>
                       {s.subscribed > 0 && (
                         <div className="text-xs text-muted-foreground">
@@ -372,7 +372,7 @@ export function CodesTab({ people }: { people: Profile[] }) {
                           aria-label={`Copy code ${c.code}`}
                         >
                           {c.code}
-                          {copied === c.code ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
+                          {copied === c.code ? <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
                         </button>
                         <div className="mt-2 text-xs text-muted-foreground">
                           {c.percentOff ? `${c.percentOff}% off · ` : ''}Play offer tag: <span className="font-mono">{c.offerTag}</span>
@@ -386,7 +386,7 @@ export function CodesTab({ people }: { people: Profile[] }) {
                           <div className="text-xs text-muted-foreground">entered code</div>
                         </div>
                         <div>
-                          <div className="font-display text-2xl tabular-nums text-emerald-400">{s.subscribed}</div>
+                          <div className="font-display text-2xl tabular-nums text-emerald-600 dark:text-emerald-400">{s.subscribed}</div>
                           <div className="text-xs text-muted-foreground">subscribed</div>
                           {s.subscribed > 0 && (
                             <div className="text-xs text-muted-foreground">

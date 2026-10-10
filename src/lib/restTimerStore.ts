@@ -16,7 +16,7 @@ export interface RestState {
 // The running rest lives here (not inside a screen) so it keeps going when the user switches tabs or
 // pages, and it's saved to localStorage so the bar comes back if Android restarts the app in the
 // background. The phone-side alarm is independent of all this and fires regardless.
-const STORAGE_KEY = 'forgefit_rest_timer'
+const STORAGE_KEY = 'myfit_rest_timer'
 const FORGET_AFTER_MS = 30 * 60 * 1000
 
 function load(): RestState | null {

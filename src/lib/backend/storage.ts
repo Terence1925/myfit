@@ -1,4 +1,4 @@
-const PREFIX = 'forgefit_'
+const PREFIX = 'myfit_'
 
 export function readAll<T>(key: string): T[] {
   try {
