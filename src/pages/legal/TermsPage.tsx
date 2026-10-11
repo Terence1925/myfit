@@ -42,7 +42,7 @@ export default function TermsPage() {
           for one trial.
         </li>
         <li>
-          Pro plans (Monthly at ₱299, Yearly at ₱2,999) are purchased in the MyFit mobile app through
+          Pro plans (Monthly at ₱199, Yearly at ₱1,790) are purchased in the MyFit mobile app through
           Google Play. They are billed and automatically renewed each period until you cancel from your
           Google Play subscription settings; you keep access until the end of the period you already paid
           for. A Pro subscription also applies when you sign in to MyFit on the web.

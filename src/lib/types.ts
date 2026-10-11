@@ -256,3 +256,40 @@ export interface AppliedCode {
   percentOff?: number
   offerTag: string
 }
+
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+
+/** A food a person can pick, with its numbers for ONE serving. */
+export interface FoodItem {
+  id: string
+  name: string
+  /** What one serving is, e.g. "1 cup" or "1 piece". */
+  serving: string
+  kcal: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+  /** How much ONE serving weighs (grams) or measures (ml), when known. Lets people enter an exact amount. */
+  amount?: number
+  unit?: 'g' | 'ml'
+  /** For a plate: what is on it, shown under the name. */
+  note?: string
+  source: 'ph' | 'fatsecret' | 'custom'
+}
+
+/** One thing a person ate. The numbers are already multiplied by `servings`. */
+export interface FoodLogEntry {
+  id: string
+  userId: string
+  /** The day it belongs to, as YYYY-MM-DD in the person's own time zone. */
+  date: string
+  meal: MealType
+  name: string
+  serving: string
+  servings: number
+  kcal: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+  createdAt: string
+}

@@ -1,0 +1,173 @@
+import type { FoodItem } from '@/lib/types'
+
+// More everyday foods, mostly plain cuts and ingredients, with typical numbers for ONE serving. Estimates, like the
+// Filipino list. [name, serving, kcal, protein g, carbs g, fat g, weight of one serving, unit (g unless 'ml')]
+type Row = [string, string, number, number, number, number, number, ('g' | 'ml')?]
+
+const ROWS: Row[] = [
+  // Beef
+  ['Beef steak, sirloin, grilled', '1 steak', 345, 40, 0, 19, 150],
+  ['Ribeye steak, grilled', '1 steak', 580, 50, 0, 42, 200],
+  ['Beef tenderloin (filet), grilled', '1 steak', 330, 39, 0, 19, 150],
+  ['Ground beef, cooked (80% lean)', '100 g', 254, 26, 0, 16, 100],
+  ['Ground beef, cooked (90% lean)', '100 g', 217, 26, 0, 12, 100],
+  ['Beef brisket, cooked', '100 g', 250, 27, 0, 15, 100],
+  ['Beef short ribs', '100 g', 300, 24, 0, 23, 100],
+  ['Roast beef', '100 g', 190, 29, 0, 8, 100],
+  ['Beef burger patty', '1 patty', 290, 22, 0, 22, 113],
+  ['Beef pares', '1 bowl', 420, 30, 20, 23, 300],
+  ['Beef mechado', '1 serving', 360, 26, 14, 23, 200],
+  ['Beef broccoli', '1 serving', 280, 24, 12, 15, 200],
+  ['Beef salpicao', '1 serving', 330, 28, 3, 23, 150],
+  ['Beef jerky', '1 oz (28 g)', 116, 9, 3, 7, 28],
+
+  // Pork
+  ['Pork chop, grilled', '1 piece', 345, 38, 0, 21, 150],
+  ['Pork chop, fried (breaded)', '1 piece', 380, 26, 14, 24, 130],
+  ['Pork ribs, cooked', '100 g', 290, 24, 0, 21, 100],
+  ['Ground pork, cooked', '100 g', 297, 25, 0, 21, 100],
+  ['Pork giniling', '1 serving', 280, 18, 10, 19, 150],
+  ['Pork humba', '1 serving', 420, 22, 18, 30, 150],
+  ['Crispy pata', '100 g', 390, 26, 1, 31, 100],
+  ['Embutido', '1 slice', 150, 8, 6, 11, 80],
+  ['Bacon', '2 slices', 86, 6, 0, 7, 16],
+  ['Ham, sliced', '2 slices', 80, 10, 2, 3, 56],
+  ['Pork sausage', '1 link', 150, 8, 1, 13, 50],
+
+  // Chicken
+  ['Chicken wings, fried', '3 wings', 290, 27, 2, 20, 100],
+  ['Chicken drumstick, roasted', '1 piece', 195, 27, 0, 9, 100],
+  ['Chicken breast, fried (breaded)', '1 piece', 380, 35, 12, 21, 150],
+  ['Chicken nuggets', '6 pieces', 290, 14, 18, 18, 100],
+  ['Lechon manok (roast chicken)', '1/4 chicken', 480, 44, 1, 33, 250],
+  ['Chicken curry', '1 serving', 340, 25, 12, 22, 250],
+  ['Chicken pastel', '1 serving', 380, 24, 20, 22, 250],
+  ['Ground chicken, cooked', '100 g', 215, 27, 0, 11, 100],
+
+  // Fish and seafood
+  ['Bangus (milkfish), fried', '1 piece', 240, 26, 0, 15, 120],
+  ['Bangus belly, grilled', '100 g', 250, 21, 0, 18, 100],
+  ['Tuna steak (yellowfin), grilled', '1 steak', 195, 43, 0, 1.5, 150],
+  ['Fish fillet, fried (breaded)', '1 piece', 220, 18, 8, 13, 100],
+  ['Calamares (fried squid rings)', '100 g', 210, 14, 12, 11, 100],
+  ['Inihaw na pusit (grilled squid)', '100 g', 120, 20, 3, 3, 100],
+  ['Mussels (tahong), steamed', '100 g', 86, 12, 4, 2, 100],
+  ['Crab, cooked', '100 g', 100, 20, 0, 2, 100],
+  ['Sinigang na bangus', '1 bowl', 190, 20, 10, 7, 350],
+  ['Tuyo (dried fish)', '30 g', 80, 12, 0, 3, 30],
+
+  // Eggs and dairy
+  ['Quail eggs', '5 eggs', 70, 6, 0.4, 5, 45],
+  ['Salted egg', '1 egg', 90, 7, 1, 7, 60],
+  ['Omelet', '2 eggs', 200, 14, 2, 15, 130],
+  ['Cheddar cheese', '30 g', 120, 7, 0.4, 10, 30],
+  ['Cottage cheese', '100 g', 98, 11, 3, 4, 100],
+  ['Low-fat milk', '1 cup', 100, 8, 12, 2.5, 240, 'ml'],
+  ['Evaporated milk', '1/4 cup', 85, 4, 6, 4.5, 60, 'ml'],
+  ['Condensed milk', '1 tbsp', 60, 1.5, 10, 1.5, 20],
+  ['Butter', '1 tbsp', 100, 0.1, 0, 11, 14],
+
+  // Carbs
+  ['Potato, boiled', '1 medium', 150, 3, 34, 0.2, 170],
+  ['Mashed potato', '1 cup', 210, 4, 35, 7, 210],
+  ['Pasta, cooked', '1 cup', 220, 8, 43, 1.3, 140],
+  ['Pancakes', '2 pieces', 220, 6, 32, 8, 100],
+  ['Cornflakes', '1 cup', 100, 2, 24, 0.2, 28],
+  ['Granola', '1/2 cup', 240, 6, 36, 8, 55],
+  ['Tortilla wrap', '1 piece', 190, 5, 32, 4, 64],
+  ['Cassava (kamoteng kahoy), boiled', '100 g', 160, 1.4, 38, 0.3, 100],
+  ['Ube halaya', '1/4 cup', 130, 1.5, 25, 3, 60],
+
+  // Vegetables
+  ['Broccoli, steamed', '1 cup', 55, 3.7, 11, 0.6, 156],
+  ['Carrots', '1 medium', 25, 0.6, 6, 0.1, 61],
+  ['Cabbage, cooked', '1 cup', 35, 1.7, 8, 0.1, 150],
+  ['Ampalaya (bitter melon), cooked', '1 cup', 24, 1, 5, 0.2, 124],
+  ['Okra, cooked', '1 cup', 35, 3, 7, 0.3, 160],
+  ['Malunggay leaves', '1 cup', 13, 1.8, 2, 0.2, 21],
+  ['Kangkong, boiled', '1 cup', 40, 4, 7, 0.5, 180],
+  ['Spinach, cooked', '1 cup', 41, 5, 7, 0.5, 180],
+  ['Eggplant, grilled', '1 cup', 35, 1, 9, 0.2, 100],
+  ['Tomato', '1 medium', 22, 1, 5, 0.2, 123],
+  ['Cucumber', '1 cup', 16, 0.7, 4, 0.1, 104],
+  ['Sitaw (string beans), cooked', '1 cup', 44, 2.4, 10, 0.2, 125],
+
+  // Fruit
+  ['Orange', '1 medium', 62, 1.2, 15, 0.2, 131],
+  ['Grapes', '1 cup', 104, 1, 27, 0.2, 151],
+  ['Strawberries', '1 cup', 49, 1, 12, 0.5, 152],
+  ['Guava (bayabas)', '1 fruit', 37, 1.4, 8, 0.5, 55],
+  ['Lanzones', '100 g', 57, 1, 14, 0.2, 100],
+  ['Jackfruit (langka)', '1 cup', 157, 2.8, 38, 1.1, 165],
+  ['Dragon fruit', '100 g', 60, 1.2, 13, 0, 100],
+
+  // Fats, sauces, extras
+  ['Olive oil', '1 tbsp', 119, 0, 0, 13.5, 14, 'ml'],
+  ['Cooking oil', '1 tbsp', 120, 0, 0, 13.5, 14, 'ml'],
+  ['Mayonnaise', '1 tbsp', 94, 0.1, 0.1, 10, 14],
+  ['Ketchup', '1 tbsp', 17, 0.2, 4.5, 0, 17],
+  ['Soy sauce', '1 tbsp', 9, 1, 1, 0, 15, 'ml'],
+  ['Sugar', '1 tsp', 16, 0, 4, 0, 4],
+  ['Honey', '1 tbsp', 64, 0, 17, 0, 21],
+  ['Almonds', '1 oz (28 g)', 164, 6, 6, 14, 28],
+  ['Cashews', '1 oz (28 g)', 157, 5, 9, 12, 28],
+  ['Dark chocolate', '1 oz (28 g)', 170, 2, 13, 12, 28],
+  ['Milk chocolate bar', '1 bar', 230, 3, 26, 13, 43],
+  ['Protein bar', '1 bar', 210, 20, 22, 7, 60],
+
+  // Drinks
+  ['Sports drink', '500 ml', 130, 0, 32, 0, 500, 'ml'],
+  ['Energy drink', '250 ml', 110, 0, 28, 0, 250, 'ml'],
+  ['Iced tea', '330 ml', 100, 0, 25, 0, 330, 'ml'],
+  ['Milo, prepared', '1 glass', 140, 4, 24, 3, 200, 'ml'],
+  ['Chocolate milk', '1 cup', 190, 8, 26, 5, 240, 'ml'],
+  ['Wine', '1 glass', 125, 0.1, 4, 0, 150, 'ml'],
+  ['Whisky or rum, shot', '1 shot', 105, 0, 0, 0, 44, 'ml'],
+]
+
+export const MORE_FOODS: FoodItem[] = ROWS.map(([name, serving, kcal, proteinG, carbsG, fatG, amount, unit], i) => ({
+  id: `more-${i}`,
+  name,
+  serving,
+  kcal,
+  proteinG,
+  carbsG,
+  fatG,
+  amount,
+  unit: unit ?? ('g' as const),
+  source: 'ph' as const,
+}))
+
+// Extra words that find a food in search, like English words for Filipino dishes ("beef" finds bistek).
+export const SEARCH_KEYWORDS: Record<string, string> = {
+  'Kare-kare': 'beef oxtail peanut stew',
+  'Bistek tagalog': 'beef steak',
+  'Nilagang baka': 'beef boiled soup',
+  Bulalo: 'beef shank soup',
+  'Beef caldereta': 'stew',
+  'Sinigang na baboy': 'pork soup',
+  'Pork sisig': 'pork',
+  'Lechon baboy (roast pork)': 'pork',
+  'Lechon kawali': 'pork belly',
+  'Grilled liempo': 'pork belly',
+  'Pork barbecue': 'bbq',
+  'Pritong galunggong': 'fish fried',
+  'Fried tilapia': 'fish',
+  Escabeche: 'fish',
+  Kinilaw: 'fish ceviche raw',
+  'Daing na bangus': 'fish milkfish',
+  'Bangsilog (daing na bangus, rice, egg)': 'fish milkfish',
+  Lugaw: 'rice porridge congee',
+  'Arroz caldo': 'chicken rice porridge congee',
+  Hotdog: 'sausage',
+  Longganisa: 'sausage pork',
+  Tocino: 'pork cured',
+  Balut: 'duck egg',
+  'Pancit canton': 'noodles',
+  'Pancit bihon': 'noodles',
+  Pandesal: 'bread roll',
+  'Halo-halo': 'dessert',
+  'Leche flan': 'dessert custard',
+  'Chicken inasal': 'chicken grilled bbq',
+  'Chicken tinola': 'chicken soup',
+}

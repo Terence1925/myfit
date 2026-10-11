@@ -1,6 +1,6 @@
 # MyFit
 
-AI-powered workout & nutrition program generator, with Pro subscriptions (₱299/mo or ₱2,999/yr, 7-day free trial).
+AI-powered workout & nutrition program generator, with Pro subscriptions (₱199/mo or ₱1,790/yr, 7-day free trial).
 
 ## Run it locally (demo mode, no setup)
 
@@ -30,7 +30,7 @@ The app automatically switches from the mock backend to a real one the moment `V
 ### 2. Stripe (real payments)
 
 1. Create an account at [stripe.com](https://stripe.com) and complete business/payout details.
-2. Products → create two recurring Products in **PHP**: Monthly ₱299, Yearly ₱2,999. Copy each `price_...` id.
+2. Products → create two recurring Products in **PHP**: Monthly ₱199, Yearly ₱1,790. Copy each `price_...` id.
 3. Deploy the three billing edge functions (they use the Stripe Deno SDK, no extra install needed):
    ```bash
    supabase functions deploy create-checkout-session
@@ -56,7 +56,7 @@ The app automatically switches from the mock backend to a real one the moment `V
 
 Google requires in-app digital subscriptions to go through Google Play Billing, not Stripe — so the app detects whether it's running as a native app (`src/lib/platform.ts`) and switches checkout flow accordingly: Stripe on web, RevenueCat (which wraps Play Billing) inside the Android app.
 
-1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.myfit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱299/mo) and `pro_yearly` (₱2,999/yr), each with a 7-day free-trial offer.
+1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.myfit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱199/mo) and `pro_yearly` (₱1,790/yr), each with a 7-day free-trial offer.
 2. **RevenueCat** — [revenuecat.com](https://revenuecat.com), free up to $2.5k/mo tracked revenue. Create a project, add a Google Play app, and link it to your Play Console app (RevenueCat's setup wizard walks you through creating a Google service account key for this — needed so RevenueCat can verify purchases server-side).
    - Products: add `pro_monthly` and `pro_yearly` (matching Play Console).
    - Entitlements: create one called `pro`, attach both products to it.

@@ -7,6 +7,8 @@ import type {
   NewDiscountCode,
   ActivityLogEntry,
   BodyMetricEntry,
+  FoodItem,
+  FoodLogEntry,
   IntakeAnswers,
   NutritionPlan,
   ProgramData,
@@ -165,6 +167,15 @@ export const auth = {
 export const profiles = {
   async get(userId: string): Promise<Profile | null> {
     return readAll<Profile>(PROFILES_KEY).find((p) => p.id === userId) ?? null
+  },
+
+  async updateDisplayName(userId: string, displayName: string): Promise<Profile> {
+    const all = readAll<Profile>(PROFILES_KEY)
+    const idx = all.findIndex((p) => p.id === userId)
+    if (idx === -1) throw new Error('Profile not found.')
+    all[idx] = { ...all[idx], displayName }
+    writeAll(PROFILES_KEY, all)
+    return all[idx]
   },
 
   async saveIntake(userId: string, answers: IntakeAnswers, nutrition: NutritionPlan): Promise<Profile> {
@@ -473,5 +484,51 @@ export const codes = {
       ])
     }
     return { code: found.code, label: found.label, percentOff: found.percentOff, offerTag: found.offerTag }
+  },
+}
+
+const FOOD_LOG_KEY = 'food_log'
+
+export const foodLog = {
+  async listForDate(userId: string, date: string): Promise<FoodLogEntry[]> {
+    return readAll<FoodLogEntry>(FOOD_LOG_KEY)
+      .filter((e) => e.userId === userId && e.date === date)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  },
+
+  async listRecent(userId: string, limit = 12): Promise<FoodLogEntry[]> {
+    const mine = readAll<FoodLogEntry>(FOOD_LOG_KEY)
+      .filter((e) => e.userId === userId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    const seen = new Set<string>()
+    const out: FoodLogEntry[] = []
+    for (const e of mine) {
+      const key = `${e.name}|${e.serving}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push(e)
+      if (out.length >= limit) break
+    }
+    return out
+  },
+
+  async add(userId: string, entry: Omit<FoodLogEntry, 'id' | 'userId' | 'createdAt'>): Promise<FoodLogEntry> {
+    const record: FoodLogEntry = { ...entry, id: uid(), userId, createdAt: new Date().toISOString() }
+    const all = readAll<FoodLogEntry>(FOOD_LOG_KEY)
+    all.push(record)
+    writeAll(FOOD_LOG_KEY, all)
+    return record
+  },
+
+  // The demo has no online food database.
+  async searchOnline(_query: string): Promise<FoodItem[]> {
+    return []
+  },
+
+  async delete(id: string, userId: string): Promise<void> {
+    writeAll(
+      FOOD_LOG_KEY,
+      readAll<FoodLogEntry>(FOOD_LOG_KEY).filter((e) => !(e.id === id && e.userId === userId)),
+    )
   },
 }

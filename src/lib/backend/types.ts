@@ -5,6 +5,8 @@ import type {
   CodeRedemption,
   DiscountCode,
   Exercise,
+  FoodItem,
+  FoodLogEntry,
   IntakeAnswers,
   NewDiscountCode,
   NutritionPlan,
@@ -35,6 +37,7 @@ export interface AuthApi {
 export interface ProfilesApi {
   get(userId: string): Promise<Profile | null>
   saveIntake(userId: string, answers: IntakeAnswers, nutrition: NutritionPlan): Promise<Profile>
+  updateDisplayName(userId: string, displayName: string): Promise<Profile>
   listAll(): Promise<Profile[]>
 }
 
@@ -86,4 +89,14 @@ export interface CodesApi {
   remove(id: string): Promise<void>
   /** Any signed-in user. Returns null for an unknown / expired / used-up code. */
   apply(code: string): Promise<AppliedCode | null>
+}
+
+export interface FoodLogApi {
+  listForDate(userId: string, date: string): Promise<FoodLogEntry[]>
+  /** Recently logged foods (newest first, one per food), for quick re-adding. */
+  listRecent(userId: string, limit?: number): Promise<FoodLogEntry[]>
+  add(userId: string, entry: Omit<FoodLogEntry, 'id' | 'userId' | 'createdAt'>): Promise<FoodLogEntry>
+  delete(id: string, userId: string): Promise<void>
+  /** Pro: search the online food database (FatSecret). Rejects with a readable message when it can't. */
+  searchOnline(query: string): Promise<FoodItem[]>
 }

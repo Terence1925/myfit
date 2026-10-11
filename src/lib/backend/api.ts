@@ -6,6 +6,7 @@ import type {
   AuthApi,
   BillingApi,
   CodesApi,
+  FoodLogApi,
   MetricsApi,
   ProfilesApi,
   ProgramsApi,
@@ -24,5 +25,6 @@ export const metrics: MetricsApi = impl.metrics
 export const sessions: SessionsApi = impl.sessions
 export const billing: BillingApi = impl.billing
 export const codes: CodesApi = impl.codes
+export const foodLog: FoodLogApi = impl.foodLog
 
 export { isSupabaseConfigured }

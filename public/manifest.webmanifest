@@ -1,0 +1,16 @@
+{
+  "name": "MyFit: All-in-One Workout & Calorie Tracker",
+  "short_name": "MyFit",
+  "description": "Personalized workout programs and nutrition targets built around you.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#191a1f",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

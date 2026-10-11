@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
-import { isSupabaseConfigured } from '@/lib/backend/api'
+import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
 import { isNativeApp } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
@@ -36,6 +36,10 @@ export default function AccountPage() {
   const [passwordSaving, setPasswordSaving] = React.useState(false)
   const [passwordError, setPasswordError] = React.useState<string | null>(null)
   const [passwordChanged, setPasswordChanged] = React.useState(false)
+  const [editingName, setEditingName] = React.useState(false)
+  const [nameDraft, setNameDraft] = React.useState('')
+  const [nameSaving, setNameSaving] = React.useState(false)
+  const [nameError, setNameError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (searchParams.get('checkout') !== 'success') return
@@ -54,6 +58,22 @@ export default function AccountPage() {
   const isAdmin = role === 'admin'
   const proAccess = hasProAccess(profile, role)
   const isOwner = profile.email === OWNER_EMAIL
+
+  const handleSaveName = async () => {
+    const name = nameDraft.trim()
+    if (!name) return
+    setNameSaving(true)
+    setNameError(null)
+    try {
+      await profiles.updateDisplayName(profile.id, name)
+      refreshProfile()
+      setEditingName(false)
+    } catch (err) {
+      setNameError(err instanceof Error ? err.message : 'Could not save your name.')
+    } finally {
+      setNameSaving(false)
+    }
+  }
 
   const handleManageNative = () => {
     // Google requires subscription management to go through Play Store's own UI.
@@ -115,7 +135,45 @@ export default function AccountPage() {
             <CardTitle className="text-lg">Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm font-body">
-            <p><span className="text-muted-foreground">Name:</span> {profile.displayName}</p>
+            {editingName ? (
+              <div className="space-y-2">
+                <label className="text-muted-foreground" htmlFor="display-name">Name</label>
+                <Input
+                  id="display-name"
+                  value={nameDraft}
+                  maxLength={40}
+                  autoFocus
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  placeholder="Your name"
+                />
+                {nameError && <p className="text-destructive">{nameError}</p>}
+                <div className="flex gap-2">
+                  <Button size="sm" disabled={nameSaving || !nameDraft.trim()} onClick={handleSaveName}>
+                    {nameSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                  </Button>
+                  <Button size="sm" variant="ghost" disabled={nameSaving} onClick={() => setEditingName(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="flex items-center justify-between gap-3">
+                <span>
+                  <span className="text-muted-foreground">Name:</span> {profile.displayName}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setNameDraft(profile.displayName)
+                    setNameError(null)
+                    setEditingName(true)
+                  }}
+                >
+                  Edit
+                </Button>
+              </p>
+            )}
             <p><span className="text-muted-foreground">Email:</span> {profile.email}</p>
             {role === 'admin' && <Badge variant="default" className="gap-1"><ShieldCheck className="h-3 w-3" /> Admin</Badge>}
           </CardContent>

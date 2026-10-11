@@ -1,4 +1,4 @@
-import { LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, UserRound } from 'lucide-react'
+import { LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, UserRound, Utensils } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,7 @@ export function NavBar() {
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
             <Logo className="h-9 w-9 rounded-lg" />
-            <Wordmark className="text-2xl" />
+            <Wordmark className="text-xl sm:text-2xl" />
           </Link>
 
           <div className="flex items-center gap-1 sm:gap-4">
@@ -38,31 +38,36 @@ export function NavBar() {
             </button>
 
             {!proAccess && (
-              <Button size="sm" className="gap-1.5" onClick={() => navigate('/pricing')}>
+              <Button size="sm" className="gap-1.5 px-2 sm:px-3" onClick={() => navigate('/pricing')}>
                 <Crown className="h-4 w-4" />
                 <span className="hidden sm:inline">Upgrade</span>
               </Button>
             )}
 
-            <Button variant="ghost" size="sm" onClick={() => navigate('/progress')} className="gap-1.5">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/food')} className="gap-1.5 px-2 sm:px-3" aria-label="Food log">
+              <Utensils className="h-4 w-4" />
+              <span className="hidden sm:inline">Food</span>
+            </Button>
+
+            <Button variant="ghost" size="sm" onClick={() => navigate('/progress')} className="gap-1.5 px-2 sm:px-3">
               <LineChart className="h-4 w-4" />
               <span className="hidden sm:inline">Progress</span>
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => navigate('/saved')} className="gap-1.5">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/saved')} className="gap-1.5 px-2 sm:px-3">
               <LayoutList className="h-4 w-4" />
               <span className="hidden sm:inline">My Programs</span>
             </Button>
 
             {role === 'admin' && (
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="gap-1.5">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="gap-1.5 px-2 sm:px-3">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">Admin</span>
               </Button>
             )}
 
             {/* Phones don't have room for Sign Out here — it lives on the Account page instead. */}
-            <Button variant="ghost" size="sm" onClick={() => navigate('/account')} className="sm:hidden" aria-label="Account">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/account')} className="px-2 sm:hidden" aria-label="Account">
               <UserRound className="h-4 w-4" />
             </Button>
 

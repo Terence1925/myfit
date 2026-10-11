@@ -12,6 +12,7 @@ import AdminPage from '@/pages/AdminPage'
 import PricingPage from '@/pages/PricingPage'
 import AccountPage from '@/pages/AccountPage'
 import ProgressPage from '@/pages/ProgressPage'
+import FoodPage from '@/pages/FoodPage'
 import TermsPage from '@/pages/legal/TermsPage'
 import PrivacyPage from '@/pages/legal/PrivacyPage'
 import RefundPage from '@/pages/legal/RefundPage'
@@ -98,6 +99,14 @@ function AppShell() {
           element={
             <RequireAuth>
               <AccountPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/food"
+          element={
+            <RequireAuth>
+              <FoodPage />
             </RequireAuth>
           }
         />

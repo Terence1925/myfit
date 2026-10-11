@@ -8,6 +8,8 @@ import type {
   NewDiscountCode,
   ActivityLogEntry,
   BodyMetricEntry,
+  FoodItem,
+  FoodLogEntry,
   IntakeAnswers,
   NutritionPlan,
   ProgramData,
@@ -207,6 +209,17 @@ export const profiles = {
   async get(userId: string): Promise<Profile | null> {
     const { data, error } = await sb().from('profiles').select('*').eq('id', userId).maybeSingle()
     if (error || !data) return null
+    return mapProfile(data)
+  },
+
+  async updateDisplayName(userId: string, displayName: string): Promise<Profile> {
+    const { data, error } = await sb()
+      .from('profiles')
+      .update({ display_name: displayName, updated_at: new Date().toISOString() })
+      .eq('id', userId)
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
     return mapProfile(data)
   },
 
@@ -565,5 +578,99 @@ export const codes = {
       percentOff: (row.percent_off as number | null) ?? undefined,
       offerTag: row.offer_tag as string,
     }
+  },
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapFoodLog(r: any): FoodLogEntry {
+  return {
+    id: r.id,
+    userId: r.user_id,
+    date: r.log_date,
+    meal: r.meal,
+    name: r.name,
+    serving: r.serving,
+    servings: Number(r.servings),
+    kcal: Number(r.kcal),
+    proteinG: Number(r.protein_g),
+    carbsG: Number(r.carbs_g),
+    fatG: Number(r.fat_g),
+    createdAt: r.created_at,
+  }
+}
+
+export const foodLog = {
+  async listForDate(userId: string, date: string): Promise<FoodLogEntry[]> {
+    const { data, error } = await sb()
+      .from('food_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('log_date', date)
+      .order('created_at', { ascending: true })
+    if (error) throw new Error(error.message)
+    return (data ?? []).map(mapFoodLog)
+  },
+
+  async listRecent(userId: string, limit = 12): Promise<FoodLogEntry[]> {
+    const { data, error } = await sb()
+      .from('food_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(80)
+    if (error) throw new Error(error.message)
+    const seen = new Set<string>()
+    const out: FoodLogEntry[] = []
+    for (const r of data ?? []) {
+      const e = mapFoodLog(r)
+      const key = `${e.name}|${e.serving}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push(e)
+      if (out.length >= limit) break
+    }
+    return out
+  },
+
+  async add(userId: string, entry: Omit<FoodLogEntry, 'id' | 'userId' | 'createdAt'>): Promise<FoodLogEntry> {
+    const { data, error } = await sb()
+      .from('food_logs')
+      .insert({
+        user_id: userId,
+        log_date: entry.date,
+        meal: entry.meal,
+        name: entry.name,
+        serving: entry.serving,
+        servings: entry.servings,
+        kcal: entry.kcal,
+        protein_g: entry.proteinG,
+        carbs_g: entry.carbsG,
+        fat_g: entry.fatG,
+      })
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapFoodLog(data)
+  },
+
+  async searchOnline(query: string): Promise<FoodItem[]> {
+    const { data, error } = await sb().functions.invoke('food-search', { body: { query } })
+    if (error) {
+      // A non-2xx reply carries the server's own message in its body
+      let message = 'Online food search is unavailable right now.'
+      try {
+        const body = await (error as { context?: Response }).context?.json()
+        if (body?.error) message = String(body.error)
+      } catch {
+        // keep the generic message
+      }
+      throw new Error(message)
+    }
+    return (data?.foods ?? []) as FoodItem[]
+  },
+
+  async delete(id: string, userId: string): Promise<void> {
+    const { error } = await sb().from('food_logs').delete().eq('id', id).eq('user_id', userId)
+    if (error) throw new Error(error.message)
   },
 }
