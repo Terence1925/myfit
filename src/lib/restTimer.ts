@@ -1,6 +1,6 @@
 import { registerPlugin } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
-import { isNativeApp } from './platform'
+import { isNativeApp, nativePlatform } from './platform'
 
 // Our own small Android plugin (android/app/src/main/java/com/myfit/app/RestAlarmPlugin.java).
 interface RestAlarmPlugin {
@@ -31,6 +31,9 @@ const RestAlarm = registerPlugin<RestAlarmPlugin>('RestAlarm')
  * repeats). Set to false to force that fallback everywhere.
  */
 export const NATIVE_ALARM_ENABLED = true
+
+/** The custom ringing alarm only exists on Android. On iPhone the alert is a normal notification. */
+const usesNativeAlarm = () => NATIVE_ALARM_ENABLED && nativePlatform() === 'android'
 
 const FALLBACK_NOTIFICATION_ID = 4102
 const FALLBACK_CHANNEL_ID = 'rest-timer'
@@ -65,7 +68,7 @@ const OK: AlertResult = { problem: null, needsExactPermission: false }
  */
 export async function scheduleRestAlert(endsAt: number, title: string, body: string): Promise<AlertResult> {
   if (!isNativeApp()) return OK
-  if (!NATIVE_ALARM_ENABLED) return { problem: await scheduleFallbackAlert(endsAt, title, body), needsExactPermission: false }
+  if (!usesNativeAlarm()) return { problem: await scheduleFallbackAlert(endsAt, title, body), needsExactPermission: false }
   try {
     // Android 13+ needs the notification permission for any alert to show.
     let permission = await LocalNotifications.checkPermissions()
@@ -116,13 +119,16 @@ async function scheduleFallbackAlert(endsAt: number, title: string, body: string
       return 'Notifications are turned off for MyFit, so the phone alert cannot show. Turn them on in Settings > Apps > MyFit > Notifications.'
     }
     await LocalNotifications.cancel({ notifications: [{ id: FALLBACK_NOTIFICATION_ID }] })
-    await LocalNotifications.createChannel({
-      id: FALLBACK_CHANNEL_ID,
-      name: 'Rest timer',
-      description: 'Vibrates when your rest between sets is over',
-      importance: 4,
-      vibration: true,
-    })
+    // Notification channels are an Android idea; iPhone has none.
+    if (nativePlatform() === 'android') {
+      await LocalNotifications.createChannel({
+        id: FALLBACK_CHANNEL_ID,
+        name: 'Rest timer',
+        description: 'Vibrates when your rest between sets is over',
+        importance: 4,
+        vibration: true,
+      })
+    }
     await LocalNotifications.schedule({
       notifications: [
         {
@@ -151,7 +157,7 @@ export async function cancelRestAlert(): Promise<void> {
   } catch {
     // Nothing to cancel.
   }
-  if (!NATIVE_ALARM_ENABLED) return
+  if (!usesNativeAlarm()) return
   try {
     await RestAlarm.stop()
   } catch {
@@ -161,7 +167,7 @@ export async function cancelRestAlert(): Promise<void> {
 
 /** True while the rest-over notification is on screen and buzzing. Null if unknown (web, or an error). */
 export async function isRestAlarmRinging(): Promise<boolean | null> {
-  if (!isNativeApp() || !NATIVE_ALARM_ENABLED) return null
+  if (!isNativeApp() || !usesNativeAlarm()) return null
   try {
     return (await RestAlarm.isRinging()).ringing
   } catch {

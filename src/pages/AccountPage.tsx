@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
-import { isNativeApp } from '@/lib/platform'
+import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
 import { useTheme, type ThemeChoice } from '@/lib/theme'
 
@@ -76,7 +76,11 @@ export default function AccountPage() {
   }
 
   const handleManageNative = () => {
-    // Google requires subscription management to go through Play Store's own UI.
+    // Each store requires subscription management to go through its own screen.
+    if (nativePlatform() === 'ios') {
+      window.location.href = 'https://apps.apple.com/account/subscriptions'
+      return
+    }
     const sku = profile.subscriptionPeriod === 'monthly' ? 'pro_monthly' : 'pro_yearly'
     window.location.href = `https://play.google.com/store/account/subscriptions?sku=${sku}&package=${ANDROID_PACKAGE_ID}`
   }
@@ -125,7 +129,7 @@ export default function AccountPage() {
 
       {syncing && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" /> Confirming your Google Play payment...
+          <Loader2 className="h-4 w-4 animate-spin text-primary" /> Confirming your payment with {storeName()}...
         </div>
       )}
 
@@ -207,7 +211,7 @@ export default function AccountPage() {
                   </p>
                 )}
                 <Button variant="outline" size="sm" onClick={handleManageNative}>
-                  Manage in Google Play
+                  Manage in {nativePlatform() === 'ios' ? 'the App Store' : 'Google Play'}
                 </Button>
               </>
             ) : isAdmin ? (
@@ -263,7 +267,7 @@ export default function AccountPage() {
           </CardContent>
         </Card>
 
-        {isNativeApp() && <RestAlarmCheck />}
+        {nativePlatform() === 'android' && <RestAlarmCheck />}
 
         {isSupabaseConfigured && (
           <Card>

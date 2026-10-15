@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { PRO_FEATURES, PRO_PRICES, TRIAL_DAYS, isPro } from '@/lib/billing'
-import { isNativeApp } from '@/lib/platform'
+import { isNativeApp, nativePlatform, storeName } from '@/lib/platform'
 import { syncTrialReminder } from '@/lib/trialReminder'
 import { codes } from '@/lib/backend/api'
 import {
@@ -19,6 +19,7 @@ import {
   getOfferingPackages,
   purchase,
   purchaseWithOfferTag,
+  restorePurchases,
 } from '@/lib/backend/revenuecat'
 import { cn } from '@/lib/utils'
 import type { AppliedCode, SubscriptionPeriod } from '@/lib/types'
@@ -35,6 +36,8 @@ export default function PricingPage() {
   const [codeError, setCodeError] = React.useState<string | null>(null)
   const [appliedCode, setAppliedCode] = React.useState<AppliedCode | null>(null)
   const native = isNativeApp()
+  const [restoring, setRestoring] = React.useState(false)
+  const [restoreNote, setRestoreNote] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (!native || !profile) return
@@ -101,6 +104,22 @@ export default function PricingPage() {
     }
   }
 
+  // Apple requires a Restore Purchases button; it also helps anyone who reinstalls or changes phones.
+  const handleRestore = async () => {
+    setRestoring(true)
+    setRestoreNote(null)
+    try {
+      await configureRevenueCat(profile.id)
+      const found = await restorePurchases()
+      setRestoreNote(found ? 'Your subscription was restored.' : 'No active subscription was found for this account.')
+      if (found) navigate('/account?checkout=success')
+    } catch {
+      setRestoreNote('Could not restore purchases. Please try again.')
+    } finally {
+      setRestoring(false)
+    }
+  }
+
   if (isAdmin && !alreadyPro) {
     return (
       <div className="container flex min-h-[60vh] flex-col items-center justify-center text-center">
@@ -139,7 +158,8 @@ export default function PricingPage() {
         </p>
       </motion.div>
 
-      {native && !alreadyPro && (
+      {/* Discount codes unlock Google Play offers, which don't exist on the App Store. */}
+      {native && nativePlatform() !== 'ios' && !alreadyPro && (
         <div className="mx-auto mb-8 max-w-md text-center">
           {appliedCode ? (
             <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400">
@@ -195,7 +215,7 @@ export default function PricingPage() {
           const nativePkg = nativePkgFor(period)
           const discountOption = appliedCode && nativePkg ? findOptionByTag(nativePkg, appliedCode.offerTag) : null
           const isYearly = period === 'yearly'
-          // Only promise a trial when Google Play actually reports one on this product.
+          // Only promise a trial when the store actually reports one on this product.
           const hasTrial = !!nativePkg?.product.introPrice
           return (
             <motion.div
@@ -276,9 +296,26 @@ export default function PricingPage() {
 
       <p className="text-center text-xs text-muted-foreground mt-8 max-w-xl mx-auto leading-relaxed">
         {native
-          ? 'Payment is processed securely by Google Play. Subscriptions renew automatically each period until you cancel in your Google Play subscription settings. If a free trial is shown, it converts to a paid subscription at the price above unless you cancel at least 24 hours before it ends. PDF export unlocks after your first payment.'
-          : 'Pro is purchased in the MyFit mobile app through Google Play — once subscribed, it also unlocks Pro when you sign in on the web.'}
+          ? `Payment is processed securely by ${storeName()}. Subscriptions renew automatically each period until you cancel in your ${nativePlatform() === 'ios' ? 'Apple ID subscription settings' : 'Google Play subscription settings'}. If a free trial is shown, it converts to a paid subscription at the price above unless you cancel at least 24 hours before it ends. PDF export unlocks after your first payment.`
+          : 'Pro is purchased in the MyFit mobile app through Google Play or the App Store — once subscribed, it also unlocks Pro when you sign in on the web.'}
       </p>
+      {native && (
+        <div className="mt-4 text-center text-xs text-muted-foreground">
+          <button onClick={handleRestore} disabled={restoring} className="font-semibold underline underline-offset-2 hover:text-foreground">
+            {restoring ? 'Restoring…' : 'Restore purchases'}
+          </button>
+          {restoreNote && <p className="mt-2">{restoreNote}</p>}
+          <p className="mt-3">
+            <button onClick={() => navigate('/terms')} className="underline underline-offset-2 hover:text-foreground">
+              Terms of Use
+            </button>
+            {' · '}
+            <button onClick={() => navigate('/privacy')} className="underline underline-offset-2 hover:text-foreground">
+              Privacy Policy
+            </button>
+          </p>
+        </div>
+      )}
     </div>
   )
 }

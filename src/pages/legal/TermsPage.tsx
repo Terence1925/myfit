@@ -36,15 +36,15 @@ export default function TermsPage() {
           subscription.
         </li>
         <li>
-          New subscribers may be offered a free trial (7 days). If you don't cancel in your Google Play
-          subscription settings at least 24 hours before the trial ends, it converts automatically into a
-          paid subscription at the price shown when you started the trial. Each Google account is eligible
-          for one trial.
+          New subscribers may be offered a free trial (7 days). If you don't cancel in your Google Play or
+          Apple ID subscription settings at least 24 hours before the trial ends, it converts automatically into a
+          paid subscription at the price shown when you started the trial. Each Google or Apple account is
+          eligible for one trial.
         </li>
         <li>
           Pro plans (Monthly at ₱199, Yearly at ₱1,790) are purchased in the MyFit mobile app through
-          Google Play. They are billed and automatically renewed each period until you cancel from your
-          Google Play subscription settings; you keep access until the end of the period you already paid
+          Google Play or the Apple App Store. They are billed and automatically renewed each period until you cancel from your
+          Google Play or Apple ID subscription settings; you keep access until the end of the period you already paid
           for. A Pro subscription also applies when you sign in to MyFit on the web.
         </li>
         <li>Prices are listed in Philippine Peso (₱) and may change with prior notice for future billing periods.</li>

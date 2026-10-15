@@ -9,12 +9,15 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "android:sync": "npm run build && npx cap sync android",
-    "android:open": "npm run android:sync && npx cap open android"
+    "android:open": "npm run android:sync && npx cap open android",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npm run ios:sync && npx cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.1",
     "@capacitor/core": "^8.5.1",
     "@capacitor/filesystem": "^8.1.4",
+    "@capacitor/ios": "^8.5.3",
     "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/share": "^8.0.3",
     "@capgo/capacitor-social-login": "^8.5.15",

@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <li><strong>Account data:</strong> name, email address, and a hashed password (if you sign up with email). If you choose "Continue with Google", we receive your name and email address from Google. We never receive your Google password.</li>
         <li><strong>Body &amp; lifestyle data:</strong> age, sex, weight, height, sleep, stress, activity level, training goal — used to calculate your BMR/TDEE and generate your program.</li>
         <li><strong>Usage data:</strong> generated programs, logged workouts, body-metric entries, activity history.</li>
-        <li><strong>Billing data:</strong> your subscription plan and status. Payments are handled entirely by Google Play — we never see or store your card number.</li>
+        <li><strong>Billing data:</strong> your subscription plan and status. Payments are handled entirely by Google Play or the Apple App Store — we never see or store your card number.</li>
       </ul>
 
       <h2>2. How We Use Your Data</h2>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
       <h2>3. Who We Share It With</h2>
       <p>
         Only the service providers necessary to run MyFit: our database/auth provider (Supabase) and our
-        payment provider (Google Play, via RevenueCat for subscription status). We do not share your health or body data with advertisers.
+        payment provider (Google Play or the Apple App Store, via RevenueCat for subscription status). We do not share your health or body data with advertisers.
       </p>
 
       <h2>4. Data Storage &amp; Security</h2>

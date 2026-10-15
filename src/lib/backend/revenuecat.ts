@@ -11,15 +11,20 @@
 //      key is meant to ship in client apps (unlike a secret/server key).
 
 import { Purchases, type PurchasesPackage, type SubscriptionOption } from '@revenuecat/purchases-capacitor'
+import { nativePlatform } from '../platform'
 
 export const PRO_ENTITLEMENT_ID = 'pro'
 
-const apiKey = import.meta.env.VITE_REVENUECAT_ANDROID_KEY as string | undefined
+// Each store has its own public RevenueCat key (safe to ship in the app).
+const androidKey = import.meta.env.VITE_REVENUECAT_ANDROID_KEY as string | undefined
+const iosKey = import.meta.env.VITE_REVENUECAT_IOS_KEY as string | undefined
 
 let configured = false
 
 export async function configureRevenueCat(userId: string): Promise<void> {
-  if (!apiKey) throw new Error('VITE_REVENUECAT_ANDROID_KEY is not set.')
+  const ios = nativePlatform() === 'ios'
+  const apiKey = ios ? iosKey : androidKey
+  if (!apiKey) throw new Error(ios ? 'VITE_REVENUECAT_IOS_KEY is not set.' : 'VITE_REVENUECAT_ANDROID_KEY is not set.')
   if (configured) {
     await Purchases.logIn({ appUserID: userId })
     return

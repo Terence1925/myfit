@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/context/AuthContext'
 import { PRO_PRICES, TRIAL_DAYS } from '@/lib/billing'
+import { storeName } from '@/lib/platform'
 import { GOAL_LABELS } from '@/lib/tdee'
 import type { Equipment, FocusArea, WorkoutProgram } from '@/lib/types'
 
@@ -168,7 +169,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
           <div className="font-display text-2xl tracking-wide">START YOUR {TRIAL_DAYS}-DAY FREE TRIAL</div>
           <p className="mt-1 font-body text-sm text-muted-foreground">
             Then {monthly.priceLabel}/month or {yearly.priceLabel}/year ({yearly.savingsLabel?.toLowerCase()}). Cancel anytime
-            in Google Play.
+            in {storeName()}.
           </p>
           <Button size="lg" className="mt-4 w-full gap-2 sm:w-auto" onClick={() => navigate('/pricing')}>
             <Crown className="h-4 w-4" /> Unlock My Program

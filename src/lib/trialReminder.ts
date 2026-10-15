@@ -1,7 +1,7 @@
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { Purchases } from '@revenuecat/purchases-capacitor'
 import { configureRevenueCat, PRO_ENTITLEMENT_ID } from './backend/revenuecat'
-import { isNativeApp } from './platform'
+import { isNativeApp, nativePlatform } from './platform'
 
 const REMINDER_ID = 4101
 const CHANNEL_ID = 'trial-reminders'
@@ -38,19 +38,24 @@ export async function syncTrialReminder(userId: string): Promise<void> {
     if (permission.display !== 'granted') permission = await LocalNotifications.requestPermissions()
     if (permission.display !== 'granted') return
 
-    await LocalNotifications.createChannel({
-      id: CHANNEL_ID,
-      name: 'Trial reminders',
-      description: 'A heads-up before your free trial turns into a paid subscription',
-      importance: 3,
-    })
+    if (nativePlatform() === 'android') {
+      await LocalNotifications.createChannel({
+        id: CHANNEL_ID,
+        name: 'Trial reminders',
+        description: 'A heads-up before your free trial turns into a paid subscription',
+        importance: 3,
+      })
+    }
     await LocalNotifications.schedule({
       notifications: [
         {
           id: REMINDER_ID,
           channelId: CHANNEL_ID,
           title: 'Your MyFit free trial ends tomorrow',
-          body: "You'll be charged when it ends unless you cancel in Google Play → Subscriptions.",
+          body:
+            nativePlatform() === 'ios'
+              ? "You'll be charged when it ends unless you cancel in Settings → Apple ID → Subscriptions."
+              : "You'll be charged when it ends unless you cancel in Google Play → Subscriptions.",
           // Same reason as the rest timer: never send the user to the exact-alarm settings screen.
           isExactNotification: false,
           schedule: { at: remindAt, allowWhileIdle: true },
