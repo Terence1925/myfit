@@ -1,8 +1,10 @@
 import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, CalendarClock } from 'lucide-react'
+import { ChevronDown, CalendarClock, Eye } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ProgramViewDialog } from './ProgramViewDialog'
 import { cn } from '@/lib/utils'
 import { GOAL_LABELS } from '@/lib/tdee'
 import type { Profile, WorkoutProgram } from '@/lib/types'
@@ -14,6 +16,7 @@ function daysRemaining(expiresAt: string): number {
 export function ProgramsTab({ programList, people }: { programList: WorkoutProgram[]; people: Profile[] }) {
   const [filter, setFilter] = React.useState('all')
   const [expanded, setExpanded] = React.useState<string | null>(null)
+  const [viewing, setViewing] = React.useState<WorkoutProgram | null>(null)
 
   const findName = (userId: string) => people.find((p) => p.id === userId)?.displayName ?? 'Unknown user'
   const filtered = filter === 'all' ? programList : programList.filter((p) => p.userId === filter)
@@ -81,6 +84,10 @@ export function ProgramsTab({ programList, people }: { programList: WorkoutProgr
                       <CardContent className="pt-0 px-5 pb-5 space-y-4 border-t border-border/60 mt-1">
                         <p className="text-sm text-muted-foreground font-body pt-4">{p.programData.overview}</p>
 
+                        <Button size="sm" className="gap-1.5" onClick={() => setViewing(p)}>
+                          <Eye className="h-4 w-4" /> View full program, PDF and email
+                        </Button>
+
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="default">{GOAL_LABELS[p.answers.goal]}</Badge>
                           <Badge variant="outline">{p.answers.equipment.replace(/-/g, ' ')}</Badge>
@@ -108,6 +115,12 @@ export function ProgramsTab({ programList, people }: { programList: WorkoutProgr
         })}
         {filtered.length === 0 && <p className="text-sm text-muted-foreground">No programs found.</p>}
       </div>
+
+      <ProgramViewDialog
+        program={viewing}
+        client={viewing ? people.find((x) => x.id === viewing.userId) : undefined}
+        onClose={() => setViewing(null)}
+      />
     </div>
   )
 }

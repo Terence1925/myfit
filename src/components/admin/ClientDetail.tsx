@@ -1,9 +1,11 @@
+import * as React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Eye, ShieldCheck } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { actionIcon, actionLabel, timeAgo } from './shared'
+import { ProgramViewDialog } from './ProgramViewDialog'
 import { GOAL_LABELS } from '@/lib/tdee'
 import type { ActivityLogEntry, Profile, WorkoutProgram } from '@/lib/types'
 
@@ -20,8 +22,10 @@ export function ClientDetail({
   onBack: () => void
   onMakeAdmin: () => void
 }) {
+  const [viewing, setViewing] = React.useState<WorkoutProgram | null>(null)
   return (
     <div className="space-y-6">
+      <ProgramViewDialog program={viewing} client={client} onClose={() => setViewing(null)} />
       <Button variant="ghost" size="sm" className="gap-1.5" onClick={onBack}>
         <ArrowLeft className="h-4 w-4" /> Back to Clients
       </Button>
@@ -91,7 +95,12 @@ export function ClientDetail({
             {clientPrograms.map((p) => (
               <div key={p.id} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
                 <span className="font-semibold">{p.programName}</span>
-                <span className="text-xs text-muted-foreground">{new Date(p.createdAt).toLocaleDateString()}</span>
+                <span className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground">{new Date(p.createdAt).toLocaleDateString()}</span>
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setViewing(p)}>
+                    <Eye className="h-4 w-4" /> View
+                  </Button>
+                </span>
               </div>
             ))}
             {clientPrograms.length === 0 && (
