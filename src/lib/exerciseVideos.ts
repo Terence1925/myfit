@@ -93,6 +93,7 @@ export const EXERCISE_VIDEOS: Record<string, ExerciseVideo> = {
   "Hamstring Walkout": { id: "jQ9BcglfyVo", channel: "OPEX Fitness", title: "Hamstring Walkout" },
   "Hanging Leg Raise": { id: "uaxEVt2z4CE", channel: "Bodybuilding.com", title: "Hanging Leg Raise - Core / Abs - Bodybuilding.com" },
   "Hindu Push-Up": { id: "2_86laQKJYM", channel: "Fit by Maya | The Art of Movement", title: "How to do a Dive Bomber/Hindu Push Up from Beginner to Advanced 🥵" },
+  "Hip Abduction Machine": { id: "H98IP8rARy4", channel: "Hammer Strength", title: "Hammer Strength Select Hip Abduction" },
   "Hip Adduction Machine": { id: "36EB4I915sU", channel: "Hammer Strength", title: "Hammer Strength Select Hip Adduction" },
   "Hollow Body Hold": { id: "lNIALQyQjM0", channel: "STRIQfit", title: "How to Start Calisthenics - Episode 4: Hollow Body Hold 101 💪🏾🔥" },
   "Inchworm": { id: "ZY2ji_Ho0dA", channel: "Leap Fitness", title: "How to Do：INCHWORMS" },
