@@ -101,6 +101,7 @@ export const EXERCISE_VIDEOS: Record<string, ExerciseVideo> = {
   "Landmine Press": { id: "gH7PDepHNck", channel: "Squat University", title: "This Landmine Press Tutorial Is GOLD!🤩" },
   "Lat Pulldown": { id: "SqQxuEpXnF4", channel: "Jeff Nippard", title: "Do You Have A Perfect Lat Pulldown? (Find Out)" },
   "Lateral Lunge": { id: "2O0MCU_4STY", channel: "The Basketball Doctors", title: "How to Perform a Lateral Lunge" },
+  "Lateral Raise": { id: "BRn0AtJdAaU", channel: "Muscle & Strength", title: "Lateral Raise Technique | Learn From The Pros" },
   "Leg Extension": { id: "LNP1LUNXyQI", channel: "Bodybuilding.com", title: "Leg Extensions with Hunter Labrada | Exercise Guide" },
   "Leg Press": { id: "nDh_BlnLCGc", channel: "Jeff Nippard", title: "How To Leg Press With Perfect Technique" },
   "Machine Chest Press": { id: "n8TOta_pfr4", channel: "LIVESTRONG", title: "How to Use a Chest Press Machine" },
