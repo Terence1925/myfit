@@ -15,8 +15,10 @@ import { Progress } from '@/components/ui/progress'
 import { ChoiceGrid, MultiChoiceGrid, type ChoiceOption } from './ChoiceGrid'
 import { cn } from '@/lib/utils'
 import type { IntakeAnswers } from '@/lib/types'
+import { disciplineOf, isMindBody } from '@/lib/discipline'
+import { MIND_BODY_DAY_OPTIONS, MIND_BODY_STYLE_BY_ID, stylesFor, weekdaysFor } from '@/lib/backend/mindBodyStyles'
 
-const TOTAL_STEPS = 13
+const TOTAL_STEPS = 13 // keep in step with STEPS below
 
 const DEFAULT_ANSWERS: Partial<IntakeAnswers> = {
   weightUnit: 'lbs',
@@ -231,15 +233,64 @@ function Step9Stress({ answers, update }: StepProps) {
   )
 }
 
-function Step10Days({ answers, update }: StepProps) {
-  const options: ChoiceOption[] = [
-    { value: '3', label: '3 Days/Week' },
-    { value: '4', label: '4 Days/Week' },
-    { value: '5', label: '5 Days/Week' },
-    { value: '6', label: '6 Days/Week' },
-  ]
+/** Yoga and Pilates: pick the kind of session (a style) instead of a lifting level. */
+function StepStyle({ answers, update }: StepProps) {
+  const discipline = disciplineOf(answers.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'
+  const options: ChoiceOption[] = stylesFor(discipline).map((st) => ({
+    value: st.id,
+    label: st.label,
+    description: `${st.blurb} ${st.minutes[0]}-${st.minutes[1]} min a session.`,
+  }))
   return (
-    <StepShell title="Training Frequency" subtitle="How many days per week can you commit to training?">
+    <StepShell
+      title={discipline === 'yoga' ? 'Type of Yoga' : 'Type of Pilates'}
+      subtitle="Pick the kind of session you want. Each one is a set sequence you repeat."
+    >
+      <ChoiceGrid
+        options={options}
+        value={answers.mindBodyStyle}
+        onChange={(v) => {
+          update('mindBodyStyle', v as IntakeAnswers['mindBodyStyle'])
+          const style = MIND_BODY_STYLE_BY_ID.get(v as NonNullable<IntakeAnswers['mindBodyStyle']>)
+          if (style) update('experience', style.experience)
+        }}
+      />
+    </StepShell>
+  )
+}
+
+/** Lifting asks for your experience; yoga and Pilates ask for a style instead. */
+function Step5Level(props: StepProps) {
+  return isMindBody(props.answers.equipment ?? '') ? <StepStyle {...props} /> : <Step5Experience {...props} />
+}
+
+function Step10Days({ answers, update }: StepProps) {
+  const mindBody = isMindBody(answers.equipment ?? '')
+  const discipline = disciplineOf(answers.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'
+  const style = answers.mindBodyStyle ? MIND_BODY_STYLE_BY_ID.get(answers.mindBodyStyle) : undefined
+  const options: ChoiceOption[] = mindBody
+    ? MIND_BODY_DAY_OPTIONS[discipline].map((n) => ({
+        value: String(n),
+        label: n === 7 ? '7 Days/Week' : `${n} Days/Week`,
+        description: n === 7 ? 'Every day' : weekdaysFor(n).map((d) => d.slice(0, 3)).join(', '),
+      }))
+    : [
+        { value: '3', label: '3 Days/Week' },
+        { value: '4', label: '4 Days/Week' },
+        { value: '5', label: '5 Days/Week' },
+        { value: '6', label: '6 Days/Week' },
+      ]
+  return (
+    <StepShell
+      title={mindBody ? 'Sessions per Week' : 'Training Frequency'}
+      subtitle={
+        mindBody
+          ? style
+            ? `${style.label} is usually done ${style.recommended}. How many days can you commit to?`
+            : 'How many days a week would you like to practice?'
+          : 'How many days per week can you commit to training?'
+      }
+    >
       <ChoiceGrid
         options={options}
         value={answers.trainingDays ? String(answers.trainingDays) : undefined}
@@ -308,18 +359,28 @@ function Step13Focus({ answers, update }: StepProps) {
     { value: 'lower-back', label: 'Lower Back' },
     { value: 'other', label: 'Other' },
   ]
+  const mindBody = isMindBody(answers.equipment ?? '')
   return (
-    <StepShell title="Focus Areas & Limitations" subtitle="Pick any muscle groups to emphasize, and flag any injuries.">
+    <StepShell
+      title={mindBody ? 'Limitations' : 'Focus Areas & Limitations'}
+      subtitle={
+        mindBody
+          ? 'Flag any injury so we swap out poses and moves that are not right for you.'
+          : 'Pick any muscle groups to emphasize, and flag any injuries.'
+      }
+    >
       <div className="space-y-6">
-        <div>
-          <Label className="mb-3 block">Focus areas (select any)</Label>
-          <MultiChoiceGrid
-            options={focusOptions}
-            values={answers.focusAreas ?? []}
-            onChange={(v) => update('focusAreas', v as IntakeAnswers['focusAreas'])}
-            columns={3}
-          />
-        </div>
+        {!mindBody && (
+          <div>
+            <Label className="mb-3 block">Focus areas (select any)</Label>
+            <MultiChoiceGrid
+              options={focusOptions}
+              values={answers.focusAreas ?? []}
+              onChange={(v) => update('focusAreas', v as IntakeAnswers['focusAreas'])}
+              columns={3}
+            />
+          </div>
+        )}
         <div>
           <Label className="mb-3 block">Injuries / limitations</Label>
           <ChoiceGrid
@@ -334,54 +395,28 @@ function Step13Focus({ answers, update }: StepProps) {
   )
 }
 
-const STEP_COMPONENTS = [
-  Step1Sex,
-  Step2Age,
-  Step3Weight,
-  Step4Height,
-  Step5Experience,
-  Step6Activity,
-  Step7Sleep,
-  Step8SleepQuality,
-  Step9Stress,
-  Step10Days,
-  Step11Goal,
-  Step12Equipment,
-  Step13Focus,
+// Equipment is asked before the level (or yoga / Pilates style) and the days, because those questions depend on it.
+const STEPS: { Component: (props: StepProps) => React.ReactElement; valid: (a: Partial<IntakeAnswers>) => boolean }[] = [
+  { Component: Step1Sex, valid: (a) => !!a.sex },
+  { Component: Step2Age, valid: (a) => !!a.age && a.age >= 16 && a.age <= 80 },
+  { Component: Step3Weight, valid: (a) => !!a.weight && a.weight > 0 },
+  { Component: Step4Height, valid: (a) => a.heightFeet !== undefined && a.heightInches !== undefined && a.heightFeet > 0 },
+  { Component: Step6Activity, valid: (a) => !!a.activityLevel },
+  { Component: Step7Sleep, valid: (a) => !!a.sleepHours },
+  { Component: Step8SleepQuality, valid: (a) => !!a.sleepQuality },
+  { Component: Step9Stress, valid: (a) => !!a.stressLevel },
+  { Component: Step11Goal, valid: (a) => !!a.goal },
+  { Component: Step12Equipment, valid: (a) => !!a.equipment },
+  { Component: Step5Level, valid: (a) => (isMindBody(a.equipment ?? '') ? !!a.mindBodyStyle : !!a.experience) },
+  {
+    Component: Step10Days,
+    valid: (a) =>
+      !!a.trainingDays &&
+      (!isMindBody(a.equipment ?? '') ||
+        MIND_BODY_DAY_OPTIONS[disciplineOf(a.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'].includes(a.trainingDays)),
+  },
+  { Component: Step13Focus, valid: (a) => !!a.injuries },
 ]
-
-function isStepValid(step: number, answers: Partial<IntakeAnswers>): boolean {
-  switch (step) {
-    case 0:
-      return !!answers.sex
-    case 1:
-      return !!answers.age && answers.age >= 16 && answers.age <= 80
-    case 2:
-      return !!answers.weight && answers.weight > 0
-    case 3:
-      return answers.heightFeet !== undefined && answers.heightInches !== undefined && answers.heightFeet > 0
-    case 4:
-      return !!answers.experience
-    case 5:
-      return !!answers.activityLevel
-    case 6:
-      return !!answers.sleepHours
-    case 7:
-      return !!answers.sleepQuality
-    case 8:
-      return !!answers.stressLevel
-    case 9:
-      return !!answers.trainingDays
-    case 10:
-      return !!answers.goal
-    case 11:
-      return !!answers.equipment
-    case 12:
-      return !!answers.injuries
-    default:
-      return false
-  }
-}
 
 export function IntakeWizard({
   onComplete,
@@ -397,11 +432,24 @@ export function IntakeWizard({
   const [answers, setAnswers] = React.useState<Partial<IntakeAnswers>>(DEFAULT_ANSWERS)
 
   const update = React.useCallback(<K extends keyof IntakeAnswers>(key: K, value: IntakeAnswers[K]) => {
-    setAnswers((prev) => ({ ...prev, [key]: value }))
+    setAnswers((prev) => {
+      const next = { ...prev, [key]: value }
+      if (key === 'equipment' && prev.equipment && prev.equipment !== value) {
+        const before = disciplineOf(prev.equipment)
+        const after = disciplineOf(value as string)
+        if (before !== after) {
+          // Lifting, yoga and Pilates ask different level / frequency questions, so start those again
+          next.trainingDays = undefined
+          next.mindBodyStyle = undefined
+          next.experience = undefined
+        }
+      }
+      return next
+    })
   }, [])
 
-  const StepComponent = STEP_COMPONENTS[step]
-  const valid = isStepValid(step, answers)
+  const StepComponent = STEPS[step].Component
+  const valid = STEPS[step].valid(answers)
   const isLast = step === TOTAL_STEPS - 1
 
   const goNext = () => {

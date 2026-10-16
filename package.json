@@ -12,7 +12,12 @@
     "android:open": "npm run android:sync && npx cap open android",
     "ios:sync": "npm run build && npx cap sync ios",
     "ios:open": "npm run ios:sync && npx cap open ios",
-    "test:animations": "npx tsx scripts/check-animations.ts"
+    "test:animations": "npx tsx scripts/check-animations.ts",
+    "test:splits": "npx tsx scripts/check-split-days.ts",
+    "test": "npm run test:animations && npm run test:splits && npm run test:templates && npm run test:home && npm run test:mindbody",
+    "test:templates": "npx tsx scripts/check-templates.ts",
+    "test:home": "npx tsx scripts/check-home-templates.ts",
+    "test:mindbody": "npx tsx scripts/check-mindbody.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.1",

@@ -252,4 +252,11 @@ export const EXERCISE_VIDEOS: Record<string, ExerciseVideo> = {
   "Swan Prep": { id: "KAotX1bDGps", channel: "Pilates Anytime", title: "Pilates Exercise: Swan Prep | Pilates Anytime" },
   "Swimming": { id: "rbcvbbtB6E0", channel: "Pilates Anytime", title: "Pilates Exercise: Swimming | Pilates Anytime" },
   "The Hundred": { id: "rHHn0WkkAYo", channel: "FitLara Barre & Pilates", title: "How to do the Hundred?" },
+  "Face Pull": { id: "0Po47vvj9g4", channel: "PureGym", title: "How To Do Cable Face Pulls" },
+  "Hollow Hold": { id: "lNIALQyQjM0", channel: "STRIQfit", title: "How to Start Calisthenics - Episode 4: Hollow Body Hold 101 💪🏾🔥" },
+  "Hip Thrust": { id: "Fk1OfkMmVt4", channel: "Bodybuilding.com", title: "Barbell Hip Thrust - Legs / Glutes Exercise - Bodybuilding.com" },
+  "Cable Kickback": { id: "A9aN_L4vexk", channel: "Tashana Charles", title: "How to do a cable kickback & feel it in your glutes #gymtips" },
+  "Thruster": { id: "u3wKkZjE8QM", channel: "CrossFit", title: "The Dumbbell Thruster" },
+  "Bird Dog Raise": { id: "_1j_HWknGLg", channel: "AARP Answers", title: "How to Do a Proper Bird Dog" },
+  "Pilates Mountain Climber": { id: "cnyTQDSE884", channel: "Well+Good", title: "How to Do Mountain Climbers | The Right Way | Well+Good" },
 }

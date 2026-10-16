@@ -15,7 +15,22 @@ export type SleepQuality = 'excellent' | 'good' | 'fair' | 'poor'
 
 export type StressLevel = 'low' | 'moderate' | 'high' | 'very-high'
 
-export type TrainingDays = 3 | 4 | 5 | 6
+// Yoga can be done 2, 3, 5 or 7 days a week, and Pilates 2 to 6; lifting plans use 3 to 6.
+export type TrainingDays = 2 | 3 | 4 | 5 | 6 | 7
+
+/** The kind of yoga or Pilates session a person picked (see mindBodyStyles.ts). */
+export type MindBodyStyleId =
+  | 'yoga-beginner'
+  | 'yoga-flexibility'
+  | 'yoga-stress-relief'
+  | 'yoga-weight-loss'
+  | 'yoga-morning'
+  | 'yoga-bedtime'
+  | 'pilates-beginner'
+  | 'pilates-core'
+  | 'pilates-full-body'
+  | 'pilates-weight-loss'
+  | 'pilates-flexibility'
 
 export type Goal =
   | 'lose-weight'
@@ -66,6 +81,8 @@ export interface IntakeAnswers {
   equipment: Equipment
   focusAreas: FocusArea[]
   injuries: InjuryLimitation
+  /** Yoga and Pilates only: the style of session. Programs made before this existed do not have it. */
+  mindBodyStyle?: MindBodyStyleId
 }
 
 export interface RecoveryTier {

@@ -3,6 +3,17 @@ import { normalizeEquipment } from '../discipline'
 import { MIND_BODY_EXERCISES } from './mindBodyLibrary'
 import { STRENGTH_EXTRAS } from './strengthExtras'
 import { REPO_EXERCISES } from './repoExercises'
+import { HOME_NEW_EXERCISES } from './homeExercises'
+import { DUMBBELL_NEW_EXERCISES, DUMBBELL_YOUTUBE } from './dumbbellExercises'
+import { BAND_YOUTUBE } from './bandExercises'
+import {
+  COMMON_GYM_NAMES,
+  COMMON_GYM_RENAMED,
+  COMMON_GYM_YOUTUBE,
+  COMMON_GYM_YOUTUBE_RENAMED,
+  REPLACED_BY_COMMON,
+  REPLACED_BY_COMMON_YOUTUBE,
+} from './commonGym'
 import { ANIMATED_DEMOS, ANIMATED_ONLY_STRENGTH, SHOW_ANIMATED_DEMOS } from '../animatedDemos'
 
 export interface LibraryExercise {
@@ -66,7 +77,7 @@ const STRENGTH_EXERCISES: LibraryExercise[] = [
   { name: 'Resistance Band Chest Press', equipment: ['resistance-bands', 'home-workout'], muscle: ['chest'], compound: false, lowImpactSafe: ['knee', 'shoulder', 'lower-back'], subgroup: 'press' },
 
   // Back
-  { name: 'Deadlift', equipment: ['full-gym'], muscle: ['back', 'full-body'], compound: true, lowImpactSafe: [], subgroup: 'hinge' },
+  { name: 'Deadlift', equipment: ['full-gym'], muscle: ['legs', 'back'], compound: true, lowImpactSafe: [], subgroup: 'hinge' },
   { name: 'Barbell Row', equipment: ['full-gym'], muscle: ['back'], compound: true, lowImpactSafe: ['knee'], subgroup: 'horizontal-pull' },
   { name: 'Pull-Up', equipment: ['full-gym', 'calisthenics', 'home-workout'], muscle: ['back'], compound: true, lowImpactSafe: ['knee', 'lower-back'], subgroup: 'vertical-pull' },
   { name: 'Lat Pulldown', equipment: ['full-gym'], muscle: ['back'], compound: true, lowImpactSafe: ['knee', 'lower-back'], subgroup: 'vertical-pull' },
@@ -101,7 +112,7 @@ const STRENGTH_EXERCISES: LibraryExercise[] = [
   { name: 'Leg Extension', equipment: ['full-gym'], muscle: ['legs'], compound: false, lowImpactSafe: ['lower-back'], subgroup: 'quad-isolation' },
   { name: 'Leg Curl', equipment: ['full-gym'], muscle: ['legs'], compound: false, lowImpactSafe: ['knee', 'shoulder', 'lower-back'], subgroup: 'hamstring-isolation' },
   { name: 'Bodyweight Squat', equipment: ['calisthenics', 'home-workout', 'dumbbells-only', 'resistance-bands'], muscle: ['legs'], compound: true, lowImpactSafe: ['knee', 'shoulder', 'lower-back'], subgroup: 'quad-compound' },
-  { name: 'Bulgarian Split Squat', equipment: ['full-gym', 'dumbbells-only', 'home-workout'], muscle: ['legs', 'glutes'], compound: true, lowImpactSafe: ['shoulder', 'lower-back'], subgroup: 'quad-compound' },
+  { name: 'Bulgarian Split Squat', equipment: ['full-gym', 'dumbbells-only', 'home-workout', 'calisthenics', 'resistance-bands'], muscle: ['legs', 'glutes'], compound: true, lowImpactSafe: ['shoulder', 'lower-back'], subgroup: 'quad-compound' },
   { name: 'Band Squat', equipment: ['resistance-bands', 'home-workout'], muscle: ['legs'], compound: true, lowImpactSafe: ['knee', 'lower-back'], subgroup: 'quad-compound' },
 
   // Glutes
@@ -126,7 +137,16 @@ const STRENGTH_EXERCISES: LibraryExercise[] = [
   { name: 'Mountain Climber', equipment: ANY_STRENGTH_EQUIPMENT, muscle: ['full-body', 'core'], compound: true, lowImpactSafe: ['knee', 'lower-back'] },
 ]
 
-export const EXERCISES: LibraryExercise[] = [...STRENGTH_EXERCISES, ...STRENGTH_EXTRAS, ...REPO_EXERCISES, ...MIND_BODY_EXERCISES]
+export const EXERCISES: LibraryExercise[] = [
+  ...STRENGTH_EXERCISES,
+  ...STRENGTH_EXTRAS,
+  ...REPO_EXERCISES,
+  ...COMMON_GYM_RENAMED,
+  ...COMMON_GYM_YOUTUBE_RENAMED,
+  ...HOME_NEW_EXERCISES,
+  ...DUMBBELL_NEW_EXERCISES,
+  ...MIND_BODY_EXERCISES,
+]
 
 /**
  * Whether an exercise suits the person's equipment and injury. Fail-safe: with an injury, an exercise
@@ -136,7 +156,21 @@ export function isAllowed(ex: LibraryExercise, equipment: Equipment, injuries: I
   if (!ex.equipment.includes(normalizeEquipment(equipment))) return false
   // Strength exercises are only offered when they have an animation (yoga and Pilates use YouTube instead)
   const mindBody = ex.equipment.includes('yoga') || ex.equipment.includes('pilates')
-  if (ANIMATED_ONLY_STRENGTH && SHOW_ANIMATED_DEMOS && !mindBody && !ANIMATED_DEMOS[ex.name]) return false
+  // (On the Full Gym plan a few list exercises have no animation yet and show the YouTube video we saved)
+  const eq = normalizeEquipment(equipment)
+  const youtubeOnly =
+    (eq === 'full-gym' && COMMON_GYM_YOUTUBE.has(ex.name)) ||
+    (eq === 'dumbbells-only' && DUMBBELL_YOUTUBE.has(ex.name)) ||
+    (eq === 'resistance-bands' && BAND_YOUTUBE.has(ex.name))
+  if (ANIMATED_ONLY_STRENGTH && SHOW_ANIMATED_DEMOS && !mindBody && !ANIMATED_DEMOS[ex.name] && !youtubeOnly) return false
+  // The Full Gym plan only offers the common gym exercises (the owner's list, see commonGym.ts)
+  if (!mindBody && (REPLACED_BY_COMMON.has(ex.name) || REPLACED_BY_COMMON_YOUTUBE.has(ex.name))) return false
+  if (!mindBody && normalizeEquipment(equipment) === 'full-gym' && !COMMON_GYM_NAMES.has(ex.name) && !COMMON_GYM_YOUTUBE.has(ex.name)) return false
+  return injuryAllows(ex, injuries)
+}
+
+/** Does this exercise suit someone with this limitation? (Equipment and animation are checked elsewhere.) */
+export function injuryAllows(ex: LibraryExercise, injuries: InjuryLimitation): boolean {
   if (injuries === 'none') return true
   const safeFor = ex.lowImpactSafe ?? []
   if (injuries === 'other') {

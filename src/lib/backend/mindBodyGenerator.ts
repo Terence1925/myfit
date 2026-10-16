@@ -1,7 +1,8 @@
 import { GOAL_LABELS, getRecoveryTier } from '../tdee'
 import { disciplineOf, type Discipline } from '../discipline'
 import type { Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
-import { EXERCISES, isAllowed, type LibraryExercise, type MindBodyPhase } from './exerciseLibrary'
+import { EXERCISES, injuryAllows, isAllowed, type LibraryExercise, type MindBodyPhase } from './exerciseLibrary'
+import { MIND_BODY_STYLE_BY_ID, weekdaysFor, type MindBodyStyle } from './mindBodyStyles'
 
 // Yoga and mat Pilates programs. Unlike lifting, a session here is an ordered flow (warm-up, main
 // poses, cool-down), moves are timed or counted gently rather than set up as sets with rest, and
@@ -326,7 +327,180 @@ const INJURY_LABELS: Record<Exclude<IntakeAnswers['injuries'], 'none'>, string> 
   other: 'unspecified',
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Styled sessions (see mindBodyStyles.ts): the person picks a style (Beginner Yoga, Core Strength Pilates, ...) and how many
+// days a week. Every session is that style's list of poses or moves, in order, on the plan's weekdays. Hold times are set
+// so the whole session takes about as long as the style says.
+// ---------------------------------------------------------------------------------------------------------------------
+
+const roundTo = (n: number, step: number) => Math.round(n / step) * step
+
+/** "45-60 sec" for short holds, "1.5-2 min" for long ones. */
+function holdLabel(seconds: number): string {
+  const lo = seconds * 0.85
+  const hi = seconds * 1.15
+  if (hi >= 110) {
+    const fmt = (s: number) => String(roundTo(s / 60, 0.5))
+    return `${fmt(lo)}-${fmt(hi)} min`
+  }
+  return `${roundTo(lo, 5)}-${roundTo(hi, 5)} sec`
+}
+
+/** Swaps a move for a gentler one from the same part of a session when an injury rules it out. */
+function styledStandIn(
+  ex: LibraryExercise,
+  style: MindBodyStyle,
+  answers: IntakeAnswers,
+  used: Set<string>,
+): LibraryExercise | undefined {
+  const pool = EXERCISES.filter(
+    (e) =>
+      e.equipment.includes(style.discipline) &&
+      injuryAllows(e, answers.injuries) &&
+      !used.has(e.name) &&
+      !style.poses.includes(e.name) &&
+      e.name !== 'Savasana' &&
+      e.phases?.some((p) => ex.phases?.includes(p)) &&
+      (style.experience !== '0-1' || e.level !== 'intermediate'),
+  )
+  const sameMuscle = pool.filter((e) => e.muscle.some((m) => ex.muscle.includes(m)))
+  return shuffle(sameMuscle.length > 0 ? sameMuscle : pool)[0]
+}
+
+function styledSession(style: MindBodyStyle, answers: IntakeAnswers): { exercises: Exercise[]; swapped: number } {
+  const used = new Set<string>()
+  const moves: LibraryExercise[] = []
+  let swapped = 0
+  for (const name of style.poses) {
+    const ex = BY_NAME.get(name)
+    if (!ex) throw new Error(`${style.label}: "${name}" is not in the library`)
+    let use: LibraryExercise | undefined = ex
+    if (!injuryAllows(ex, answers.injuries)) {
+      use = styledStandIn(ex, style, answers, used)
+      swapped++
+    }
+    if (use) {
+      used.add(use.name)
+      moves.push(use)
+    }
+  }
+
+  // The style sets the person's level (it decides the hold times and rounds)
+  const asAnswers: IntakeAnswers = { ...answers, experience: style.experience }
+  const built = moves.map((ex) => buildMindBodyExercise(ex, asAnswers))
+
+  if (style.discipline === 'yoga') {
+    const weight = (ex: LibraryExercise) => (ex.timing === 'flow' || ex.timing === 'restore' ? 1.5 : 1)
+    const finalSeconds = style.minutes[0] < 20 ? 150 : 240
+    const targetSeconds = ((style.minutes[0] + style.minutes[1]) / 2) * 60
+    const timed = moves.filter((ex) => ex.timing !== 'final')
+    const units = timed.reduce((sum, ex) => sum + weight(ex) * (ex.eachSide ? 2 : 1), 0)
+    const finals = moves.length - timed.length
+    const base = Math.min(150, Math.max(30, roundTo((targetSeconds - finals * finalSeconds) / Math.max(1, units), 5)))
+    moves.forEach((ex, i) => {
+      if (ex.timing === 'final') built[i].reps = finalSeconds === 150 ? '2-3 min' : '3-5 min'
+      else built[i].reps = holdLabel(base * weight(ex))
+    })
+  }
+  return { exercises: built, swapped }
+}
+
+export function generateStyledMindBodyProgram(answers: IntakeAnswers, nutrition: NutritionPlan): ProgramData | null {
+  const style = answers.mindBodyStyle ? MIND_BODY_STYLE_BY_ID.get(answers.mindBodyStyle) : undefined
+  if (!style || style.discipline !== (disciplineOf(answers.equipment) === 'pilates' ? 'pilates' : 'yoga')) return null
+
+  const tier = getRecoveryTier(nutrition.recoveryScore, 'mind-body')
+  const goalLabel = GOAL_LABELS[answers.goal]
+  const isYoga = style.discipline === 'yoga'
+  const weekdays = weekdaysFor(answers.trainingDays)
+  const { exercises, swapped } = styledSession(style, answers)
+  if (exercises.length < 3) return null
+
+  const [lo, hi] = style.minutes
+  const days: ProgramDay[] = weekdays.map((weekday, i) => ({
+    day: i + 1,
+    name: weekday,
+    focus: style.label,
+    duration: `${lo}-${hi} min`,
+    exercises: exercises.map((e) => ({ ...e })),
+  }))
+
+  const moveWord = isYoga ? 'poses' : 'moves'
+  const personalizationNotes: string[] = [
+    `You chose ${style.label}: ${style.blurb} Each session takes about ${lo}-${hi} minutes and uses ${exercises.length} ${moveWord} in this order, so you can learn the sequence and flow through it.`,
+    `${style.label} is usually done ${style.recommended}. Your ${answers.trainingDays} sessions a week fall on ${weekdays.join(', ')}.`,
+    isYoga
+      ? `Yoga needs only a mat. Poses are held for a set time (or flowed through) instead of counting sets and reps, and each pose comes with a note on how to make it easier.`
+      : `Mat Pilates needs only a mat. Moves are counted in slow, controlled reps, and each move flows into the next, so there is no rest timer.`,
+    `Your goal is ${goalLabel}. ${isYoga ? 'Yoga' : 'Pilates'} supports it by building strength, control and recovery. Pair it with the calorie target on the Nutrition tab.`,
+  ]
+  if (answers.injuries !== 'none') {
+    personalizationNotes.push(
+      answers.injuries === 'other'
+        ? `You noted a limitation outside our specific categories, so only the gentlest moves are used. Always stop anything that doesn't feel right and check with a professional about your case.`
+        : `You noted a ${INJURY_LABELS[answers.injuries]} limitation, so ${swapped > 0 ? `${swapped} ${swapped === 1 ? 'move that loads' : 'moves that load'} that area ${swapped === 1 ? 'was' : 'were'} swapped for a gentler one from the same part of the session` : 'every move in this session is already gentle on that area'}. Always stop anything that causes sharp pain.`,
+    )
+  }
+  personalizationNotes.push(
+    `Your recovery score is ${nutrition.recoveryScore}/100 (${tier.tier} tier), calculated from your sleep, stress, and activity answers. ${tier.volumeAdjustment}`,
+  )
+
+  const nutritionTips = [
+    `Hit ${nutrition.calorieTarget} kcal/day with ${nutrition.proteinG}g protein to support this program's recovery demands.`,
+    `Split protein evenly across 3-4 meals, roughly ${Math.round(nutrition.proteinG / 4)}g per meal keeps muscle repair going all day.`,
+    `Carbs (${nutrition.carbsG}g) fuel your sessions for your ${goalLabel.toLowerCase()} goal without excess fat gain.`,
+    `Fat intake of ${nutrition.fatG}g supports hormone production, so don't drop it further even in a deficit.`,
+  ]
+  const recoveryAdvice = [
+    `Your recovery score is ${nutrition.recoveryScore}/100 (${tier.tier} tier). ${tier.volumeAdjustment}`,
+    tier.extraRest
+      ? 'An extra rest or active-recovery day is a good idea this week: a walk or some gentle stretching is perfect.'
+      : 'Your recovery capacity supports the full program, so no extra rest days are needed.',
+    'Prioritize 7-9 hours of sleep. Your recovery score recalculates each time you create a new program.',
+    'Move into each pose slowly and stop if you feel sharp or pinching pain. A stretch should feel like gentle pulling, never pain.',
+  ]
+
+  return {
+    programName: `${style.label} Program`,
+    tagline: `${answers.trainingDays} sessions a week of ${style.label.toLowerCase()}, about ${lo}-${hi} minutes each`,
+    overview: `This program is ${style.label} (${lo}-${hi} minutes a session), ${answers.trainingDays} days a week on ${weekdays.join(', ')}, with ${goalLabel.toLowerCase()} as the main goal. Every session follows the same ${exercises.length}-${isYoga ? 'pose' : 'move'} sequence so it becomes familiar and you can go deeper each week.`,
+    personalizationNotes,
+    weeklyVolume: `${exercises.length} ${moveWord} a session, ${answers.trainingDays} sessions a week (about ${lo * answers.trainingDays}-${hi * answers.trainingDays} minutes)`,
+    progressionStrategy: isYoga
+      ? 'Do the same sequence each session and add 5-10 seconds to each hold every week or two as the poses feel steadier. Move on to the harder variation of a pose only when it feels easy.'
+      : 'Once you can do every rep with control, add 2 reps, then a second round, before trying harder variations such as straightening your legs.',
+    nutritionTips,
+    recoveryAdvice,
+    warmup: isYoga
+      ? [
+          'Arrive on your mat and take 5 slow breaths to settle in',
+          'Gentle neck and shoulder rolls to loosen up',
+          'Move slowly at first. Your body is warmer and more flexible after a few minutes',
+        ]
+      : [
+          'Lie on your back and take 5 deep breaths into your ribs',
+          'Gentle knee hugs and hip circles to wake up your hips',
+          'Move slowly at first and keep your lower back comfortable on the mat',
+        ],
+    cooldown: isYoga
+      ? [
+          'Finish in Savasana (lying flat) and let your body fully relax',
+          'Take a few slow breaths and notice how you feel',
+          'Drink some water, and eat protein within about an hour if you are hungry',
+        ]
+      : [
+          'Finish with a gentle stretch and a few deep breaths',
+          'Roll slowly onto your side before you sit up',
+          'Drink some water, and eat protein within about an hour if you are hungry',
+        ],
+    days,
+  }
+}
+
 export function generateMindBodyProgram(answers: IntakeAnswers, nutrition: NutritionPlan): ProgramData {
+  // A person who picked a style gets that style's session; programs saved before styles existed use the themed builder below.
+  const styled = generateStyledMindBodyProgram(answers, nutrition)
+  if (styled) return styled
   const discipline: 'yoga' | 'pilates' = disciplineOf(answers.equipment) === 'pilates' ? 'pilates' : 'yoga'
   const tier = getRecoveryTier(nutrition.recoveryScore, 'mind-body')
   const goalLabel = GOAL_LABELS[answers.goal]

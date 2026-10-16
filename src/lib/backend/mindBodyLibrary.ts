@@ -198,6 +198,16 @@ const YOGA: LibraryExercise[] = [
   yoga('Savasana', ['full-body'], ['cooldown'], ALL,
     'Lie flat on your back with arms by your sides and palms up, eyes closed. Breathe naturally and let every muscle relax.',
     { timing: 'final' }),
+
+  // ---- Added for the yoga styles (Flexibility and Bedtime) ----
+  yoga('Pyramid Pose', ['legs', 'back'], ['fold', 'standing'], ['shoulder'],
+    'Step one foot back with both hips facing forward, then hinge over the front leg with a long spine. Rest your hands on blocks or your shin, and keep a soft bend in the front knee.',
+    { eachSide: true }),
+  yoga('Butterfly Stretch', ['glutes', 'legs'], ['hips', 'cooldown'], ['shoulder', 'lower-back'],
+    'Sit with the soles of your feet together and knees falling out to the sides. Sit tall, or fold forward gently from your hips. Sit on a cushion if your knees are high.',
+    { timing: 'restore' }),
+  yoga('Seated Split Progression', ['legs'], ['hips'], ['shoulder'],
+    'Sit with your legs as wide as is comfortable and hinge forward over your hips with a long spine. Go a little wider each week and stop before you feel any pinching.'),
 ]
 
 const PILATES: LibraryExercise[] = [
@@ -320,6 +330,17 @@ const PILATES: LibraryExercise[] = [
   pilates('Roll-Down to Plank', ['full-body', 'core', 'shoulders'], ['upper', 'core'], [],
     'Roll down, walk your hands out to plank and hold briefly, then walk back and roll up. Move slowly with your breath.',
     { fixedReps: '4-6', level: 'intermediate' }),
+
+  // ---- Added for the Pilates styles (Core Strength, Weight Loss and Flexibility) ----
+  pilates('Roll Over', ['core', 'back'], ['core'], [],
+    'Lie on your back, lift your legs over your hips and slowly lower them overhead, then roll down one bone at a time. Keep it small and never press on your neck.',
+    { fixedReps: '5-6', level: 'intermediate' }),
+  pilates('Pilates Mountain Climber', ['full-body', 'core', 'shoulders'], ['core', 'upper'], ['knee'],
+    'From a high plank with your core braced, drive one knee toward your chest and switch legs quickly. Keep your hips level and your shoulders over your wrists.',
+    { fixedReps: '20' }),
+  pilates('Pilates Side Bend', ['core', 'back'], ['stretch'], ['knee', 'shoulder'],
+    'Sit or kneel tall, rest one hand lightly by your side and reach the other arm overhead as you bend sideways. Keep both hips grounded and breathe into your ribs.',
+    { eachSide: true }),
 ]
 
 export const MIND_BODY_EXERCISES: LibraryExercise[] = [...YOGA, ...PILATES]

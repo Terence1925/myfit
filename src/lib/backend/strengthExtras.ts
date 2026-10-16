@@ -106,7 +106,7 @@ const ROWS: Row[] = [
   ['Dumbbell Skull Crusher', GYM_DB, ['arms'], false, ['knee', 'lower-back'], 'triceps'],
   ['Dumbbell Triceps Kickback', GYM_DB, ['arms'], false, ['knee', 'shoulder'], 'triceps'],
   ['Overhead Cable Triceps Extension', [GYM], ['arms'], false, ['knee', 'lower-back'], 'triceps'],
-  ['Bench Dip', [...BODYWEIGHT, GYM], ['arms', 'chest'], true, ['knee', 'lower-back'], 'triceps'],
+  ['Bench Dip', [...BODYWEIGHT, GYM], ['arms'], true, ['knee', 'lower-back'], 'triceps'],
   ['Close-Grip Push-Up', [...BODYWEIGHT, GYM], ['arms', 'chest'], true, ['knee', 'lower-back'], 'triceps'],
   ['Bodyweight Triceps Extension', [HOME, CAL], ['arms'], false, ['knee', 'lower-back'], 'triceps'],
   ['Underhand Inverted Row', [CAL, HOME], ['arms', 'back'], true, ['knee', 'lower-back'], 'biceps'],
