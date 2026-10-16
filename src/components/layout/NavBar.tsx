@@ -1,4 +1,4 @@
-import { LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, UserRound, Utensils } from 'lucide-react'
+import { LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, Utensils } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -44,33 +44,29 @@ export function NavBar() {
               </Button>
             )}
 
-            <Button variant="ghost" size="sm" onClick={() => navigate('/food')} className="gap-1.5 px-2 sm:px-3" aria-label="Food log">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/food')} className="hidden gap-1.5 px-2 sm:inline-flex sm:px-3" aria-label="Food log">
               <Utensils className="h-4 w-4" />
               <span className="hidden sm:inline">Food</span>
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => navigate('/progress')} className="gap-1.5 px-2 sm:px-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/progress')} className="hidden gap-1.5 px-2 sm:inline-flex sm:px-3">
               <LineChart className="h-4 w-4" />
               <span className="hidden sm:inline">Progress</span>
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => navigate('/saved')} className="gap-1.5 px-2 sm:px-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/saved')} className="hidden gap-1.5 px-2 sm:inline-flex sm:px-3">
               <LayoutList className="h-4 w-4" />
               <span className="hidden sm:inline">My Programs</span>
             </Button>
 
             {role === 'admin' && (
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="gap-1.5 px-2 sm:px-3">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="hidden gap-1.5 px-2 sm:inline-flex sm:px-3">
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:inline">Admin</span>
               </Button>
             )}
 
-            {/* Phones don't have room for Sign Out here — it lives on the Account page instead. */}
-            <Button variant="ghost" size="sm" onClick={() => navigate('/account')} className="px-2 sm:hidden" aria-label="Account">
-              <UserRound className="h-4 w-4" />
-            </Button>
-
+            {/* Phones: Account and Sign Out live in the bottom bar and on the Account page. */}
             <Button
               variant="outline"
               size="sm"

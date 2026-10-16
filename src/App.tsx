@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { GlowBackground } from '@/components/layout/GlowBackground'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { NavBar } from '@/components/layout/NavBar'
 import AuthPage from '@/pages/AuthPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
@@ -56,7 +57,8 @@ function AppShell() {
   }, [loading, profile])
 
   return (
-    <div className={rest && profile ? 'min-h-screen pb-40' : 'min-h-screen'}>
+    // On phones the bottom bar (3.5rem plus the safe area) must not cover the end of a page; the rest timer sits above it
+    <div className={profile ? (rest ? 'min-h-screen pb-56 sm:pb-40' : 'min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:pb-0') : 'min-h-screen'}>
       <GlowBackground />
       {profile && <NavBar />}
       <Routes>
@@ -126,6 +128,7 @@ function AppShell() {
       </Routes>
       <Footer />
       {profile && <RestTimerHost />}
+      {profile && <BottomNav />}
     </div>
   )
 }

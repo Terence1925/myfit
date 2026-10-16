@@ -73,8 +73,7 @@ function RestTimerBar({
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 80, opacity: 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-50 border-t border-border bg-card/95 backdrop-blur sm:bottom-0 sm:pb-[env(safe-area-inset-bottom)]"
       role="timer"
       aria-live="polite"
     >
