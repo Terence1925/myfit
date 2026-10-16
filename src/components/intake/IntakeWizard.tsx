@@ -274,7 +274,6 @@ function Step12Equipment({ answers, update }: StepProps) {
   const options: ChoiceOption[] = [
     { value: 'full-gym', label: 'Full Commercial Gym' },
     { value: 'dumbbells-only', label: 'Dumbbells Only' },
-    { value: 'home-workout', label: 'Home Workout' },
     { value: 'calisthenics', label: 'Bodyweight / Calisthenics' },
     { value: 'resistance-bands', label: 'Resistance Bands' },
     { value: 'yoga', label: 'Yoga', description: 'Mat only. Poses held for time, no sets or reps' },

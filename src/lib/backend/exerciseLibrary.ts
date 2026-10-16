@@ -2,6 +2,8 @@ import type { Equipment, FocusArea, InjuryLimitation } from '../types'
 import { normalizeEquipment } from '../discipline'
 import { MIND_BODY_EXERCISES } from './mindBodyLibrary'
 import { STRENGTH_EXTRAS } from './strengthExtras'
+import { REPO_EXERCISES } from './repoExercises'
+import { ANIMATED_DEMOS, ANIMATED_ONLY_STRENGTH, SHOW_ANIMATED_DEMOS } from '../animatedDemos'
 
 export interface LibraryExercise {
   name: string
@@ -124,7 +126,7 @@ const STRENGTH_EXERCISES: LibraryExercise[] = [
   { name: 'Mountain Climber', equipment: ANY_STRENGTH_EQUIPMENT, muscle: ['full-body', 'core'], compound: true, lowImpactSafe: ['knee', 'lower-back'] },
 ]
 
-export const EXERCISES: LibraryExercise[] = [...STRENGTH_EXERCISES, ...STRENGTH_EXTRAS, ...MIND_BODY_EXERCISES]
+export const EXERCISES: LibraryExercise[] = [...STRENGTH_EXERCISES, ...STRENGTH_EXTRAS, ...REPO_EXERCISES, ...MIND_BODY_EXERCISES]
 
 /**
  * Whether an exercise suits the person's equipment and injury. Fail-safe: with an injury, an exercise
@@ -132,6 +134,9 @@ export const EXERCISES: LibraryExercise[] = [...STRENGTH_EXERCISES, ...STRENGTH_
  */
 export function isAllowed(ex: LibraryExercise, equipment: Equipment, injuries: InjuryLimitation): boolean {
   if (!ex.equipment.includes(normalizeEquipment(equipment))) return false
+  // Strength exercises are only offered when they have an animation (yoga and Pilates use YouTube instead)
+  const mindBody = ex.equipment.includes('yoga') || ex.equipment.includes('pilates')
+  if (ANIMATED_ONLY_STRENGTH && SHOW_ANIMATED_DEMOS && !mindBody && !ANIMATED_DEMOS[ex.name]) return false
   if (injuries === 'none') return true
   const safeFor = ex.lowImpactSafe ?? []
   if (injuries === 'other') {
