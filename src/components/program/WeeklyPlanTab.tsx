@@ -9,6 +9,7 @@ import { sessions } from '@/lib/backend/api'
 import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
 import { buildLog, clearDraft, loadDraft, reconcileLog, saveDraft } from '@/lib/workoutLog'
+import { dayProgress, historyRows } from '@/lib/streak'
 import type { ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
 
 export function WeeklyPlanTab({
@@ -147,7 +148,36 @@ export function WeeklyPlanTab({
   const totalSets = log.reduce((sum, e) => sum + e.sets.length, 0)
   const completedSets = log.reduce((sum, e) => sum + e.sets.filter((s) => s.completed).length, 0)
 
+  const today = new Date().toDateString()
+  // Everything saved for this day today, added up (saving exercise by exercise works: the sets add together).
+  // "Mark as done" with one tap shows up as a save with no exercises.
+  const todayProgress = dayProgress(history.filter((h) => new Date(h.date).toDateString() === today))
+  const doneToday = todayProgress.counts
+  const [markingDone, setMarkingDone] = React.useState(false)
+
+  const afterSessionSaved = async () => {
+    setHistory(await sessions.listForProgramDay(programId, day.day))
+    setUserSessions(await sessions.listForUser(userId))
+    // Lets the streak card and the workout reminders update straight away
+    window.dispatchEvent(new Event('myfit:session-saved'))
+    setJustSaved(true)
+    setTimeout(() => setJustSaved(false), 3000)
+  }
+
+  const handleMarkDone = async () => {
+    if (markingDone || doneToday) return
+    setMarkingDone(true)
+    try {
+      await sessions.save({ userId, programId, day: day.day, dayName: day.name, date: new Date().toISOString(), exercises: [] })
+      await afterSessionSaved()
+    } finally {
+      setMarkingDone(false)
+    }
+  }
+
   const handleSave = async () => {
+    // An empty log is not a workout: at least one set has to be ticked
+    if (completedSets === 0) return
     await sessions.save({
       userId,
       programId,
@@ -156,14 +186,11 @@ export function WeeklyPlanTab({
       date: new Date().toISOString(),
       exercises: log,
     })
-    setHistory(await sessions.listForProgramDay(programId, day.day))
-    setUserSessions(await sessions.listForUser(userId))
     clearDraft(programId, day.day)
     setLog(buildLog(day.exercises))
     setLoggingMode(false)
     stopRestTimer()
-    setJustSaved(true)
-    setTimeout(() => setJustSaved(false), 3000)
+    await afterSessionSaved()
   }
 
   return (
@@ -184,8 +211,8 @@ export function WeeklyPlanTab({
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
           <h3 className="font-display text-2xl tracking-wide">{day.name}</h3>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
               <Clock className="h-4 w-4" /> {day.duration}
             </div>
             <Button
@@ -197,6 +224,23 @@ export function WeeklyPlanTab({
               <ClipboardList className="h-4 w-4" />
               {loggingMode ? 'Cancel Log' : 'Log Workout'}
             </Button>
+            {!loggingMode &&
+              (doneToday ? (
+                <span className="inline-flex h-9 items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-4 w-4" /> Done today
+                </span>
+              ) : (
+                <>
+                  {todayProgress.done > 0 && (
+                    <span className="inline-flex h-9 items-center rounded-md border border-border bg-secondary/50 px-3 text-sm font-semibold text-muted-foreground">
+                      Started: {todayProgress.done} of {todayProgress.planned} {mindBody ? 'done' : 'sets'}
+                    </span>
+                  )}
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={handleMarkDone} disabled={markingDone}>
+                    <CheckCircle2 className="h-4 w-4" /> Mark as done
+                  </Button>
+                </>
+              ))}
           </div>
         </div>
         <p className="text-sm text-muted-foreground capitalize mb-6">{day.focus}</p>
@@ -207,7 +251,7 @@ export function WeeklyPlanTab({
             animate={{ opacity: 1, y: 0 }}
             className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400"
           >
-            <CheckCircle2 className="h-4 w-4" /> Session saved to your history.
+            <CheckCircle2 className="h-4 w-4" /> Saved. Nice work!
           </motion.div>
         )}
 
@@ -215,8 +259,9 @@ export function WeeklyPlanTab({
           <div className="mb-4 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5">
             <span className="text-sm font-body text-muted-foreground">
               {completedSets}/{totalSets} {mindBody ? 'done' : 'sets logged'}
+              {completedSets === 0 && <span className="block text-xs">{mindBody ? 'Tick at least one to save.' : 'Tick at least one set to save.'}</span>}
             </span>
-            <Button size="sm" className="gap-1.5" onClick={handleSave}>
+            <Button size="sm" className="gap-1.5" onClick={handleSave} disabled={completedSets === 0}>
               <Save className="h-3.5 w-3.5" /> Save Session
             </Button>
           </div>
@@ -245,21 +290,18 @@ export function WeeklyPlanTab({
               <History className="h-4 w-4" /> Session History
             </h4>
             <div className="space-y-2">
-              {history.map((s) => {
-                const done = s.exercises.reduce((sum, e) => sum + e.sets.filter((set) => set.completed).length, 0)
-                const total = s.exercises.reduce((sum, e) => sum + e.sets.length, 0)
-                return (
-                  <div
-                    key={s.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
-                  >
-                    <span className="text-muted-foreground">{new Date(s.date).toLocaleDateString()}</span>
-                    <Badge variant={done === total ? 'success' : 'outline'}>
-                      {done}/{total} {mindBody ? 'completed' : 'sets completed'}
+              {historyRows(history).map((row) => (
+                <div key={row.date} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
+                  <span className="text-muted-foreground">{new Date(row.date).toLocaleDateString()}</span>
+                  {row.markedDone ? (
+                    <Badge variant="success">Marked as done</Badge>
+                  ) : (
+                    <Badge variant={row.done === row.planned ? 'success' : 'outline'}>
+                      {row.done}/{row.planned} {mindBody ? 'completed' : 'sets completed'}
                     </Badge>
-                  </div>
-                )
-              })}
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

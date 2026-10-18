@@ -11,6 +11,7 @@ import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
+import { WorkoutReminders } from '@/components/account/WorkoutReminders'
 import { useTheme, type ThemeChoice } from '@/lib/theme'
 
 // Must match capacitor.config.ts's appId
@@ -266,6 +267,8 @@ export default function AccountPage() {
             <p className="mt-2 text-xs text-muted-foreground">Auto follows your phone's light or dark setting.</p>
           </CardContent>
         </Card>
+
+        <WorkoutReminders userId={profile.id} />
 
         {nativePlatform() === 'android' && <RestAlarmCheck />}
 

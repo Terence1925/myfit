@@ -1,7 +1,13 @@
 import { Capacitor } from '@capacitor/core'
 
 export function isNativeApp(): boolean {
-  return Capacitor.isNativePlatform()
+  if (Capacitor.isNativePlatform()) return true
+  // Development only (never in a real build): lets the phone-only screens be previewed in the browser
+  try {
+    return !!import.meta.env?.DEV && localStorage.getItem('myfit_preview_native') === '1'
+  } catch {
+    return false
+  }
 }
 
 export function nativePlatform(): 'ios' | 'android' | 'web' {

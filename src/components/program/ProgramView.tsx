@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { OverviewTab } from './OverviewTab'
+import { StreakCard } from './StreakCard'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
@@ -120,6 +121,8 @@ export function ProgramView({
           </div>
           <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-current opacity-[0.08] blur-3xl" />
         </motion.div>
+
+        <StreakCard userId={userId} plannedDays={program.programData.days.length} />
 
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList>

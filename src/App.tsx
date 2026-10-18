@@ -22,6 +22,7 @@ import { Footer } from '@/components/layout/Footer'
 import { hasProAccess } from '@/lib/billing'
 import { syncTrialReminder } from '@/lib/trialReminder'
 import { stopRestTimer, useRestTimer } from '@/lib/restTimerStore'
+import { syncWorkoutReminders } from '@/lib/workoutReminder'
 import { RestTimerHost } from '@/components/program/RestTimerBar'
 import NotFound from '@/pages/NotFound'
 
@@ -49,6 +50,19 @@ function AppShell() {
   // (e.g. it disappears if the user cancelled in Google Play).
   React.useEffect(() => {
     if (profileId) void syncTrialReminder(profileId)
+  }, [profileId])
+
+  // Keep the workout reminders on the phone in step with the latest program, settings and today's progress
+  React.useEffect(() => {
+    if (!profileId) return
+    const resync = () => void syncWorkoutReminders(profileId)
+    resync()
+    window.addEventListener('myfit:session-saved', resync)
+    window.addEventListener('myfit:reminders-changed', resync)
+    return () => {
+      window.removeEventListener('myfit:session-saved', resync)
+      window.removeEventListener('myfit:reminders-changed', resync)
+    }
   }, [profileId])
 
   // Signing out ends any running rest (but wait for the session check on startup before judging).
