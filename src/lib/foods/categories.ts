@@ -36,8 +36,8 @@ export const FOOD_CATEGORIES: { id: FoodCategoryId; label: string }[] = [
 const RULES: [FoodCategoryId, RegExp][] = [
   ['fast-food', /^(burger \(small|french fries|pizza|jollibee|mcdonald|kfc|burger king|fish fillet burger|sub sandwich|hotdog sandwich|corn dog|siopao)/i],
   ['international', /siomai|gyoza|hakaw|egg roll|yang chow|sweet and sour|kung pao|orange chicken|chow mein|ramen|sushi|nigiri|sashimi|tempura|katsu|teriyaki|takoyaki|miso|bulgogi|samgyeopsal|kimchi|bibimbap|tteokbokki|kimbap|pad thai|tom yum|green curry|^pho$|banh mi|biryani|butter chicken|naan|hummus|falafel|shawarma|kebab|tacos|burrito|nachos|lasagna|carbonara|caesar|club sandwich|grilled cheese|mac and cheese|fish and chips/i],
-  ['rice-breakfast', /silog|champorado|ube cheese pandesal|^(steamed white rice|garlic fried rice|brown rice|pandesal|white bread|oatmeal|boiled egg|fried egg|scrambled egg|egg whites|omelet|quail eggs|salted egg|cornflakes|granola|pancakes|tortilla|rolled oats)/i],
-  ['seafood', /isda|prawn|sugpo|tinapa|danggit|dried squid|okoy|fish|bangus|tilapia|galunggong|tuna|sardine|shrimp|salmon|squid|pusit|calamares|mussel|crab|kinilaw|tuyo|escabeche|daing|hipon/i],
+  ['rice-breakfast', /silog|champorado|ube cheese pandesal|^(steamed white rice|garlic fried rice|brown rice|pandesal|white bread|oatmeal|boiled egg|fried egg|scrambled egg|egg whites|omelet|quail eggs|salted egg|cornflakes|granola|pancakes|tortilla|rolled oats|bagel)/i],
+  ['seafood', /dilis|isda|prawn|sugpo|tinapa|danggit|dried squid|okoy|fish|bangus|tilapia|galunggong|tuna|sardine|shrimp|salmon|squid|pusit|calamares|mussel|crab|kinilaw|tuyo|escabeche|daing|hipon/i],
   ['pork', /pork|baboy|sisig|lechon (kawali|baboy)|liempo|bacon|^ham|sausage|longganisa|tocino|dinuguan|menudo|humba|crispy pata|embutido|hotdog|chicharon|barbecue|luncheon|giniling|binagoongan|bicol express|bopis/i],
   ['beef', /beef|baka|bistek|kare-kare|caldereta|bulalo|steak|ribeye|tapa|brisket|tenderloin|pares|mechado|salpicao|jerky|roast beef/i],
   ['chicken', /chicken|manok|inasal|nuggets/i],

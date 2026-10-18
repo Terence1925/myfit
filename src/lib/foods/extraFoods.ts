@@ -188,6 +188,8 @@ const ROWS: Row[] = [
   ['Grilled cheese sandwich', '1 sandwich', 380, 14, 30, 22, 130],
   ['Mac and cheese', '1 cup', 380, 14, 42, 17, 200],
   ['Fish and chips', '1 serving', 640, 28, 55, 33, 300],
+  ['Bagel, plain', '1 bagel', 270, 10, 53, 1.5, 98],
+  ['Dilis (dried anchovies), fried', '30 g', 125, 14, 0, 7, 30],
 ]
 
 export const EXTRA_FOODS: FoodItem[] = ROWS.map(([name, serving, kcal, proteinG, carbsG, fatG, amount, unit], i) => ({

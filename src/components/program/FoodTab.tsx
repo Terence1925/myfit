@@ -34,7 +34,22 @@ import { hasProAccess } from '@/lib/billing'
 import { searchFoods } from '@/lib/foods/filipinoFoods'
 import { FOOD_CATEGORIES, foodsInCategory, type FoodCategoryId } from '@/lib/foods/categories'
 import { isFavorite, loadFavorites, toggleFavorite } from '@/lib/foods/favorites'
-import { PLATES } from '@/lib/foods/plates'
+import { isFilipinoPlate, PLATES } from '@/lib/foods/plates'
+import {
+  fromBase,
+  isFilipinoFood,
+  loadRegion,
+  loadUnits,
+  matchesRegion,
+  REGION_LABELS,
+  regionFirst,
+  saveRegion,
+  saveUnits,
+  toBase,
+  unitLabel,
+  type FoodRegion,
+  type FoodUnits,
+} from '@/lib/foods/region'
 import type { FoodItem, FoodLogEntry, MealType, NutritionPlan } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -263,6 +278,9 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
 }
 
 type Step = 'search' | 'amount' | 'custom'
+
+/** A number for display in a box: whole when it can be, else one decimal. */
+const shown = (n: number) => String(Math.round(n * 10) / 10)
 type BrowseTab = 'browse' | 'meals' | 'saved'
 
 const CATEGORY_ICONS: Record<FoodCategoryId, LucideIcon> = {
@@ -323,6 +341,13 @@ function AddFoodDialog({
   const [recent, setRecent] = React.useState<FoodLogEntry[]>([])
   const [tab, setTab] = React.useState<BrowseTab>('browse')
   const [category, setCategory] = React.useState<FoodCategoryId | null>(null)
+  // Which foods to show first (Everyday / Filipino / All) and whether amounts are in grams or ounces. Both are remembered.
+  const [region, setRegionState] = React.useState<FoodRegion>(loadRegion)
+  const [units, setUnitsState] = React.useState<FoodUnits>(loadUnits)
+  const setRegion = (r: FoodRegion) => {
+    setRegionState(r)
+    saveRegion(r)
+  }
   const [favs, setFavs] = React.useState<FoodItem[]>([])
   const { profile, role } = useAuth()
   const proAccess = hasProAccess(profile, role)
@@ -349,7 +374,18 @@ function AddFoodDialog({
     foodLog.listRecent(userId, 8).then(setRecent).catch(() => setRecent([]))
   }, [open, userId])
 
-  const results = React.useMemo(() => searchFoods(query), [query])
+  const results = React.useMemo(() => regionFirst(searchFoods(query, 60), region).slice(0, 25), [query, region])
+
+  // Groups and plates that have something to show for the chosen region
+  const categories = React.useMemo(
+    () =>
+      FOOD_CATEGORIES.map((c) => ({
+        ...c,
+        foods: foodsInCategory(c.id).filter((f) => matchesRegion(isFilipinoFood(f), region)),
+      })).filter((c) => c.foods.length > 0),
+    [region],
+  )
+  const plates = React.useMemo(() => PLATES.filter((p) => matchesRegion(isFilipinoPlate(p), region)), [region])
 
   // Pro: also search the big online database, shortly after the person stops typing
   React.useEffect(() => {
@@ -380,7 +416,7 @@ function AddFoodDialog({
     setPicked(food)
     setServings(1)
     setMode('servings')
-    setAmountText(food.amount ? String(food.amount) : '')
+    setAmountText(food.amount ? shown(fromBase(food.amount, food.unit ?? 'g', units)) : '')
     setStep('amount')
   }
 
@@ -420,8 +456,20 @@ function AddFoodDialog({
     }
   }
 
-  const exactAmount = Math.max(0, Number(amountText) || 0)
+  // What the person typed is in their unit (g/ml or oz/fl oz); the food's numbers are per gram or ml
+  const baseUnit = picked?.unit ?? 'g'
+  const typedAmount = Math.max(0, Number(amountText) || 0)
+  const exactAmount = toBase(typedAmount, baseUnit, units)
   const factor = picked ? (mode === 'amount' && picked.amount ? exactAmount / picked.amount : servings) : 0
+  const unitName = unitLabel(baseUnit, units)
+  const pickUnits = (u: FoodUnits) => {
+    if (u === units) return
+    // keep the same amount, just shown in the other unit
+    if (amountText.trim() !== '') setAmountText(shown(fromBase(toBase(typedAmount, baseUnit, units), baseUnit, u)))
+    setUnitsState(u)
+    saveUnits(u)
+  }
+  const quickAmounts = units === 'metric' ? [50, 100, 150, 200, 250] : baseUnit === 'ml' ? [4, 8, 12, 16, 20] : [2, 4, 6, 8, 10]
 
   const mealLabel = MEALS.find((m) => m.id === meal)?.label ?? ''
   const num = (v: string) => Math.max(0, Number(v) || 0)
@@ -435,7 +483,7 @@ function AddFoodDialog({
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search food, e.g. adobo, rice, egg"
+              placeholder={region === 'everyday' ? 'Search food, e.g. chicken, rice, egg' : 'Search food, e.g. adobo, rice, egg'}
             />
             {query.trim() === '' && (
               <>
@@ -457,9 +505,30 @@ function AddFoodDialog({
                   ))}
                 </div>
 
+                {(tab === 'meals' || (tab === 'browse' && category === null)) && (
+                  <div className="flex items-center gap-2" role="group" aria-label="Which foods to show">
+                    <span className="text-xs font-semibold text-muted-foreground">Show</span>
+                    {(['everyday', 'filipino', 'all'] as const).map((r) => (
+                      <button
+                        key={r}
+                        onClick={() => setRegion(r)}
+                        aria-pressed={region === r}
+                        className={cn(
+                          'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+                          region === r
+                            ? 'border-primary bg-primary/15 text-primary'
+                            : 'border-border bg-secondary/50 text-muted-foreground hover:text-foreground',
+                        )}
+                      >
+                        {REGION_LABELS[r]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {tab === 'browse' && category === null && (
                   <div className="grid grid-cols-2 gap-2">
-                    {FOOD_CATEGORIES.map(({ id, label }) => {
+                    {categories.map(({ id, label, foods }) => {
                       const Icon = CATEGORY_ICONS[id]
                       return (
                         <button
@@ -470,7 +539,7 @@ function AddFoodDialog({
                           <Icon className="h-5 w-5 shrink-0 text-primary" />
                           <span className="min-w-0">
                             <span className="block text-sm font-semibold leading-tight">{label}</span>
-                            <span className="block text-xs text-muted-foreground">{foodsInCategory(id).length} foods</span>
+                            <span className="block text-xs text-muted-foreground">{foods.length} foods</span>
                           </span>
                         </button>
                       )
@@ -486,14 +555,14 @@ function AddFoodDialog({
                     >
                       <ChevronLeft className="h-4 w-4" /> {FOOD_CATEGORIES.find((c) => c.id === category)?.label}
                     </button>
-                    <FoodRows foods={foodsInCategory(category)} onPick={choose} />
+                    <FoodRows foods={foodsInCategory(category).filter((f) => matchesRegion(isFilipinoFood(f), region))} onPick={choose} />
                   </div>
                 )}
 
                 {tab === 'meals' && (
                   <div>
                     <p className="mb-1 text-xs text-muted-foreground">A whole plate in one tap. You can change the servings next.</p>
-                    <FoodRows foods={PLATES} onPick={choose} />
+                    <FoodRows foods={plates} onPick={choose} />
                   </div>
                 )}
 
@@ -599,7 +668,7 @@ function AddFoodDialog({
                       mode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
-                    {m === 'servings' ? 'Servings' : picked.unit === 'ml' ? 'Milliliters (ml)' : 'Grams (g)'}
+                    {m === 'servings' ? 'Servings' : units === 'metric' ? (picked.unit === 'ml' ? 'Milliliters (ml)' : 'Grams (g)') : picked.unit === 'ml' ? 'Fluid ounces (fl oz)' : 'Ounces (oz)'}
                   </button>
                 ))}
               </div>
@@ -612,18 +681,34 @@ function AddFoodDialog({
                     value={amountText}
                     onChange={(e) => setAmountText(e.target.value)}
                     className="h-14 w-32 text-center font-display text-3xl"
-                    aria-label={`Amount in ${picked.unit}`}
+                    aria-label={`Amount in ${unitName}`}
                   />
-                  <span className="text-lg font-semibold text-muted-foreground">{picked.unit}</span>
+                  <span className="text-lg font-semibold text-muted-foreground">{unitName}</span>
                 </div>
                 <div className="mt-3 flex flex-wrap justify-center gap-2">
-                  {[50, 100, 150, 200, 250].map((v) => (
+                  {quickAmounts.map((v) => (
                     <button
                       key={v}
                       onClick={() => setAmountText(String(v))}
                       className="rounded-full border border-border bg-secondary/50 px-3 py-1 text-xs font-semibold hover:bg-secondary"
                     >
-                      {v} {picked.unit}
+                      {v} {unitName}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <span>Measure in</span>
+                  {(['metric', 'imperial'] as const).map((u) => (
+                    <button
+                      key={u}
+                      onClick={() => pickUnits(u)}
+                      aria-pressed={units === u}
+                      className={cn(
+                        'rounded-full border px-3 py-1 font-semibold transition-colors',
+                        units === u ? 'border-primary bg-primary/15 text-primary' : 'border-border bg-secondary/50 hover:text-foreground',
+                      )}
+                    >
+                      {unitLabel(baseUnit, u)}
                     </button>
                   ))}
                 </div>
@@ -670,7 +755,7 @@ function AddFoodDialog({
                 className="flex-1"
                 disabled={saving || !(factor > 0)}
                 onClick={() =>
-                  void save(picked, factor, mode === 'amount' && picked.amount ? `${exactAmount} ${picked.unit}` : undefined)
+                  void save(picked, factor, mode === 'amount' && picked.amount ? `${amountText.trim() || 0} ${unitName}` : undefined)
                 }
               >
                 Add to {mealLabel}

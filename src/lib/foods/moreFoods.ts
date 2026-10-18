@@ -140,6 +140,13 @@ export const MORE_FOODS: FoodItem[] = ROWS.map(([name, serving, kcal, proteinG, 
 
 // Extra words that find a food in search, like English words for Filipino dishes ("beef" finds bistek).
 export const SEARCH_KEYWORDS: Record<string, string> = {
+  Omelet: 'omelette eggs',
+  'White bread': 'toast sandwich loaf',
+  Cornflakes: 'cereal breakfast',
+  Granola: 'cereal muesli breakfast',
+  'Soft drink': 'cola coke pepsi soda sprite',
+  'Bagel, plain': 'bread breakfast',
+  'Dilis (dried anchovies), fried': 'anchovies fish',
   'Kare-kare': 'beef oxtail peanut stew',
   'Bistek tagalog': 'beef steak',
   'Nilagang baka': 'beef boiled soup',
