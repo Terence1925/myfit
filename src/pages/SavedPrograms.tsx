@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ProgramView } from '@/components/program/ProgramView'
 import { programs } from '@/lib/backend/api'
-import { GOAL_LABELS } from '@/lib/tdee'
+import { goalLabelOf } from '@/lib/goalLabel'
 import type { WorkoutProgram } from '@/lib/types'
 
 function daysRemaining(expiresAt: string): number {
@@ -73,7 +73,7 @@ export default function SavedPrograms() {
                         {expired ? 'Expired' : `${remaining}d left`}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">{GOAL_LABELS[p.answers.goal]}</p>
+                    <p className="text-xs text-muted-foreground">{goalLabelOf(p.answers)}</p>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <Badge variant="outline">{p.nutrition.calorieTarget} kcal</Badge>
                       <Badge variant="cyan">Recovery {p.recoveryScore}/100</Badge>

@@ -410,7 +410,6 @@ export function generateStyledMindBodyProgram(answers: IntakeAnswers, nutrition:
   if (!style || style.discipline !== (disciplineOf(answers.equipment) === 'pilates' ? 'pilates' : 'yoga')) return null
 
   const tier = getRecoveryTier(nutrition.recoveryScore, 'mind-body')
-  const goalLabel = GOAL_LABELS[answers.goal]
   const isYoga = style.discipline === 'yoga'
   const weekdays = weekdaysFor(answers.trainingDays)
   const { exercises, swapped } = styledSession(style, answers)
@@ -432,7 +431,9 @@ export function generateStyledMindBodyProgram(answers: IntakeAnswers, nutrition:
     isYoga
       ? `Yoga needs only a mat. Poses are held for a set time (or flowed through) instead of counting sets and reps, and each pose comes with a note on how to make it easier.`
       : `Mat Pilates needs only a mat. Moves are counted in slow, controlled reps, and each move flows into the next, so there is no rest timer.`,
-    `Your goal is ${goalLabel}. ${isYoga ? 'Yoga' : 'Pilates'} supports it by building strength, control and recovery. Pair it with the calorie target on the Nutrition tab.`,
+    style.goal === 'lose-weight'
+      ? `Your calorie target on the Nutrition tab is a small deficit for weight loss. ${isYoga ? 'Yoga' : 'Pilates'} adds movement, strength and better recovery on top of it.`
+      : `Your calorie target on the Nutrition tab keeps your weight steady. ${isYoga ? 'Yoga' : 'Pilates'} builds strength, control and recovery.`,
   ]
   if (answers.injuries !== 'none') {
     personalizationNotes.push(
@@ -448,7 +449,7 @@ export function generateStyledMindBodyProgram(answers: IntakeAnswers, nutrition:
   const nutritionTips = [
     `Hit ${nutrition.calorieTarget} kcal/day with ${nutrition.proteinG}g protein to support this program's recovery demands.`,
     `Split protein evenly across 3-4 meals, roughly ${Math.round(nutrition.proteinG / 4)}g per meal keeps muscle repair going all day.`,
-    `Carbs (${nutrition.carbsG}g) fuel your sessions for your ${goalLabel.toLowerCase()} goal without excess fat gain.`,
+    `Carbs (${nutrition.carbsG}g) fuel your ${style.label.toLowerCase()} sessions without excess fat gain.`,
     `Fat intake of ${nutrition.fatG}g supports hormone production, so don't drop it further even in a deficit.`,
   ]
   const recoveryAdvice = [
@@ -463,7 +464,7 @@ export function generateStyledMindBodyProgram(answers: IntakeAnswers, nutrition:
   return {
     programName: `${style.label} Program`,
     tagline: `${answers.trainingDays} sessions a week of ${style.label.toLowerCase()}, about ${lo}-${hi} minutes each`,
-    overview: `This program is ${style.label} (${lo}-${hi} minutes a session), ${answers.trainingDays} days a week on ${weekdays.join(', ')}, with ${goalLabel.toLowerCase()} as the main goal. Every session follows the same ${exercises.length}-${isYoga ? 'pose' : 'move'} sequence so it becomes familiar and you can go deeper each week.`,
+    overview: `This program is ${style.label} (${lo}-${hi} minutes a session), ${answers.trainingDays} days a week on ${weekdays.join(', ')}. Every session follows the same ${exercises.length}-${isYoga ? 'pose' : 'move'} sequence so it becomes familiar and you can go deeper each week.`,
     personalizationNotes,
     weeklyVolume: `${exercises.length} ${moveWord} a session, ${answers.trainingDays} sessions a week (about ${lo * answers.trainingDays}-${hi * answers.trainingDays} minutes)`,
     progressionStrategy: isYoga

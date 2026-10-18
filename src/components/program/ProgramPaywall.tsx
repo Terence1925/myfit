@@ -1,14 +1,17 @@
+import * as React from 'react'
 import { motion } from 'framer-motion'
-import { BellRing, Check, Crown, Flame, Lock, Moon, Sparkles, Utensils } from 'lucide-react'
+import { BellRing, Check, CircleDollarSign, Crown, Flame, Gift, Lock, Moon, Sparkles, Utensils } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/context/AuthContext'
-import { PRO_PRICES, TRIAL_DAYS } from '@/lib/billing'
+import { WeeklyPlanTab } from './WeeklyPlanTab'
+import { programs } from '@/lib/backend/api'
+import { PRO_PRICES, TRIAL_DAYS, firstPaymentDate } from '@/lib/billing'
 import { storeName } from '@/lib/platform'
-import { GOAL_LABELS } from '@/lib/tdee'
-import type { Equipment, FocusArea, WorkoutProgram } from '@/lib/types'
+import { goalLabelOf } from '@/lib/goalLabel'
+import type { Equipment, FocusArea, ProgramData, WorkoutProgram } from '@/lib/types'
 
 const EQUIPMENT_LABELS: Record<Equipment, string> = {
   'full-gym': 'Full gym',
@@ -31,47 +34,59 @@ const FOCUS_LABELS: Record<FocusArea, string> = {
   'full-body': 'Full body',
 }
 
-// Warm-up style moves are a weak first impression; lead the sneak peek with the main lifts.
-const FILLER_MOVE = /crunch|plank|sit-?up|leg raise|twist|dead bug|bird dog|mountain climber|hollow|russian/i
-
 /** Keep a note to its first clause so it reads as one line on a phone. */
 function shortNote(note: string): string {
   const first = note.split(' — ')[0].trim()
   return /[.!?]$/.test(first) ? first : `${first}.`
 }
 
-/** Shown to non-subscribers once their program is built: enough to see it's personal, not enough to use. */
+/**
+ * Shown to people without a subscription once their program is built. Day 1 is fully usable and free (demos, rest timer and
+ * workout log all work), so they feel the product before they pay. The other days are locked.
+ */
 export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
   const navigate = useNavigate()
   const { profile } = useAuth()
-  const { programData: p, nutrition: n, answers } = program
+  const { nutrition: n, answers } = program
+  const [data, setData] = React.useState<ProgramData>(program.programData)
   const firstName = profile?.displayName?.trim().split(/\s+/)[0]
-  const firstDay = p.days[0]
-  const peek = firstDay
-    ? [...firstDay.exercises.filter((ex) => !FILLER_MOVE.test(ex.name)), ...firstDay.exercises.filter((ex) => FILLER_MOVE.test(ex.name))].slice(0, 3)
-    : []
+  const firstDay = data.days[0]
   const monthly = PRO_PRICES.monthly
   const yearly = PRO_PRICES.yearly
+  const payDate = firstPaymentDate()
 
   const chips = [
-    GOAL_LABELS[answers.goal],
+    goalLabelOf(answers),
     EQUIPMENT_LABELS[answers.equipment],
     ...answers.focusAreas.map((f) => `${FOCUS_LABELS[f]} focus`),
-    `${p.days.length} days / week`,
+    `${data.days.length} days / week`,
   ]
 
+  // Swapping an exercise on Day 1 works the same as in a full program, and is saved.
+  const handleSwap = async (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => {
+    if (!profile) return
+    const today = data.days.find((d) => d.day === dayNumber)?.exercises.map((e) => e.name) ?? []
+    const swap = await programs.alternate(profile.id, exerciseName, dayFocus, answers, today)
+    const next: ProgramData = {
+      ...data,
+      days: data.days.map((d) => (d.day === dayNumber ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) } : d)),
+    }
+    setData(next)
+    await programs.update(program.id, next)
+  }
+
   return (
-    <div className="container max-w-3xl py-10 pb-28 sm:py-14 sm:pb-28">
+    <div className="container max-w-3xl py-10 pb-44 sm:py-14 sm:pb-28">
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="text-center">
         <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
-          <Lock className="h-8 w-8 text-primary-foreground" />
+          <Sparkles className="h-8 w-8 text-primary-foreground" />
         </div>
         <p className="text-xs font-bold uppercase tracking-widest text-primary">Built just for you</p>
         <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-gradient-gold">
           {firstName ? `${firstName.toUpperCase()}, YOUR PROGRAM IS READY` : 'YOUR PROGRAM IS READY'}
         </h1>
         <p className="mt-3 font-body text-muted-foreground">
-          {p.programName} — {p.tagline}
+          {data.programName} — {data.tagline}
         </p>
       </motion.div>
 
@@ -85,7 +100,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { icon: Crown, label: 'Training days', value: `${p.days.length} / week` },
+          { icon: Crown, label: 'Training days', value: `${data.days.length} / week` },
           { icon: Flame, label: 'Daily target', value: `${n.calorieTarget} kcal` },
           { icon: Moon, label: 'Recovery score', value: `${n.recoveryScore} / 100 · ${n.recoveryTier}` },
         ].map(({ icon: Icon, label, value }) => (
@@ -101,14 +116,14 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         ))}
       </div>
 
-      {p.personalizationNotes.length > 0 && (
+      {data.personalizationNotes.length > 0 && (
         <Card className="mt-6">
           <CardContent className="p-5">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
               <Sparkles className="h-4 w-4" /> Why this program fits you
             </div>
             <ul className="mt-3 space-y-2">
-              {p.personalizationNotes.slice(0, 3).map((note) => (
+              {data.personalizationNotes.slice(0, 3).map((note) => (
                 <li key={note} className="flex gap-2 font-body text-sm">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <span>{shortNote(note)}</span>
@@ -119,67 +134,102 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         </Card>
       )}
 
-      {firstDay && (
-        <Card className="mt-6">
-          <CardContent className="p-5">
-            <div className="text-xs font-bold uppercase tracking-widest text-primary">
-              Sneak peek · Day {firstDay.day}
-            </div>
-            <div className="mt-1 font-body font-bold">{firstDay.name}</div>
-            <div className="text-xs text-muted-foreground">{firstDay.duration}</div>
-            <div className="mt-3 space-y-2">
-              {peek.map((ex) => (
-                <div key={ex.name} className="flex items-center justify-between gap-3 rounded-lg bg-secondary/50 px-3 py-2">
-                  <span className="truncate font-body text-sm font-semibold">{ex.name}</span>
-                  <span className="flex shrink-0 select-none items-center gap-1 text-xs text-muted-foreground blur-[3px]">
-                    {ex.sets} × {ex.reps}
-                  </span>
-                </div>
-              ))}
-              {firstDay.exercises.length > 3 && (
-                <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
-                  <Lock className="h-3.5 w-3.5" /> +{firstDay.exercises.length - 3} more exercises
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="mt-4 space-y-2">
-        {p.days.slice(1).map((day) => (
-          <div
-            key={day.day}
-            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/60 px-4 py-3"
-          >
-            <div className="min-w-0">
-              <div className="text-xs font-bold uppercase tracking-widest text-primary">Day {day.day}</div>
-              <div className="truncate font-body font-bold">{day.name}</div>
-            </div>
-            <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-              <span>{day.exercises.length} exercises</span>
-              <Lock className="h-3.5 w-3.5" />
+      {firstDay && profile && (
+        <section className="mt-10">
+          <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-gradient">
+                <Gift className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl tracking-wide text-gradient-gold">DAY 1 IS FREE</h2>
+                <p className="mt-0.5 font-body text-sm text-muted-foreground">
+                  Do your first workout right now. Demos, the rest timer and your workout log all work. No trial and no card needed.
+                </p>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
+          <div className="mt-5">
+            <WeeklyPlanTab
+              program={{ ...data, days: [firstDay] }}
+              programId={program.id}
+              userId={profile.id}
+              activeDay={firstDay.day}
+              onActiveDayChange={() => undefined}
+              onSwapExercise={handleSwap}
+              hasProgressAccess={false}
+            />
+          </div>
+        </section>
+      )}
+
+      {data.days.length > 1 && (
+        <div className="mt-8">
+          <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">The rest of your week</div>
+          <div className="space-y-2">
+            {data.days.slice(1).map((day) => (
+              <div
+                key={day.day}
+                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/60 px-4 py-3"
+              >
+                <div className="min-w-0">
+                  <div className="text-xs font-bold uppercase tracking-widest text-primary">Day {day.day}</div>
+                  <div className="truncate font-body font-bold">{day.name}</div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                  <span>{day.exercises.length} {day.exercises[0]?.format === 'yoga' ? 'poses' : day.exercises[0]?.format === 'pilates' ? 'moves' : 'exercises'}</span>
+                  <Lock className="h-3.5 w-3.5" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Card className="mt-8">
-        <CardContent className="p-5 text-center">
-          <div className="font-display text-2xl tracking-wide">START YOUR {TRIAL_DAYS}-DAY FREE TRIAL</div>
-          <p className="mt-1 font-body text-sm text-muted-foreground">
-            Then {monthly.priceLabel}/month or {yearly.priceLabel}/year ({yearly.savingsLabel?.toLowerCase()}). Cancel anytime
-            in {storeName()}.
-          </p>
-          <Button size="lg" className="mt-4 w-full gap-2 sm:w-auto" onClick={() => navigate('/pricing')}>
+        <CardContent className="p-5">
+          <div className="text-center">
+            <div className="font-display text-2xl tracking-wide">START YOUR {TRIAL_DAYS}-DAY FREE TRIAL</div>
+            <p className="mt-1 font-body text-sm text-muted-foreground">
+              Unlock every day of your program, your progress history and your nutrition plan.
+            </p>
+          </div>
+
+          <ol className="mt-5 space-y-3 text-sm">
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <CircleDollarSign className="h-3.5 w-3.5" />
+              </span>
+              <span>
+                <span className="font-bold">Today: ₱0.</span> <span className="text-muted-foreground">Everything unlocks right away.</span>
+              </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <BellRing className="h-3.5 w-3.5" />
+              </span>
+              <span>
+                <span className="font-bold">Day {TRIAL_DAYS - 1}: a reminder.</span>{' '}
+                <span className="text-muted-foreground">We tell you the day before, so you're never surprised.</span>
+              </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <Check className="h-3.5 w-3.5" />
+              </span>
+              <span>
+                <span className="font-bold">{payDate}: your first payment.</span>{' '}
+                <span className="text-muted-foreground">
+                  {yearly.priceLabel} a year ({yearly.perMonthLabel}) or {monthly.priceLabel} a month. Cancel any time before then in{' '}
+                  {storeName()} and you pay nothing.
+                </span>
+              </span>
+            </li>
+          </ol>
+
+          <Button size="lg" className="mt-5 w-full gap-2" onClick={() => navigate('/pricing')}>
             <Crown className="h-4 w-4" /> Unlock My Program
           </Button>
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <BellRing className="h-3.5 w-3.5" /> We remind you 1 day before your trial ends, so you're never surprised.
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Includes full exercises, sets and reps, nutrition plan, recovery plan, and progress tracking.
-          </p>
         </CardContent>
       </Card>
 
@@ -195,8 +245,8 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         </CardContent>
       </Card>
 
-      {/* Always in reach, so the button doesn't sit three screens down on a phone. */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur">
+      {/* Always in reach, so the button doesn't sit three screens down on a phone (and above the bottom tab bar there). */}
+      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:bottom-0">
         <div className="mx-auto max-w-3xl">
           <Button size="lg" className="w-full gap-2" onClick={() => navigate('/pricing')}>
             <Crown className="h-4 w-4" /> Start {TRIAL_DAYS}-day free trial

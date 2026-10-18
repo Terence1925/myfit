@@ -5,7 +5,7 @@
 // Yoga and Pilates use YouTube. Anything else with no animation and no saved video is a failure.
 import { generateProgram } from '../src/lib/backend/programGenerator'
 import { calculateNutrition } from '../src/lib/tdee'
-import { ANIMATED_DEMOS, ANIMATED_ONLY_STRENGTH, SHOW_ANIMATED_DEMOS, YOUTUBE_NEXT_TO_ANIMATION } from '../src/lib/animatedDemos'
+import { ANIMATED_DEMOS, ANIMATED_ONLY_STRENGTH, SHOW_ANIMATED_DEMOS } from '../src/lib/animatedDemos'
 import { COMMON_GYM_YOUTUBE } from '../src/lib/backend/commonGym'
 import { HOME_PROGRAM_NAMES } from '../src/lib/backend/homeProgram'
 import { EXERCISE_VIDEOS } from '../src/lib/exerciseVideos'
@@ -80,7 +80,6 @@ for (const equipment of equipments)
 const problems: string[] = []
 if (!SHOW_ANIMATED_DEMOS) problems.push('SHOW_ANIMATED_DEMOS is off')
 if (!ANIMATED_ONLY_STRENGTH) problems.push('ANIMATED_ONLY_STRENGTH is off')
-if (YOUTUBE_NEXT_TO_ANIMATION) problems.push('YOUTUBE_NEXT_TO_ANIMATION is on (the "Real person" tab would show)')
 if (errors.length) problems.push(`${errors.length} programs failed to build, first: ${errors[0]}`)
 if (missing.size) problems.push(`${missing.size} exercises have no animation and no allowed saved video: ${[...missing.keys()].slice(0, 10).join(', ')}`)
 

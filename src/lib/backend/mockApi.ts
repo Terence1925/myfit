@@ -1,5 +1,5 @@
 import { calculateNutrition } from '../tdee'
-import { isPro, PRO_PRICES } from '../billing'
+import { isPro } from '../billing'
 import type {
   AppliedCode,
   CodeRedemption,
@@ -14,11 +14,9 @@ import type {
   ProgramData,
   Profile,
   Role,
-  SubscriptionPeriod,
   WorkoutProgram,
   WorkoutSession,
 } from '../types'
-import type { BillingResult } from './types'
 import { EXERCISES } from './exerciseLibrary'
 import { generateAlternate, generateProgram } from './programGenerator'
 import { readAll, readOne, removeKey, uid, writeAll, writeOne } from './storage'
@@ -146,6 +144,27 @@ export const auth = {
 
   async updatePassword(): Promise<void> {
     throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  },
+
+  async deleteMember(userId: string): Promise<void> {
+    const session = readOne<{ userId: string }>(SESSION_KEY)
+    if (!session) throw new Error('Not signed in.')
+    const roleRows = readAll<RoleRow>(ROLES_KEY)
+    if (!roleRows.some((r) => r.userId === session.userId && r.role === 'admin')) throw new Error('Only an admin can delete other members.')
+    if (roleRows.some((r) => r.userId === userId && r.role === 'admin')) {
+      throw new Error('This member is an admin. Remove their admin rights first, then delete them.')
+    }
+    const target = readAll<Profile>(PROFILES_KEY).find((p) => p.id === userId)
+    if (!target) throw new Error('That member no longer exists.')
+
+    writeAll(USERS_KEY, readAll<StoredUser>(USERS_KEY).filter((u) => u.id !== userId))
+    writeAll(PROFILES_KEY, readAll<Profile>(PROFILES_KEY).filter((p) => p.id !== userId))
+    writeAll(ROLES_KEY, readAll<RoleRow>(ROLES_KEY).filter((r) => r.userId !== userId))
+    writeAll(PROGRAMS_KEY, readAll<WorkoutProgram>(PROGRAMS_KEY).filter((p) => p.userId !== userId))
+    writeAll(ACTIVITY_KEY, readAll<ActivityLogEntry>(ACTIVITY_KEY).filter((a) => a.userId !== userId))
+    writeAll(METRICS_KEY, readAll<BodyMetricEntry>(METRICS_KEY).filter((m) => m.userId !== userId))
+    writeAll(SESSIONS_KEY, readAll<WorkoutSession>(SESSIONS_KEY).filter((s) => s.userId !== userId))
+    logActivity(session.userId, 'deleted_member', { email: target.email, name: target.displayName })
   },
 
   async deleteAccount(): Promise<void> {
@@ -347,29 +366,6 @@ export const activity = {
 }
 
 export const billing = {
-  async subscribe(userId: string, period: SubscriptionPeriod): Promise<BillingResult> {
-    await new Promise((r) => setTimeout(r, 900))
-    const all = readAll<Profile>(PROFILES_KEY)
-    const idx = all.findIndex((p) => p.id === userId)
-    if (idx === -1) throw new Error('Profile not found.')
-    const now = new Date()
-    const renewsAt = new Date(now)
-    if (period === 'monthly') renewsAt.setMonth(renewsAt.getMonth() + 1)
-    else renewsAt.setFullYear(renewsAt.getFullYear() + 1)
-
-    all[idx] = {
-      ...all[idx],
-      subscriptionTier: 'pro',
-      subscriptionStatus: 'active',
-      subscriptionPeriod: period,
-      subscriptionStartedAt: now.toISOString(),
-      subscriptionRenewsAt: renewsAt.toISOString(),
-    }
-    writeAll(PROFILES_KEY, all)
-    logActivity(userId, 'subscribed_pro', { period, price: PRO_PRICES[period].price })
-    return {}
-  },
-
   async listActiveSubscribers(): Promise<Profile[]> {
     return readAll<Profile>(PROFILES_KEY).filter(
       (p) => p.subscriptionTier === 'pro' && p.subscriptionStatus === 'active',

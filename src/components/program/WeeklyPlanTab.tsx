@@ -168,15 +168,18 @@ export function WeeklyPlanTab({
 
   return (
     <div className="space-y-6">
-      <Tabs value={String(activeDay)} onValueChange={(v) => onActiveDayChange(Number(v))}>
-        <TabsList>
-          {program.days.map((d) => (
-            <TabsTrigger key={d.day} value={String(d.day)}>
-              Day {d.day}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {/* A one-day view (the free Day 1) needs no day picker */}
+      {program.days.length > 1 && (
+        <Tabs value={String(activeDay)} onValueChange={(v) => onActiveDayChange(Number(v))}>
+          <TabsList>
+            {program.days.map((d) => (
+              <TabsTrigger key={d.day} value={String(d.day)}>
+                Day {d.day}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
 
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">

@@ -1,4 +1,4 @@
-import { GOAL_LABELS } from '@/lib/tdee'
+import { goalLabelOf } from '@/lib/goalLabel'
 import type { Exercise, WorkoutProgram } from '@/lib/types'
 
 function exerciseLine(ex: Exercise, i: number): string {
@@ -18,7 +18,7 @@ export function programToText(program: WorkoutProgram, clientName?: string): str
   const out: string[] = []
   out.push(p.programName.toUpperCase())
   if (clientName) out.push(`Prepared for ${clientName}`)
-  out.push(`Goal: ${GOAL_LABELS[program.answers.goal]}`)
+  out.push(`Goal: ${goalLabelOf(program.answers)}`)
   if (p.tagline) out.push(p.tagline)
   out.push('')
   if (p.overview) out.push(p.overview, '')

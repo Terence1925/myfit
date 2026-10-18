@@ -10,7 +10,8 @@ import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
 import { exportProgramPdf } from '@/lib/exportProgramPdf'
 import { loadView, saveView } from '@/lib/workoutLog'
-import { GOAL_TAILWIND_CLASS, GOAL_LABELS } from '@/lib/tdee'
+import { GOAL_TAILWIND_CLASS } from '@/lib/tdee'
+import { goalLabelOf } from '@/lib/goalLabel'
 import { programs } from '@/lib/backend/api'
 import { canExportPdf, hasProAccess } from '@/lib/billing'
 import { useAuth } from '@/context/AuthContext'
@@ -88,7 +89,7 @@ export function ProgramView({
           <div className="relative z-10 flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-2">
-                {GOAL_LABELS[program.answers.goal]}
+                {goalLabelOf(program.answers)}
               </div>
               <h1 className="font-display text-4xl sm:text-5xl tracking-wide text-foreground">
                 {program.programData.programName}

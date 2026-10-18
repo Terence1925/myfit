@@ -27,34 +27,13 @@ The app automatically switches from the mock backend to a real one the moment `V
 4. Authentication → Providers → Email should already be on. Decide whether to require email confirmation (Authentication → Settings) — the app handles both (shows a "check your email" screen if confirmation is required).
 5. Restart `npm run dev` — the app now talks to real Supabase: real accounts, real database, admin dashboard sees every real user.
 
-### 2. Stripe (real payments)
+### 2. Payments
 
-1. Create an account at [stripe.com](https://stripe.com) and complete business/payout details.
-2. Products → create two recurring Products in **PHP**: Monthly ₱199, Yearly ₱1,790. Copy each `price_...` id.
-3. Deploy the three billing edge functions (they use the Stripe Deno SDK, no extra install needed):
-   ```bash
-   supabase functions deploy create-checkout-session
-   supabase functions deploy billing-portal
-   supabase functions deploy stripe-webhook --no-verify-jwt
-   ```
-4. Set the secrets those functions need:
-   ```bash
-   supabase secrets set STRIPE_SECRET_KEY=sk_... \
-     STRIPE_PRICE_MONTHLY=price_... \
-     STRIPE_PRICE_YEARLY=price_... \
-     SITE_URL=https://your-deployed-domain.com \
-     SUPABASE_URL=https://xxxx.supabase.co \
-     SUPABASE_SERVICE_ROLE_KEY=eyJ...   # Project Settings -> API -> service_role, keep secret
-   ```
-5. Stripe Dashboard → Developers → Webhooks → Add endpoint → paste the deployed `stripe-webhook` function URL → subscribe to `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`. Copy the signing secret it gives you and add it:
-   ```bash
-   supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
-   ```
-6. That's it — `billing.subscribe()` now redirects to real Stripe Checkout, and the webhook activates Pro on your `profiles` row when payment succeeds. `billing.cancel()` redirects to the real Stripe Customer Portal.
+Subscriptions are sold through **Google Play Billing**, run by RevenueCat (see the next section). There is no separate card-payment provider on the web: people subscribe inside the Android app.
 
 ### 3. Play Store (native Android app + Google Play Billing)
 
-Google requires in-app digital subscriptions to go through Google Play Billing, not Stripe — so the app detects whether it's running as a native app (`src/lib/platform.ts`) and switches checkout flow accordingly: Stripe on web, RevenueCat (which wraps Play Billing) inside the Android app.
+Google requires in-app digital subscriptions to go through Google Play Billing. The app uses RevenueCat, which wraps Play Billing, and activates Pro through the `revenuecat-webhook` edge function.
 
 1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.myfit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱199/mo) and `pro_yearly` (₱1,790/yr), each with a 7-day free-trial offer.
 2. **RevenueCat** — [revenuecat.com](https://revenuecat.com), free up to $2.5k/mo tracked revenue. Create a project, add a Google Play app, and link it to your Play Console app (RevenueCat's setup wizard walks you through creating a Google service account key for this — needed so RevenueCat can verify purchases server-side).

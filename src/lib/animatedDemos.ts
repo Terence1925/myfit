@@ -13,10 +13,10 @@ export const SHOW_ANIMATED_DEMOS = true
 export const ANIMATED_ONLY_STRENGTH = true
 
 /**
- * Show a "Real person" YouTube tab next to an animation. Off for now: the YouTube videos are archived in
- * src/lib/exerciseVideos.ts and still play for yoga, Pilates and exercises that have no animation (older saved programs).
+ * Show an Animation / Real person switch in the Demo window. It appears for exercises that have both an animation and a saved
+ * YouTube video (src/lib/exerciseVideos.ts); the animation shows first. Set to false to show animations only.
  */
-export const YOUTUBE_NEXT_TO_ANIMATION = false
+export const YOUTUBE_NEXT_TO_ANIMATION = true
 
 export interface AnimatedDemo {
   male?: string

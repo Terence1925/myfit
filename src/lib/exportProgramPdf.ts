@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
-import { GOAL_LABELS } from '@/lib/tdee'
+import { goalLabelOf } from '@/lib/goalLabel'
 import type { WorkoutProgram } from '@/lib/types'
 
 const MARGIN = 40
@@ -59,7 +59,7 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
   text(p.programName, { size: 24, bold: true, gap: 2 })
   text(p.tagline, { size: 11, color: 90 })
   text(
-    `Goal: ${GOAL_LABELS[program.answers.goal]}  ·  Generated ${new Date(program.createdAt).toLocaleDateString()} by MyFit`,
+    `Goal: ${goalLabelOf(program.answers)}  ·  Generated ${new Date(program.createdAt).toLocaleDateString()} by MyFit`,
     { size: 8, color: 130, gap: 8 },
   )
 

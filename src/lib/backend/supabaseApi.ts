@@ -19,7 +19,6 @@ import type {
   WorkoutProgram,
   WorkoutSession,
 } from '../types'
-import type { BillingResult } from './types'
 import { generateAlternate, generateProgram } from './programGenerator'
 import { EXERCISES } from './exerciseLibrary'
 import { supabase } from './supabaseClient'
@@ -196,6 +195,22 @@ export const auth = {
   async updatePassword(newPassword: string): Promise<void> {
     const { error } = await sb().auth.updateUser({ password: newPassword })
     if (error) throw new Error(error.message)
+  },
+
+  async deleteMember(userId: string): Promise<void> {
+    const { data, error } = await sb().functions.invoke('admin-delete-member', { body: { userId } })
+    // A failed function call hides the server's message inside the error, so read it back out
+    if (error) {
+      let message = error.message
+      try {
+        const detail = await (error as { context?: Response }).context?.json()
+        if (detail?.error) message = detail.error
+      } catch {
+        /* keep the generic message */
+      }
+      throw new Error(message)
+    }
+    if (data?.error) throw new Error(data.error)
   },
 
   async deleteAccount(): Promise<void> {
@@ -398,17 +413,6 @@ export const activity = {
 }
 
 export const billing = {
-  async subscribe(_userId: string, period: SubscriptionPeriod): Promise<BillingResult> {
-    // The edge function derives the user from the caller's own session (which functions.invoke
-    // forwards automatically) rather than trusting a client-supplied id — see
-    // supabase/functions/create-checkout-session for why.
-    const { data, error } = await sb().functions.invoke('create-checkout-session', {
-      body: { period },
-    })
-    if (error) throw new Error(error.message)
-    return { redirectUrl: data.url }
-  },
-
   async listActiveSubscribers(): Promise<Profile[]> {
     const { data, error } = await sb()
       .from('profiles')

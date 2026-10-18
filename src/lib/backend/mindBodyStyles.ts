@@ -1,4 +1,4 @@
-import type { MindBodyStyleId, TrainingDays } from '../types'
+import type { Goal, MindBodyStyleId, TrainingDays } from '../types'
 
 // Yoga and Pilates are chosen by goal and session length, not by lifting level and 3-6 days. Each style is one session
 // (the poses and moves listed here, in this order); the person picks how many days a week to do it.
@@ -17,6 +17,11 @@ export interface MindBodyStyle {
   recommended: string
   /** Experience this style assumes (decides hold times and which moves are easier or harder). */
   experience: '0-1' | '2-3'
+  /**
+   * The calorie goal this style implies, so yoga and Pilates do not also ask the lifting goal question:
+   * the weight loss styles cut calories, every other style keeps weight steady.
+   */
+  goal: Goal
 }
 
 export const MIND_BODY_STYLES: MindBodyStyle[] = [
@@ -29,6 +34,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Mountain Pose', "Child's Pose", 'Cat-Cow', 'Downward-Facing Dog', 'Cobra Pose', 'Seated Forward Fold', 'Savasana'],
     recommended: '2-3 times a week',
     experience: '0-1',
+    goal: 'body-recomposition',
   },
   {
     id: 'yoga-flexibility',
@@ -39,6 +45,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Downward-Facing Dog', 'Pyramid Pose', 'Pigeon Pose', 'Standing Forward Fold', 'Butterfly Stretch', 'Seated Split Progression', 'Savasana'],
     recommended: '4-6 times a week',
     experience: '2-3',
+    goal: 'body-recomposition',
   },
   {
     id: 'yoga-stress-relief',
@@ -49,6 +56,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ["Child's Pose", 'Cat-Cow', 'Seated Twist', 'Legs-Up-the-Wall', 'Savasana'],
     recommended: 'every day',
     experience: '0-1',
+    goal: 'body-recomposition',
   },
   {
     id: 'yoga-weight-loss',
@@ -59,6 +67,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Sun Salutation A', 'Warrior I', 'Warrior II', 'Chair Pose', 'Plank Pose', 'Boat Pose', 'Savasana'],
     recommended: '3-5 times a week',
     experience: '2-3',
+    goal: 'lose-weight',
   },
   {
     id: 'yoga-morning',
@@ -69,6 +78,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Sun Salutation A', 'Cobra Pose', 'Warrior I', 'Warrior II', 'Savasana'],
     recommended: '3-5 times a week',
     experience: '2-3',
+    goal: 'body-recomposition',
   },
   {
     id: 'yoga-bedtime',
@@ -79,6 +89,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ["Child's Pose", 'Butterfly Stretch', 'Reclined Twist', 'Legs-Up-the-Wall', 'Savasana'],
     recommended: 'every day',
     experience: '0-1',
+    goal: 'body-recomposition',
   },
   {
     id: 'pilates-beginner',
@@ -89,6 +100,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['The Hundred', 'Roll-Up', 'Single Leg Stretch', 'Double Leg Stretch', 'Spine Stretch Forward', 'Swan Prep', 'Pilates Plank'],
     recommended: '2-3 times a week',
     experience: '0-1',
+    goal: 'body-recomposition',
   },
   {
     id: 'pilates-core',
@@ -99,6 +111,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['The Hundred', 'Pilates Teaser', 'Criss-Cross', 'Single Leg Circles', 'Roll Over', 'Pilates Plank'],
     recommended: '3-4 times a week',
     experience: '2-3',
+    goal: 'body-recomposition',
   },
   {
     id: 'pilates-full-body',
@@ -109,6 +122,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Roll-Up', 'Single Leg Stretch', 'Side Kicks (Front and Back)', 'Swan Prep', 'Pilates Teaser', 'Pilates Plank'],
     recommended: '3-4 times a week',
     experience: '2-3',
+    goal: 'body-recomposition',
   },
   {
     id: 'pilates-weight-loss',
@@ -119,6 +133,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Roll-Up', 'Pilates Teaser', 'Pilates Mountain Climber', 'Pilates Plank', 'Side Kicks (Front and Back)', 'Criss-Cross'],
     recommended: '4-5 times a week',
     experience: '2-3',
+    goal: 'lose-weight',
   },
   {
     id: 'pilates-flexibility',
@@ -129,6 +144,7 @@ export const MIND_BODY_STYLES: MindBodyStyle[] = [
     poses: ['Spine Stretch Forward', 'Saw', 'Mermaid Stretch', 'Swan Prep', 'Pilates Side Bend'],
     recommended: '3-4 times a week',
     experience: '2-3',
+    goal: 'body-recomposition',
   },
 ]
 

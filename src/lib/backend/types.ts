@@ -13,14 +13,9 @@ import type {
   ProgramData,
   Profile,
   Role,
-  SubscriptionPeriod,
   WorkoutProgram,
   WorkoutSession,
 } from '../types'
-
-export interface BillingResult {
-  redirectUrl?: string
-}
 
 export interface AuthApi {
   signUp(email: string, password: string, displayName: string): Promise<Profile>
@@ -32,6 +27,8 @@ export interface AuthApi {
   requestPasswordReset(email: string): Promise<void>
   updatePassword(newPassword: string): Promise<void>
   deleteAccount(): Promise<void>
+  /** Admin only: permanently deletes another member and all of their data. */
+  deleteMember(userId: string): Promise<void>
 }
 
 export interface ProfilesApi {
@@ -77,7 +74,6 @@ export interface SessionsApi {
 }
 
 export interface BillingApi {
-  subscribe(userId: string, period: SubscriptionPeriod): Promise<BillingResult>
   listActiveSubscribers(): Promise<Profile[]>
 }
 

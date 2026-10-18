@@ -22,11 +22,14 @@ function seconds(reps: string): number | null {
 }
 
 for (const style of MIND_BODY_STYLES) {
+  // The style is also the person's goal: weight loss styles cut calories, the rest keep weight steady
+  const wantGoal = style.id.endsWith('weight-loss') ? 'lose-weight' : 'body-recomposition'
+  if (style.goal !== wantGoal) problems.push(`${style.label}: goal is ${style.goal} instead of ${wantGoal}`)
   for (const name of style.poses) if (!byName.has(name)) problems.push(`${style.label}: "${name}" is not in the library`)
 
   for (const days of MIND_BODY_DAY_OPTIONS[style.discipline])
     for (const injuries of ['none', 'knee', 'shoulder', 'lower-back', 'other'] as const)
-      for (const goal of ['lose-weight', 'build-muscle'] as const) {
+      for (const goal of [style.goal] as const) {
         const answers: any = {
           sex: 'female', age: 30, weight: 140, weightUnit: 'lbs', heightFeet: 5, heightInches: 5, experience: style.experience,
           activityLevel: 'moderate', sleepHours: '7-8', sleepQuality: 'good', stressLevel: 'moderate',
@@ -56,7 +59,7 @@ for (const style of MIND_BODY_STYLES) {
           for (const p of style.poses) if (!names.includes(p)) swaps.set(`${style.label}: ${p}`, (swaps.get(`${style.label}: ${p}`) ?? 0) + 1)
         }
 
-        if (style.discipline === 'yoga' && injuries === 'none' && goal === 'lose-weight' && days === 3) {
+        if (style.discipline === 'yoga' && injuries === 'none' && days === 3) {
           let total = 0
           for (const e of program.days[0].exercises) {
             const s = seconds(e.reps) ?? (/^\d/.test(e.reps) ? 0 : 0)

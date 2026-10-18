@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
 import { exportProgramPdf } from '@/lib/exportProgramPdf'
 import { programToText } from '@/lib/programText'
-import { GOAL_LABELS } from '@/lib/tdee'
+import { goalLabelOf } from '@/lib/goalLabel'
 import type { Profile, WorkoutProgram } from '@/lib/types'
 
 /** Admin support tool: read a client's whole program, save it as a PDF, copy it as text, or start an email to them. */
@@ -70,7 +70,7 @@ export function ProgramViewDialog({
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{name}</Badge>
           {client?.email && <span className="text-xs text-muted-foreground">{client.email}</span>}
-          <Badge>{GOAL_LABELS[program.answers.goal]}</Badge>
+          <Badge>{goalLabelOf(program.answers)}</Badge>
           <span className="text-xs text-muted-foreground">{p.days.length} days a week</span>
         </div>
 

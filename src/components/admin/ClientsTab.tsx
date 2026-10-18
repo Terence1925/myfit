@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ClientDetail } from './ClientDetail'
-import { roles } from '@/lib/backend/api'
+import { auth, roles } from '@/lib/backend/api'
 import { isPro } from '@/lib/billing'
 import type { ActivityLogEntry, Profile, WorkoutProgram } from '@/lib/types'
 
@@ -31,6 +31,11 @@ export function ClientsTab({
         onBack={() => setSelected(null)}
         onMakeAdmin={async () => {
           await roles.promote(selected.id)
+          onRoleChange()
+          setSelected(null)
+        }}
+        onDelete={async () => {
+          await auth.deleteMember(selected.id)
           onRoleChange()
           setSelected(null)
         }}

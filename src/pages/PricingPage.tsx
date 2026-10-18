@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
-import { PRO_FEATURES, PRO_PRICES, TRIAL_DAYS, isPro } from '@/lib/billing'
+import { PRO_FEATURES, PRO_PRICES, TRIAL_DAYS, firstPaymentDate, isPro } from '@/lib/billing'
 import { isNativeApp, nativePlatform, storeName } from '@/lib/platform'
 import { syncTrialReminder } from '@/lib/trialReminder'
 import { codes } from '@/lib/backend/api'
@@ -154,7 +154,7 @@ export default function PricingPage() {
           TRAIN WITHOUT LIMITS
         </h1>
         <p className="mt-3 font-body text-muted-foreground max-w-lg mx-auto">
-          Unlock your personalized program, progress tracking, and unlimited regenerations.
+          Unlock every day of your personalized program, your progress history and your nutrition plan. Day 1 is always free.
         </p>
       </motion.div>
 
@@ -220,6 +220,7 @@ export default function PricingPage() {
           return (
             <motion.div
               key={period}
+              className={isYearly ? 'order-first md:order-none' : undefined}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.1 }}
@@ -239,9 +240,14 @@ export default function PricingPage() {
                     <span className="text-sm text-muted-foreground">/{period === 'monthly' ? 'mo' : 'yr'}</span>
                   </div>
                   {hasTrial && (
-                    <p className="mt-2 inline-flex w-fit items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                      {TRIAL_DAYS}-day free trial included
-                    </p>
+                    <>
+                      <p className="mt-2 inline-flex w-fit items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                        {TRIAL_DAYS}-day free trial included
+                      </p>
+                      <p className="mt-2 text-sm font-semibold">
+                        Today: ₱0 <span className="font-normal text-muted-foreground">· {firstPaymentDate()}: {plan.priceLabel}</span>
+                      </p>
+                    </>
                   )}
                   {appliedCode && nativePkg && (
                     <p className="mt-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
@@ -251,10 +257,10 @@ export default function PricingPage() {
                     </p>
                   )}
                   <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-                    {isYearly ? `${plan.perMonthLabel} effective` : 'Billed monthly, cancel anytime'}
-                    {isYearly && plan.savingsLabel && (
+                    {isYearly ? `Just ${plan.perMonthLabel}` : 'Billed monthly, cancel anytime'}
+                    {isYearly && plan.savingsAmountLabel && (
                       <Badge variant="success" className="py-0 px-1.5">
-                        {plan.savingsLabel}
+                        {plan.savingsAmountLabel}
                       </Badge>
                     )}
                   </p>

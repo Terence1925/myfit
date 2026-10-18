@@ -18,7 +18,6 @@ import type { IntakeAnswers } from '@/lib/types'
 import { disciplineOf, isMindBody } from '@/lib/discipline'
 import { MIND_BODY_DAY_OPTIONS, MIND_BODY_STYLE_BY_ID, stylesFor, weekdaysFor } from '@/lib/backend/mindBodyStyles'
 
-const TOTAL_STEPS = 13 // keep in step with STEPS below
 
 const DEFAULT_ANSWERS: Partial<IntakeAnswers> = {
   weightUnit: 'lbs',
@@ -243,8 +242,8 @@ function StepStyle({ answers, update }: StepProps) {
   }))
   return (
     <StepShell
-      title={discipline === 'yoga' ? 'Type of Yoga' : 'Type of Pilates'}
-      subtitle="Pick the kind of session you want. Each one is a set sequence you repeat."
+      title={discipline === 'yoga' ? 'What Do You Want From Yoga?' : 'What Do You Want From Pilates?'}
+      subtitle="This is your goal. Pick the kind of session that fits it. Each one is a set sequence you repeat."
     >
       <ChoiceGrid
         options={options}
@@ -252,16 +251,20 @@ function StepStyle({ answers, update }: StepProps) {
         onChange={(v) => {
           update('mindBodyStyle', v as IntakeAnswers['mindBodyStyle'])
           const style = MIND_BODY_STYLE_BY_ID.get(v as NonNullable<IntakeAnswers['mindBodyStyle']>)
-          if (style) update('experience', style.experience)
+          if (style) {
+            // The style decides the level and the calorie goal, so yoga and Pilates do not ask those questions again
+            update('experience', style.experience)
+            update('goal', style.goal)
+          }
         }}
       />
     </StepShell>
   )
 }
 
-/** Lifting asks for your experience; yoga and Pilates ask for a style instead. */
-function Step5Level(props: StepProps) {
-  return isMindBody(props.answers.equipment ?? '') ? <StepStyle {...props} /> : <Step5Experience {...props} />
+/** The goal question: lifting has four goals, while yoga and Pilates have their own (the style), so it is asked only once. */
+function StepGoalOrStyle(props: StepProps) {
+  return isMindBody(props.answers.equipment ?? '') ? <StepStyle {...props} /> : <Step11Goal {...props} />
 }
 
 function Step10Days({ answers, update }: StepProps) {
@@ -331,7 +334,7 @@ function Step12Equipment({ answers, update }: StepProps) {
     { value: 'pilates', label: 'Pilates', description: 'Mat Pilates. Slow, controlled moves, no machine' },
   ]
   return (
-    <StepShell title="Equipment Access" subtitle="We'll only program exercises you can actually perform.">
+    <StepShell title="How Do You Want to Train?" subtitle="Pick what you have or what you enjoy. We only program moves you can actually do.">
       <ChoiceGrid
         options={options}
         value={answers.equipment}
@@ -395,8 +398,19 @@ function Step13Focus({ answers, update }: StepProps) {
   )
 }
 
-// Equipment is asked before the level (or yoga / Pilates style) and the days, because those questions depend on it.
-const STEPS: { Component: (props: StepProps) => React.ReactElement; valid: (a: Partial<IntakeAnswers>) => boolean }[] = [
+type StepDef = { Component: (props: StepProps) => React.ReactElement; valid: (a: Partial<IntakeAnswers>) => boolean }
+
+const STEP_EQUIPMENT: StepDef = { Component: Step12Equipment, valid: (a) => !!a.equipment }
+const STEP_GOAL: StepDef = { Component: StepGoalOrStyle, valid: (a) => (isMindBody(a.equipment ?? '') ? !!a.mindBodyStyle && !!a.goal : !!a.goal) }
+const STEP_LEVEL: StepDef = { Component: Step5Experience, valid: (a) => !!a.experience }
+const STEP_DAYS: StepDef = {
+  Component: Step10Days,
+  valid: (a) =>
+    !!a.trainingDays &&
+    (!isMindBody(a.equipment ?? '') ||
+      MIND_BODY_DAY_OPTIONS[disciplineOf(a.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'].includes(a.trainingDays)),
+}
+const BODY_STEPS: StepDef[] = [
   { Component: Step1Sex, valid: (a) => !!a.sex },
   { Component: Step2Age, valid: (a) => !!a.age && a.age >= 16 && a.age <= 80 },
   { Component: Step3Weight, valid: (a) => !!a.weight && a.weight > 0 },
@@ -405,18 +419,16 @@ const STEPS: { Component: (props: StepProps) => React.ReactElement; valid: (a: P
   { Component: Step7Sleep, valid: (a) => !!a.sleepHours },
   { Component: Step8SleepQuality, valid: (a) => !!a.sleepQuality },
   { Component: Step9Stress, valid: (a) => !!a.stressLevel },
-  { Component: Step11Goal, valid: (a) => !!a.goal },
-  { Component: Step12Equipment, valid: (a) => !!a.equipment },
-  { Component: Step5Level, valid: (a) => (isMindBody(a.equipment ?? '') ? !!a.mindBodyStyle : !!a.experience) },
-  {
-    Component: Step10Days,
-    valid: (a) =>
-      !!a.trainingDays &&
-      (!isMindBody(a.equipment ?? '') ||
-        MIND_BODY_DAY_OPTIONS[disciplineOf(a.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'].includes(a.trainingDays)),
-  },
   { Component: Step13Focus, valid: (a) => !!a.injuries },
 ]
+
+/**
+ * What you want to do comes first (training type, then the goal), then the plan details, then the questions about your body.
+ * Yoga and Pilates skip the level question (the style sets it), so they have one step fewer.
+ */
+function stepsFor(a: Partial<IntakeAnswers>): StepDef[] {
+  return [STEP_EQUIPMENT, STEP_GOAL, ...(isMindBody(a.equipment ?? '') ? [] : [STEP_LEVEL]), STEP_DAYS, ...BODY_STEPS]
+}
 
 export function IntakeWizard({
   onComplete,
@@ -442,14 +454,17 @@ export function IntakeWizard({
           next.trainingDays = undefined
           next.mindBodyStyle = undefined
           next.experience = undefined
+          next.goal = undefined
         }
       }
       return next
     })
   }, [])
 
-  const StepComponent = STEPS[step].Component
-  const valid = STEPS[step].valid(answers)
+  const steps = stepsFor(answers)
+  const TOTAL_STEPS = steps.length
+  const StepComponent = steps[step].Component
+  const valid = steps[step].valid(answers)
   const isLast = step === TOTAL_STEPS - 1
 
   const goNext = () => {

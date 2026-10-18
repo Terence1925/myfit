@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Eye, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Eye, ShieldCheck, Trash2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { actionIcon, actionLabel, timeAgo } from './shared'
 import { ProgramViewDialog } from './ProgramViewDialog'
+import { DeleteMemberDialog } from './DeleteMemberDialog'
 import { GOAL_LABELS } from '@/lib/tdee'
 import type { ActivityLogEntry, Profile, WorkoutProgram } from '@/lib/types'
 
@@ -15,17 +16,22 @@ export function ClientDetail({
   clientActivity,
   onBack,
   onMakeAdmin,
+  onDelete,
 }: {
   client: Profile
   clientPrograms: WorkoutProgram[]
   clientActivity: ActivityLogEntry[]
   onBack: () => void
   onMakeAdmin: () => void
+  /** Permanently deletes this member. Only called after the two-step confirmation. */
+  onDelete: () => Promise<void>
 }) {
   const [viewing, setViewing] = React.useState<WorkoutProgram | null>(null)
+  const [deleting, setDeleting] = React.useState(false)
   return (
     <div className="space-y-6">
       <ProgramViewDialog program={viewing} client={client} onClose={() => setViewing(null)} />
+      <DeleteMemberDialog client={client} open={deleting} onClose={() => setDeleting(false)} onConfirm={onDelete} />
       <Button variant="ghost" size="sm" className="gap-1.5" onClick={onBack}>
         <ArrowLeft className="h-4 w-4" /> Back to Clients
       </Button>
@@ -131,6 +137,20 @@ export function ClientDetail({
             ))}
             {clientActivity.length === 0 && <p className="text-sm text-muted-foreground">No activity yet.</p>}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-destructive/30">
+        <CardContent className="flex flex-wrap items-center justify-between gap-4 p-6">
+          <div>
+            <h3 className="font-body font-bold mb-1 text-sm uppercase tracking-widest text-destructive">Danger zone</h3>
+            <p className="text-sm text-muted-foreground">
+              Permanently delete this member and all of their data. You will be asked to confirm twice.
+            </p>
+          </div>
+          <Button variant="outline" className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10" onClick={() => setDeleting(true)}>
+            <Trash2 className="h-4 w-4" /> Delete member
+          </Button>
         </CardContent>
       </Card>
     </div>

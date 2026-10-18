@@ -6,6 +6,8 @@ export interface PlanPrice {
   priceLabel: string
   perMonthLabel: string
   savingsLabel?: string
+  /** What paying yearly saves in pesos over twelve monthly payments. */
+  savingsAmountLabel?: string
 }
 
 const PHP_FORMATTER = new Intl.NumberFormat('en-PH', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
@@ -30,23 +32,31 @@ export const PRO_PRICES: Record<SubscriptionPeriod, PlanPrice> = {
     period: 'yearly',
     price: YEARLY_PRICE,
     priceLabel: php(YEARLY_PRICE),
-    perMonthLabel: `${php(YEARLY_PER_MONTH)}/mo`,
+    perMonthLabel: `${php(Math.round(YEARLY_PER_MONTH))}/mo`,
     savingsLabel: `Save ${SAVINGS_PERCENT}%`,
+    savingsAmountLabel: `Save ${php(MONTHLY_PRICE * 12 - YEARLY_PRICE)} a year`,
   },
 }
 
 /** Must match the free-trial length configured on the Play Console subscription offers. */
 export const TRIAL_DAYS = 7
 
+// Only list what Pro really unlocks today.
 export const PRO_FEATURES = [
-  'Unlimited saved programs',
-  'Regenerate anytime — no cooldown',
-  'Progressive overload tracking with PR alerts',
-  'Progress tracking & body-metric charts',
+  'Every training day of your program, with sets, reps and rest',
+  'An animated demo and a real-person video for every exercise',
+  'A workout log, plus a rest timer that alerts you even when the app is in the background',
+  'Progress history with personal-record alerts',
+  'Weight and body-measurement charts',
+  'Your nutrition and recovery plan, built from your sleep, stress and activity',
+  'Unlimited saved programs, and a new one whenever you like',
   'PDF export of any program (after your free trial)',
-  'Priority AI regeneration queue',
-  'Early access to new training templates',
 ]
+
+/** The day the first payment is taken if someone starts a free trial today, e.g. "Oct 25". */
+export function firstPaymentDate(): string {
+  return new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
+}
 
 export function isPro(
   profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionRenewsAt'> | null,
