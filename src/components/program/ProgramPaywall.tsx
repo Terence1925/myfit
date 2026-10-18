@@ -8,7 +8,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/context/AuthContext'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { programs } from '@/lib/backend/api'
-import { PRO_PRICES, TRIAL_DAYS, firstPaymentDate } from '@/lib/billing'
+import { TRIAL_DAYS, firstPaymentDate } from '@/lib/billing'
+import { useStorePrices } from '@/lib/storePrices'
 import { storeName } from '@/lib/platform'
 import { goalLabelOf } from '@/lib/goalLabel'
 import type { Equipment, FocusArea, ProgramData, WorkoutProgram } from '@/lib/types'
@@ -51,8 +52,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
   const [data, setData] = React.useState<ProgramData>(program.programData)
   const firstName = profile?.displayName?.trim().split(/\s+/)[0]
   const firstDay = data.days[0]
-  const monthly = PRO_PRICES.monthly
-  const yearly = PRO_PRICES.yearly
+  const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const payDate = firstPaymentDate()
 
   const chips = [
@@ -201,7 +201,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
                 <CircleDollarSign className="h-3.5 w-3.5" />
               </span>
               <span>
-                <span className="font-bold">Today: ₱0.</span> <span className="text-muted-foreground">Everything unlocks right away.</span>
+                <span className="font-bold">Today: free.</span> <span className="text-muted-foreground">Everything unlocks right away.</span>
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -220,8 +220,10 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
               <span>
                 <span className="font-bold">{payDate}: your first payment.</span>{' '}
                 <span className="text-muted-foreground">
-                  {yearly.priceLabel} a year ({yearly.perMonthLabel}) or {monthly.priceLabel} a month. Cancel any time before then in{' '}
-                  {storeName()} and you pay nothing.
+                  {pricesLoading
+                    ? 'The price is shown before you start.'
+                    : `${prices.yearly} a year (${prices.yearlyPerMonth}/mo) or ${prices.monthly} a month.`}{' '}
+                  Cancel any time before then in {storeName()} and you pay nothing.
                 </span>
               </span>
             </li>

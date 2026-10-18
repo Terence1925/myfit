@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
-import { hasProAccess, isOnTrial, isPro, PRO_PRICES } from '@/lib/billing'
+import { hasProAccess, isOnTrial, isPro } from '@/lib/billing'
+import { useStorePrices } from '@/lib/storePrices'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
 import { WorkoutReminders } from '@/components/account/WorkoutReminders'
@@ -23,6 +24,7 @@ const OWNER_EMAIL = 'ttagayona1985@gmail.com'
 
 export default function AccountPage() {
   const { profile, refreshProfile, role, deleteAccount, updatePassword, signOut } = useAuth()
+  const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [syncing, setSyncing] = React.useState(false)
@@ -197,9 +199,10 @@ export default function AccountPage() {
             {pro ? (
               <>
                 <p className="text-muted-foreground">
-                  {profile.subscriptionPeriod === 'yearly' ? 'Yearly' : 'Monthly'} plan —{' '}
-                  {profile.subscriptionPeriod ? PRO_PRICES[profile.subscriptionPeriod].priceLabel : ''}
-                  {profile.subscriptionPeriod === 'yearly' ? '/yr' : '/mo'}
+                  {profile.subscriptionPeriod === 'yearly' ? 'Yearly' : 'Monthly'} plan
+                  {!pricesLoading && profile.subscriptionPeriod
+                    ? ` — ${profile.subscriptionPeriod === 'yearly' ? prices.yearly + '/yr' : prices.monthly + '/mo'}`
+                    : ''}
                 </p>
                 {isOnTrial(profile) && (
                   <p className="text-muted-foreground">

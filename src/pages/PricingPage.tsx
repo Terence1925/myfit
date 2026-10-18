@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
-import { PRO_FEATURES, PRO_PRICES, TRIAL_DAYS, firstPaymentDate, isPro } from '@/lib/billing'
+import { PRO_FEATURES, TRIAL_DAYS, firstPaymentDate, isPro } from '@/lib/billing'
 import { isNativeApp, nativePlatform, storeName } from '@/lib/platform'
 import { syncTrialReminder } from '@/lib/trialReminder'
+import { useStorePrices } from '@/lib/storePrices'
 import { codes } from '@/lib/backend/api'
 import {
   configureRevenueCat,
@@ -36,6 +37,7 @@ export default function PricingPage() {
   const [codeError, setCodeError] = React.useState<string | null>(null)
   const [appliedCode, setAppliedCode] = React.useState<AppliedCode | null>(null)
   const native = isNativeApp()
+  const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const [restoring, setRestoring] = React.useState(false)
   const [restoreNote, setRestoreNote] = React.useState<string | null>(null)
 
@@ -211,7 +213,7 @@ export default function PricingPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
         {(['monthly', 'yearly'] as const).map((period, i) => {
-          const plan = PRO_PRICES[period]
+          const planPrice = period === 'yearly' ? prices.yearly : prices.monthly
           const nativePkg = nativePkgFor(period)
           const discountOption = appliedCode && nativePkg ? findOptionByTag(nativePkg, appliedCode.offerTag) : null
           const isYearly = period === 'yearly'
@@ -236,7 +238,7 @@ export default function PricingPage() {
                     PRO {period === 'monthly' ? 'MONTHLY' : 'YEARLY'}
                   </h3>
                   <div className="mt-3 flex items-baseline gap-2">
-                    <span className="font-display text-4xl">{nativePkg?.product.priceString ?? plan.priceLabel}</span>
+                    <span className="font-display text-4xl">{pricesLoading ? '…' : (nativePkg?.product.priceString ?? planPrice)}</span>
                     <span className="text-sm text-muted-foreground">/{period === 'monthly' ? 'mo' : 'yr'}</span>
                   </div>
                   {hasTrial && (
@@ -245,7 +247,7 @@ export default function PricingPage() {
                         {TRIAL_DAYS}-day free trial included
                       </p>
                       <p className="mt-2 text-sm font-semibold">
-                        Today: ₱0 <span className="font-normal text-muted-foreground">· {firstPaymentDate()}: {plan.priceLabel}</span>
+                        Today: free <span className="font-normal text-muted-foreground">· {firstPaymentDate()}: {planPrice}</span>
                       </p>
                     </>
                   )}
@@ -257,10 +259,10 @@ export default function PricingPage() {
                     </p>
                   )}
                   <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-                    {isYearly ? `Just ${plan.perMonthLabel}` : 'Billed monthly, cancel anytime'}
-                    {isYearly && plan.savingsAmountLabel && (
+                    {isYearly ? (pricesLoading ? 'Billed yearly' : `Just ${prices.yearlyPerMonth}/mo`) : 'Billed monthly, cancel anytime'}
+                    {isYearly && !pricesLoading && prices.savingsAmount && (
                       <Badge variant="success" className="py-0 px-1.5">
-                        {plan.savingsAmountLabel}
+                        {prices.savingsAmount}
                       </Badge>
                     )}
                   </p>
