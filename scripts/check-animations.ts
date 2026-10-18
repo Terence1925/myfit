@@ -12,6 +12,7 @@ import { EXERCISE_VIDEOS } from '../src/lib/exerciseVideos'
 import { HOME_NEW_EXERCISES } from '../src/lib/backend/homeExercises'
 import { DUMBBELL_YOUTUBE } from '../src/lib/backend/dumbbellExercises'
 import { BAND_YOUTUBE } from '../src/lib/backend/bandExercises'
+import { GLUTE_YOUTUBE } from '../src/lib/backend/gluteExercises'
 
 const goals = ['lose-weight', 'build-muscle', 'strength-power', 'body-recomposition'] as const
 const days = [3, 4, 5, 6] as const
@@ -58,6 +59,7 @@ for (const equipment of equipments)
                     continue
                   }
                   const allowedYoutube =
+                    GLUTE_YOUTUBE.has(ex.name) ||
                     (equipment === 'full-gym' && COMMON_GYM_YOUTUBE.has(ex.name)) ||
                     (equipment === 'calisthenics' && HOME_PROGRAM_NAMES.has(ex.name)) ||
                     (equipment === 'dumbbells-only' && DUMBBELL_YOUTUBE.has(ex.name)) ||

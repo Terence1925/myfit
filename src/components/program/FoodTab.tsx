@@ -608,14 +608,15 @@ function AddFoodDialog({
                   <div className="pt-3">
                     <div className="mb-1 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
                       <span>More foods</span>
-                      <a
-                        href="https://www.fatsecret.com"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="normal-case tracking-normal font-semibold hover:text-foreground"
-                      >
-                        Powered by fatsecret
-                      </a>
+                      <span className="normal-case tracking-normal font-semibold">
+                        <a href="https://fdc.nal.usda.gov" target="_blank" rel="noreferrer" className="hover:text-foreground">
+                          USDA
+                        </a>
+                        {' & '}
+                        <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer" className="hover:text-foreground">
+                          Open Food Facts
+                        </a>
+                      </span>
                     </div>
                     {onlineLoading && <p className="py-2 text-sm text-muted-foreground">Searching…</p>}
                     {onlineError && <p className="py-2 text-sm text-muted-foreground">{onlineError}</p>}

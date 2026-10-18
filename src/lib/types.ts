@@ -291,7 +291,7 @@ export interface FoodItem {
   unit?: 'g' | 'ml'
   /** For a plate: what is on it, shown under the name. */
   note?: string
-  source: 'ph' | 'fatsecret' | 'custom'
+  source: 'ph' | 'usda' | 'openfoodfacts' | 'custom'
 }
 
 /** One thing a person ate. The numbers are already multiplied by `servings`. */

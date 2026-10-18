@@ -6,6 +6,7 @@ import { REPO_EXERCISES } from './repoExercises'
 import { HOME_NEW_EXERCISES } from './homeExercises'
 import { DUMBBELL_NEW_EXERCISES, DUMBBELL_YOUTUBE } from './dumbbellExercises'
 import { BAND_YOUTUBE } from './bandExercises'
+import { GLUTE_YOUTUBE } from './gluteExercises'
 import {
   COMMON_GYM_NAMES,
   COMMON_GYM_RENAMED,
@@ -159,13 +160,14 @@ export function isAllowed(ex: LibraryExercise, equipment: Equipment, injuries: I
   // (On the Full Gym plan a few list exercises have no animation yet and show the YouTube video we saved)
   const eq = normalizeEquipment(equipment)
   const youtubeOnly =
+    GLUTE_YOUTUBE.has(ex.name) ||
     (eq === 'full-gym' && COMMON_GYM_YOUTUBE.has(ex.name)) ||
     (eq === 'dumbbells-only' && DUMBBELL_YOUTUBE.has(ex.name)) ||
     (eq === 'resistance-bands' && BAND_YOUTUBE.has(ex.name))
   if (ANIMATED_ONLY_STRENGTH && SHOW_ANIMATED_DEMOS && !mindBody && !ANIMATED_DEMOS[ex.name] && !youtubeOnly) return false
   // The Full Gym plan only offers the common gym exercises (the owner's list, see commonGym.ts)
   if (!mindBody && (REPLACED_BY_COMMON.has(ex.name) || REPLACED_BY_COMMON_YOUTUBE.has(ex.name))) return false
-  if (!mindBody && normalizeEquipment(equipment) === 'full-gym' && !COMMON_GYM_NAMES.has(ex.name) && !COMMON_GYM_YOUTUBE.has(ex.name)) return false
+  if (!mindBody && normalizeEquipment(equipment) === 'full-gym' && !COMMON_GYM_NAMES.has(ex.name) && !COMMON_GYM_YOUTUBE.has(ex.name) && !GLUTE_YOUTUBE.has(ex.name)) return false
   return injuryAllows(ex, injuries)
 }
 

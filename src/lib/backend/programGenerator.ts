@@ -1,5 +1,6 @@
 import { GOAL_LABELS, getRecoveryTier } from '../tdee'
 import type { Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
+import { armFitsDay, fitsDay, sideFitsDay, type DayKind } from './focusFit'
 import { EXERCISES, isAllowed, poolFor, type LibraryExercise } from './exerciseLibrary'
 import { disciplineOf, normalizeEquipment } from '../discipline'
 import { generateMindBodyAlternate, generateMindBodyProgram } from './mindBodyGenerator'
@@ -15,11 +16,6 @@ import {
 import { DUMBBELL_SLOT_SPECS, DUMBBELL_TEMPLATES, dumbbellKeyFor } from './dumbbellTemplates'
 import { BAND_SLOT_SPECS, BAND_TEMPLATES, bandKeyFor } from './bandTemplates'
 import { buildHomeDays, homeLevelFor, homeProgressionText } from './homeProgram'
-
-function pick<T>(arr: T[], seed: number): T | undefined {
-  if (arr.length === 0) return undefined
-  return arr[seed % arr.length]
-}
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr]
@@ -155,7 +151,7 @@ function withFocusCoverage(
         continue
       }
       const family = MUSCLE_FAMILIES.find((group) => group.members.includes(focus))
-      if (family?.anchors.some((m) => muscles.includes(m))) {
+      if (family?.anchors.some((m) => muscles.includes(m)) && fitsDay(focus, { muscles, name: day.name })) {
         muscles.push(focus)
         injected.push(focus)
       }
@@ -190,24 +186,6 @@ function movementFamily(name: string): string | null {
   return null
 }
 
-type DayKind = 'push' | 'pull' | 'mixed'
-
-/** Can this exercise sit on a day of this kind? (Used for arms, where biceps and triceps are opposites.) */
-function armFitsDay(e: LibraryExercise, kind: DayKind): boolean {
-  if (kind === 'mixed') return true
-  const triceps = e.subgroup === 'triceps'
-  const pullArm = e.subgroup === 'biceps' || e.subgroup === 'forearms'
-  if (kind === 'push') return !pullArm && e.muscle[0] !== 'back'
-  return !triceps && e.muscle[0] !== 'chest' && e.muscle[0] !== 'shoulders'
-}
-
-/** Keeps a "backup" exercise (one that only touches the muscle as a side effect) from crossing sides: no row on a push day, no push-up on a pull day. */
-function sideFitsDay(e: LibraryExercise, kind: DayKind): boolean {
-  if (kind === 'push') return e.muscle[0] !== 'back'
-  if (kind === 'pull') return e.muscle[0] !== 'chest'
-  return true
-}
-
 /** Back work belongs with pulling days and chest/shoulder work with pushing days. */
 function crossesSides(focus: FocusArea, kind: DayKind): boolean {
   return (focus === 'back' && kind === 'push') || ((focus === 'chest' || focus === 'shoulders') && kind === 'pull')
@@ -231,7 +209,8 @@ function withFocusFrequency(templates: DayTemplate[], focusAreas: FocusArea[]): 
     if (focus === 'full-body') continue
     let have = days.filter((d) => d.muscles.includes(focus)).length
     while (have < target) {
-      const candidates = days.filter((d) => !d.muscles.includes(focus))
+      // Glute and leg work never goes on an upper-body day, and chest, back, shoulder and arm work never on a lower-body day
+      const candidates = days.filter((d) => !d.muscles.includes(focus) && fitsDay(focus, d) && !crossesSides(focus, dayKind(d)))
       if (candidates.length === 0) break
       const neighbours = (d: DayTemplate) => {
         const i = days.indexOf(d)
@@ -268,6 +247,8 @@ interface TemplateSlot {
   focusExtra: boolean
 }
 
+const HINGE_NAMES = new Set(EXERCISES.filter((e) => e.subgroup === 'hinge').map((e) => e.name))
+
 /** Stand-in when the named exercise is not available: same muscle as its main target, same movement if possible. */
 function standIn(
   spec: SlotSpec,
@@ -276,10 +257,13 @@ function standIn(
   equipment: IntakeAnswers['equipment'],
   injuries: IntakeAnswers['injuries'],
 ): LibraryExercise | undefined {
+  const hingesUsed = [...used].filter((n) => HINGE_NAMES.has(n)).length
   const pool = poolFor(spec.muscle, equipment, injuries).filter(
     (e) =>
       e.muscle[0] === spec.muscle &&
       !used.has(e.name) &&
+      // a session never needs a third deadlift-style lift
+      !(e.subgroup === 'hinge' && hingesUsed >= 2) &&
       (spec.muscle === 'arms' ? armFitsDay(e, kind) : sideFitsDay(e, kind)),
   )
   const same = pool.filter((e) => e.subgroup === spec.subgroup)
@@ -359,24 +343,48 @@ function buildTemplateDays(
   )
   const focusExtraSet = tier.tier !== 'Poor'
   const finishers: Set<FocusArea>[] = planned.map(() => new Set<FocusArea>())
+  // How often each exercise already appears this week, so the extras spread across different moves instead of repeating one
+  const weekCount = new Map<string, number>()
+  planned.forEach((d) => d.slots.forEach((s) => weekCount.set(s.ex.name, (weekCount.get(s.ex.name) ?? 0) + 1)))
   planned.forEach((day, i) => {
     const injected = focusDays[i].injected
     for (const focus of answers.focusAreas) {
       const isFinisher = injected.includes(focus)
-      const count = isFinisher ? (focus === 'full-body' || tier.tier === 'Poor' ? 1 : 2) : 1
-      if (!isFinisher && !day.muscles.includes(focus)) continue
+      // Glutes are trained from several angles (thrust, lunge, kickback), so a lower-body day gets two extras
+      const count = isFinisher ? (focus === 'full-body' || tier.tier === 'Poor' ? 1 : 2) : focus === 'glutes' && focusExtraSet ? 2 : 1
+      if (!isFinisher && (!day.muscles.includes(focus) || !fitsDay(focus, day))) continue
       if (isFinisher) finishers[i].add(focus)
       const candidates = poolFor(focus, answers.equipment, answers.injuries).filter(
         (e) =>
           e.muscle[0] === focus &&
           !day.used.has(e.name) &&
+          // One hinge lift (deadlift, Romanian deadlift) per session is plenty; the reference program already has its own
+          !(e.subgroup === 'hinge' && day.slots.some((s) => s.ex.subgroup === 'hinge')) &&
           (focus === 'arms' ? armFitsDay(e, day.kind) : sideFitsDay(e, day.kind)),
       )
-      const ordered = [...shuffle(candidates.filter((e) => e.compound)), ...shuffle(candidates.filter((e) => !e.compound))]
+      // Compound first, then moves this day and this week do not have yet (the sort keeps that order within a tie)
+      const rank = (e: LibraryExercise) =>
+        (e.subgroup && day.slots.some((s) => s.ex.subgroup === e.subgroup) ? 2 : 0) +
+        ((weekCount.get(e.name) ?? 0) > 0 ? 1 : 0) -
+        (focus === 'glutes' && e.subgroup === 'hip-thrust' && e.compound && !/^(Dumbbell|Elevated)/.test(e.name) ? 1.5 : 0)
+      const ordered = [...shuffle(candidates.filter((e) => e.compound)), ...shuffle(candidates.filter((e) => !e.compound))].sort(
+        (a, b) => rank(a) - rank(b),
+      )
       const varied = [
         ...ordered.filter((e) => !movementFamily(e.name) || !day.slots.some((s) => movementFamily(s.ex.name) === movementFamily(e.name))),
       ]
-      const chosen = (varied.length >= count ? varied : ordered).slice(0, count)
+      const pool = varied.length >= count ? varied : ordered
+      // When taking several, use different kinds of move (not two hip thrusts)
+      const chosen: LibraryExercise[] = []
+      for (const e of pool) {
+        if (chosen.length >= count) break
+        if (!chosen.some((c) => c.subgroup && c.subgroup === e.subgroup)) chosen.push(e)
+      }
+      for (const e of pool) {
+        if (chosen.length >= count) break
+        if (!chosen.includes(e)) chosen.push(e)
+      }
+      chosen.forEach((e) => weekCount.set(e.name, (weekCount.get(e.name) ?? 0) + 1))
       const at = isFinisher ? day.slots.length : day.slots.map((s) => s.muscle).lastIndexOf(focus) + 1
       chosen.forEach((ex, n) => {
         day.used.add(ex.name)
@@ -502,7 +510,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
       ...template.injected,
     ]
 
-    orderedMuscles.forEach((muscle, muscleIdx) => {
+    orderedMuscles.forEach((muscle) => {
       const isFocus = isFocusMuscle(muscle)
       const injected = template.injected.includes(muscle)
       const perMuscleCount = exercisesPerMuscle(answers.experience, tier.tier, isFocus)
@@ -563,10 +571,11 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
       }
       const finalPool = [...varied, ...repeats]
 
-      for (let i = 0; i < count && i < finalPool.length; i++) {
-        const seed = dayIdx * 7 + muscleIdx * 3 + i
-        const ex = finalPool[i] ?? pick(finalPool, seed)
-        if (!ex) continue
+      let i = 0
+      for (const ex of finalPool) {
+        if (i >= count) break
+        // A session never needs a third deadlift-style lift
+        if (HINGE_NAMES.has(ex.name) && entries.filter((e) => HINGE_NAMES.has(e.exercise.name)).length >= 2) continue
         usedNames.add(ex.name)
         const isCompound = ex.compound && i === 0
         entries.push({
@@ -576,6 +585,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
           main: i === 0,
           injected,
         })
+        i++
       }
     })
 

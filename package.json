@@ -14,14 +14,16 @@
     "ios:open": "npm run ios:sync && npx cap open ios",
     "test:animations": "npx tsx scripts/check-animations.ts",
     "test:splits": "npx tsx scripts/check-split-days.ts",
-    "test": "npm run test:animations && npm run test:splits && npm run test:templates && npm run test:home && npm run test:mindbody && npm run test:videos && npm run test:streak && npm run test:foods && npm run test:prices",
+    "test": "npm run test:animations && npm run test:splits && npm run test:templates && npm run test:home && npm run test:mindbody && npm run test:videos && npm run test:streak && npm run test:foods && npm run test:prices && npm run test:focus && npm run test:online-foods",
     "test:templates": "npx tsx scripts/check-templates.ts",
     "test:home": "npx tsx scripts/check-home-templates.ts",
     "test:mindbody": "npx tsx scripts/check-mindbody.ts",
     "test:videos": "npx tsx scripts/check-videos.ts",
     "test:streak": "npx tsx scripts/check-streak.ts",
     "test:foods": "npx tsx scripts/check-foods.ts",
-    "test:prices": "npx tsx scripts/check-prices.ts"
+    "test:prices": "npx tsx scripts/check-prices.ts",
+    "test:focus": "npx tsx scripts/check-focus.ts",
+    "test:online-foods": "npx tsx scripts/check-online-foods.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.1",

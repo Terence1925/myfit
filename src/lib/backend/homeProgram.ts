@@ -1,6 +1,8 @@
 import type { Exercise, FocusArea, IntakeAnswers, ProgramDay } from '../types'
 import { normalizeEquipment } from '../discipline'
 import { EXERCISES, injuryAllows, type LibraryExercise } from './exerciseLibrary'
+import { armFitsDay, fitsDay, sideFitsDay, type DayKind } from './focusFit'
+import { GLUTE_YOUTUBE } from './gluteExercises'
 
 // The home (bodyweight / calisthenics) programs, for men and women. One layout for each number of training days.
 // Your level sets the number of sets and how hard to make each move (see LEVELS below). Each line is "Name sets x reps":
@@ -162,6 +164,80 @@ function parseLine(line: string): { name: string; sets: number; amount: number; 
 
 const key = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 
+type Row = { ex: LibraryExercise; amount: number; unit: 'reps' | 'sec' | 'leg' }
+
+/** A line for an extra move: how long to hold it, or how many reps (each side for one-leg moves). */
+function extraAmount(ex: LibraryExercise): Pick<Row, 'amount' | 'unit'> {
+  if (ex.holdBased) return { amount: 30, unit: 'sec' }
+  if (/lunge|step-up|single-leg|donkey|hydrant|bulgarian|kickback/i.test(ex.name)) return { amount: 12, unit: 'leg' }
+  return { amount: 15, unit: 'reps' }
+}
+
+const MAX_HOME_EXERCISES = 9
+/** How many days a week a focus muscle should be trained. */
+const FOCUS_DAYS = 3
+
+/**
+ * The home program follows the owner's layout. A chosen focus area adds one extra move (two for glutes) on the days that
+ * already train it, and a short finisher on other days that fit, until it is trained on up to three days.
+ */
+function addFocusExtras(
+  planned: { day: { name: string }; rows: Row[]; used: Set<string> }[],
+  answers: IntakeAnswers,
+  pool: LibraryExercise[],
+): void {
+  const trains = (d: (typeof planned)[number], focus: FocusArea) => d.rows.some((r) => r.ex.muscle[0] === focus || (r.ex.muscle.includes(focus) && focus === 'glutes' && r.ex.muscle[0] === 'legs'))
+  // What the day mainly trains (each move's first muscle): a back day with one move that also touches the glutes is still a back day
+  const musclesOf = (d: (typeof planned)[number]) => [...new Set(d.rows.map((r) => r.ex.muscle[0]))] as FocusArea[]
+  const weekCount = new Map<string, number>()
+  planned.forEach((d) => d.rows.forEach((r) => weekCount.set(r.ex.name, (weekCount.get(r.ex.name) ?? 0) + 1)))
+
+  for (const focus of answers.focusAreas) {
+    if (focus === 'full-body') continue
+    const target = Math.min(FOCUS_DAYS, planned.length)
+    const fits = (d: (typeof planned)[number]) => fitsDay(focus, { muscles: musclesOf(d), name: d.day.name })
+    const wanted = planned.filter((d) => trains(d, focus) && fits(d))
+    const others = planned
+      .filter((d) => !trains(d, focus) && fits(d))
+      .sort((a, b) => a.rows.length - b.rows.length)
+    const finisherDays = others.slice(0, Math.max(0, target - wanted.length))
+    for (const d of [...wanted, ...finisherDays]) {
+      if (d.rows.length >= MAX_HOME_EXERCISES) continue
+      const count = focus === 'glutes' && wanted.includes(d) ? 2 : 1
+      const kind: DayKind = /pull/i.test(d.day.name) ? 'pull' : /push/i.test(d.day.name) ? 'push' : 'mixed'
+      const candidates = pool.filter(
+        (e) =>
+          e.muscle[0] === focus &&
+          e.equipment.includes('calisthenics') &&
+          !d.used.has(e.name) &&
+          injuryAllows(e, answers.injuries) &&
+          (focus === 'arms' ? armFitsDay(e, kind) : sideFitsDay(e, kind)),
+      )
+      // moves this week does not have yet first, then compound moves
+      const ordered = [...candidates].sort(
+        (a, b) =>
+          (weekCount.get(a.name) ?? 0) - (weekCount.get(b.name) ?? 0) ||
+          (d.rows.some((r) => r.ex.subgroup === a.subgroup) ? 1 : 0) - (d.rows.some((r) => r.ex.subgroup === b.subgroup) ? 1 : 0) ||
+          Number(b.compound) - Number(a.compound),
+      )
+      const chosen: LibraryExercise[] = []
+      for (const e of ordered) {
+        if (chosen.length >= count || d.rows.length + chosen.length >= MAX_HOME_EXERCISES) break
+        if (!chosen.some((c) => c.subgroup && c.subgroup === e.subgroup)) chosen.push(e)
+      }
+      for (const e of ordered) {
+        if (chosen.length >= count || d.rows.length + chosen.length >= MAX_HOME_EXERCISES) break
+        if (!chosen.includes(e)) chosen.push(e)
+      }
+      for (const e of chosen) {
+        d.used.add(e.name)
+        d.rows.push({ ex: e, ...extraAmount(e) })
+        weekCount.set(e.name, (weekCount.get(e.name) ?? 0) + 1)
+      }
+    }
+  }
+}
+
 export function buildHomeDays(
   answers: IntakeAnswers,
   tier: { targetRIR: string },
@@ -175,10 +251,10 @@ export function buildHomeDays(
   const byName = new Map(EXERCISES.map((e) => [e.name, e]))
   const homePool = [...HOME_PROGRAM_NAMES].map((n) => byName.get(n)).filter((e): e is LibraryExercise => !!e)
 
-  const days: ProgramDay[] = []
-  for (const [i, day] of template.days.entries()) {
+  const planned: { day: HomeDay; rows: Row[]; used: Set<string> }[] = []
+  for (const day of template.days) {
     const used = new Set<string>()
-    const rows: { ex: LibraryExercise; amount: number; unit: 'reps' | 'sec' | 'leg' }[] = []
+    const rows: Row[] = []
     for (const line of day.exercises) {
       const parsed = parseLine(line)
       const libName = HOME_SLOTS[key(parsed.name)]
@@ -198,7 +274,13 @@ export function buildHomeDays(
       rows.push({ ex, amount: parsed.amount, unit: parsed.unit })
     }
     if (rows.length < 3) return null
+    planned.push({ day, rows, used })
+  }
 
+  addFocusExtras(planned, answers, [...HOME_PROGRAM_NAMES, ...GLUTE_YOUTUBE].map((n) => byName.get(n)).filter((e): e is LibraryExercise => !!e))
+
+  const days: ProgramDay[] = []
+  for (const [i, { day, rows }] of planned.entries()) {
     const muscles = [...new Set(rows.map((r) => r.ex.muscle[0]))] as FocusArea[]
     const exercises: Exercise[] = rows.map((row, n) => {
       const { ex, amount, unit } = row
