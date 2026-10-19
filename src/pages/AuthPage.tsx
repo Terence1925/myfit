@@ -122,8 +122,8 @@ export default function AuthPage() {
           <p className="mt-3 text-xs text-muted-foreground font-body">
             Nothing after a couple of minutes? Check your spam folder and make sure you used the email you signed up
             with. Still stuck? Email{' '}
-            <a href="mailto:ttagayona1985@outlook.com" className="text-primary underline underline-offset-2">
-              ttagayona1985@outlook.com
+            <a href="mailto:joinmyfit@gmail.com" className="text-primary underline underline-offset-2">
+              joinmyfit@gmail.com
             </a>{' '}
             and we'll help you get back in.
           </p>
@@ -186,8 +186,8 @@ export default function AuthPage() {
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
                   Can't get the email? Contact{' '}
-                  <a href="mailto:ttagayona1985@outlook.com" className="text-primary underline underline-offset-2">
-                    ttagayona1985@outlook.com
+                  <a href="mailto:joinmyfit@gmail.com" className="text-primary underline underline-offset-2">
+                    joinmyfit@gmail.com
                   </a>
                 </p>
                 <button

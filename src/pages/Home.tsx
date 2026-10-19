@@ -7,6 +7,7 @@ import { IntakeWizard } from '@/components/intake/IntakeWizard'
 import { ProgramView } from '@/components/program/ProgramView'
 import { ProgramPaywall } from '@/components/program/ProgramPaywall'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { programs } from '@/lib/backend/api'
 import { hasProAccess } from '@/lib/billing'
 import type { IntakeAnswers, WorkoutProgram } from '@/lib/types'
@@ -64,7 +65,15 @@ export default function Home() {
     }
   }
 
-  if (mode === 'loading') return null
+  if (mode === 'loading') {
+    return (
+      <div className="container space-y-4 py-8" aria-busy="true">
+        <Skeleton className="h-64 rounded-3xl" />
+        <Skeleton className="h-40 rounded-2xl" />
+        <Skeleton className="h-12" />
+      </div>
+    )
+  }
 
   if (mode === 'limit') {
     return (

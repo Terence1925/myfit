@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { OverviewTab } from './OverviewTab'
 import { StreakCard } from './StreakCard'
+import { TodayCard } from './TodayCard'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
@@ -81,6 +82,17 @@ export function ProgramView({
   return (
     <div className="space-y-8">
       <div className="space-y-8">
+        <TodayCard
+          program={program}
+          userId={userId}
+          onStart={(day) => {
+            setActiveDay(day)
+            setTab('weekly')
+            // bring the workout into view
+            setTimeout(() => document.getElementById('plan-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+          }}
+        />
+
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,7 +136,7 @@ export function ProgramView({
 
         <StreakCard userId={userId} plannedDays={program.programData.days.length} />
 
-        <Tabs value={tab} onValueChange={setTab}>
+        <Tabs id="plan-tabs" value={tab} onValueChange={setTab} className="scroll-mt-20">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="weekly">Weekly Plan</TabsTrigger>

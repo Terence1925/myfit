@@ -14,17 +14,19 @@ export function Tabs({
   value,
   onValueChange,
   className,
+  id,
   children,
 }: {
   value: string
   onValueChange: (v: string) => void
   className?: string
+  id?: string
   children: React.ReactNode
 }) {
   const pillId = React.useId()
   return (
     <TabsContext.Provider value={{ value, setValue: onValueChange, pillId }}>
-      <div className={className}>{children}</div>
+      <div id={id} className={className}>{children}</div>
     </TabsContext.Provider>
   )
 }

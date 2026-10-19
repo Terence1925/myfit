@@ -147,15 +147,20 @@ export function ExerciseCard({
                     placeholder="reps"
                     className="h-9 w-full rounded-md border border-input bg-background/60 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
-                  <button
+                  <motion.button
                     onClick={() => onSetChange(si, 'completed', !s.completed)}
+                    whileTap={{ scale: 0.85 }}
+                    // a quick pop when a set is ticked
+                    animate={s.completed ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    aria-label={s.completed ? `Set ${s.setNumber} done` : `Mark set ${s.setNumber} done`}
                     className={cn(
                       'flex h-9 w-9 items-center justify-center rounded-md border transition-colors',
                       s.completed ? 'border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'border-border text-muted-foreground',
                     )}
                   >
                     <Check className="h-4 w-4" />
-                  </button>
+                  </motion.button>
                 </div>
               ))}
             </div>

@@ -28,7 +28,7 @@ export default function RefundPage() {
       <p>
         You can request a refund directly from Google Play (play.google.com → Order history) or from Apple
         (reportaproblem.apple.com). If something
-        went wrong with a purchase, email ttagayona1985@outlook.com with your account email and the reason,
+        went wrong with a purchase, email joinmyfit@gmail.com with your account email and the reason,
         and we'll look into it and respond within 2 business days. Approved refunds are returned to your
         original payment method.
       </p>

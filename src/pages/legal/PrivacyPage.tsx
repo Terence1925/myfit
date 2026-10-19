@@ -45,7 +45,7 @@ export default function PrivacyPage() {
         <li>Data portability (receive a copy of your data)</li>
         <li>File a complaint with the National Privacy Commission</li>
       </ul>
-      <p>To exercise any of these rights, contact ttagayona1985@outlook.com.</p>
+      <p>To exercise any of these rights, contact joinmyfit@gmail.com.</p>
 
       <h2>6. Data Retention</h2>
       <p>
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
       <p>We'll post updates here and update the date above. Material changes will be notified to you by email.</p>
 
       <h2>10. Contact</h2>
-      <p>Data privacy questions or requests: ttagayona1985@outlook.com.</p>
+      <p>Data privacy questions or requests: joinmyfit@gmail.com.</p>
     </LegalLayout>
   )
 }

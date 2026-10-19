@@ -1,4 +1,4 @@
-import type { SetLog, WorkoutSession } from './types'
+import type { ExerciseLog, SetLog, WorkoutSession } from './types'
 
 export interface ExerciseHistoryPoint {
   date: string
@@ -58,6 +58,22 @@ export function lastSessionHint(sessions: WorkoutSession[], exerciseName: string
   if (history.length === 0) return null
   const last = history[history.length - 1]
   return `Last time: ${last.topWeight} × ${last.topReps}`
+}
+
+/**
+ * Exercises in a workout that was just logged where an estimated 1-rep max beats everything saved before.
+ * A first-ever log of an exercise is not a "record" (nothing to beat yet).
+ */
+export function findPersonalRecords(previous: WorkoutSession[], log: ExerciseLog[]): string[] {
+  const records: string[] = []
+  for (const ex of log) {
+    const best = Math.max(0, ...ex.sets.filter((s) => s.completed).map((s) => estimated1RM(s.weight ?? 0, s.reps ?? 0)))
+    if (best <= 0) continue
+    const before = getExerciseHistory(previous, ex.name)
+    if (before.length === 0) continue
+    if (best > Math.max(...before.map((h) => h.estimated1RM))) records.push(ex.name)
+  }
+  return records
 }
 
 export function isLatestAPR(history: ExerciseHistoryPoint[]): boolean {
