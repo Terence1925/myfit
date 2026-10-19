@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Celebration } from '@/components/shared/Celebration'
+import { BadgeWatcher } from '@/components/shared/BadgeWatcher'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { GlowBackground } from '@/components/layout/GlowBackground'
 import { BottomNav } from '@/components/layout/BottomNav'
@@ -79,6 +80,7 @@ function AppShell() {
       <GlowBackground />
       {profile && <NavBar />}
       <Celebration />
+      {profile && <BadgeWatcher />}
       {/* Each page fades in instead of snapping in (opacity only: a transform would break the pages' fixed bars) */}
       <motion.div key={location.pathname} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: 'easeOut' }}>
       <Routes>

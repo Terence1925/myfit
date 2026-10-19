@@ -21,8 +21,10 @@ export function buzz(kind: Buzz): void {
 export interface CelebrationDetail {
   title: string
   subtitle?: string
-  /** 'done' = a finished workout, 'record' = a personal record. */
-  kind?: 'done' | 'record'
+  /** 'done' = a finished workout, 'record' = a personal record, 'badge' = a badge unlocked. */
+  kind?: 'done' | 'record' | 'badge'
+  /** A big emoji shown instead of the icon (badges). */
+  emoji?: string
 }
 
 /** Shows the confetti and the message (see Celebration.tsx), and gives a success buzz. */

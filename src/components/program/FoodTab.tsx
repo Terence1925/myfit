@@ -448,6 +448,8 @@ function AddFoodDialog({
         carbsG: r1(food.carbsG * count),
         fatG: r1(food.fatG * count),
       })
+      // Lets badges notice a first meal or a week of logging
+      window.dispatchEvent(new Event('myfit:food-saved'))
       onAdded()
     } catch {
       setError('Could not save. Please try again.')

@@ -615,6 +615,24 @@ export const foodLog = {
     return (data ?? []).map(mapFoodLog)
   },
 
+  async listForRange(userId: string, from: string, to: string): Promise<FoodLogEntry[]> {
+    const { data, error } = await sb()
+      .from('food_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('log_date', from)
+      .lte('log_date', to)
+      .order('created_at', { ascending: true })
+    if (error) throw new Error(error.message)
+    return (data ?? []).map(mapFoodLog)
+  },
+
+  async listLoggedDates(userId: string): Promise<string[]> {
+    const { data, error } = await sb().from('food_logs').select('log_date').eq('user_id', userId).limit(5000)
+    if (error) throw new Error(error.message)
+    return [...new Set((data ?? []).map((r: { log_date: string }) => r.log_date))]
+  },
+
   async listRecent(userId: string, limit = 12): Promise<FoodLogEntry[]> {
     const { data, error } = await sb()
       .from('food_logs')

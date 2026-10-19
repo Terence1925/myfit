@@ -89,6 +89,10 @@ export interface CodesApi {
 
 export interface FoodLogApi {
   listForDate(userId: string, date: string): Promise<FoodLogEntry[]>
+  /** Everything logged from one date to another (both included, YYYY-MM-DD), oldest first. */
+  listForRange(userId: string, from: string, to: string): Promise<FoodLogEntry[]>
+  /** Every day the person has logged food on (YYYY-MM-DD), for badges. */
+  listLoggedDates(userId: string): Promise<string[]>
   /** Recently logged foods (newest first, one per food), for quick re-adding. */
   listRecent(userId: string, limit?: number): Promise<FoodLogEntry[]>
   add(userId: string, entry: Omit<FoodLogEntry, 'id' | 'userId' | 'createdAt'>): Promise<FoodLogEntry>

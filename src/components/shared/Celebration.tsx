@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { PartyPopper, Trophy } from 'lucide-react'
+import { Medal, PartyPopper, Trophy } from 'lucide-react'
 import type { CelebrationDetail } from '@/lib/feedback'
 
 // A short burst of confetti with a message, shown when a workout is finished or a personal record is set.
@@ -44,7 +44,7 @@ export function Celebration() {
   }, [])
 
   const record = detail?.kind === 'record'
-  const Icon = record ? Trophy : PartyPopper
+  const Icon = record ? Trophy : detail?.kind === 'badge' ? Medal : PartyPopper
 
   return (
     <AnimatePresence>
@@ -74,8 +74,8 @@ export function Celebration() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 20 }}
           >
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 text-primary">
-              <Icon className="h-8 w-8" />
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 text-primary">
+              {detail.emoji ? <span className="text-4xl leading-none">{detail.emoji}</span> : <Icon className="h-8 w-8" />}
             </div>
             <div className="font-display text-3xl tracking-wide text-foreground">{detail.title}</div>
             {detail.subtitle && <div className="mt-1 font-body text-sm text-muted-foreground">{detail.subtitle}</div>}

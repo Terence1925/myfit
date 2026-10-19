@@ -273,6 +273,18 @@ export default function AccountPage() {
 
         <WorkoutReminders userId={profile.id} />
 
+        <Card>
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div>
+              <div className="font-body text-sm font-bold">Welcome tour</div>
+              <div className="text-xs text-muted-foreground">A 3-screen look at what MyFit can do.</div>
+            </div>
+            <Button variant="outline" size="sm" className="shrink-0" onClick={() => navigate('/?tour=1')}>
+              Take the tour again
+            </Button>
+          </CardContent>
+        </Card>
+
         {nativePlatform() === 'android' && <RestAlarmCheck />}
 
         {isSupabaseConfigured && (

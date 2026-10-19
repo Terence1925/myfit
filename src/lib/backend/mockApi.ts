@@ -492,6 +492,16 @@ export const foodLog = {
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   },
 
+  async listForRange(userId: string, from: string, to: string): Promise<FoodLogEntry[]> {
+    return readAll<FoodLogEntry>(FOOD_LOG_KEY)
+      .filter((e) => e.userId === userId && e.date >= from && e.date <= to)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  },
+
+  async listLoggedDates(userId: string): Promise<string[]> {
+    return [...new Set(readAll<FoodLogEntry>(FOOD_LOG_KEY).filter((e) => e.userId === userId).map((e) => e.date))]
+  },
+
   async listRecent(userId: string, limit = 12): Promise<FoodLogEntry[]> {
     const mine = readAll<FoodLogEntry>(FOOD_LOG_KEY)
       .filter((e) => e.userId === userId)

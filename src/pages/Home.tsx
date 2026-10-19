@@ -1,9 +1,11 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Crown, Lock, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { IntakeWizard } from '@/components/intake/IntakeWizard'
+import { WelcomeTour } from '@/components/intake/WelcomeTour'
+import { markTourSeen, tourSeen } from '@/lib/tour'
 import { ProgramView } from '@/components/program/ProgramView'
 import { ProgramPaywall } from '@/components/program/ProgramPaywall'
 import { Button } from '@/components/ui/button'
@@ -17,11 +19,13 @@ type Mode = 'loading' | 'intake' | 'program' | 'limit'
 export default function Home() {
   const { profile, role, roleLoading } = useAuth()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const proAccess = hasProAccess(profile, role)
   const [mode, setMode] = React.useState<Mode>('loading')
   const [program, setProgram] = React.useState<WorkoutProgram | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [tourOpen, setTourOpen] = React.useState(true)
 
   // Keyed on the user's id, not the whole profile object: the profile is re-fetched whenever the app
   // resumes or the session refreshes, and reloading the program each time would hand every screen below a
@@ -100,9 +104,21 @@ export default function Home() {
     )
   }
 
+  // The three-screen tour: once, before the very first plan (or again with ?tour=1 from the Account page)
+  const forceTour = searchParams.get('tour') === '1'
+  const showTour = tourOpen && (forceTour || (mode === 'intake' && !tourSeen(profile.id)))
+  const closeTour = () => {
+    markTourSeen(profile.id)
+    setTourOpen(false)
+    if (forceTour) setSearchParams({}, { replace: true })
+  }
+
+  const tour = showTour ? <WelcomeTour onDone={closeTour} /> : null
+
   if (mode === 'intake') {
     return (
       <div className="container">
+        {tour}
         <IntakeWizard onComplete={handleComplete} submitting={submitting} error={error} />
       </div>
     )
@@ -112,9 +128,17 @@ export default function Home() {
     // Wait for the role lookup so an admin never sees a flash of the paywall.
     if (roleLoading) return null
     // Everyone can build their program (that's the hook); using it needs a subscription.
-    if (!proAccess) return <ProgramPaywall program={program} />
+    if (!proAccess) {
+      return (
+        <>
+          {tour}
+          <ProgramPaywall program={program} />
+        </>
+      )
+    }
     return (
       <div className="container py-8 sm:py-12">
+        {tour}
         <div className="mb-4 flex justify-end">
           <Button
             variant="outline"

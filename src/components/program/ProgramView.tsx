@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { OverviewTab } from './OverviewTab'
 import { StreakCard } from './StreakCard'
 import { TodayCard } from './TodayCard'
+import { ProgressTiles } from './ProgressTiles'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
@@ -92,6 +93,8 @@ export function ProgramView({
             setTimeout(() => document.getElementById('plan-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
           }}
         />
+
+        <ProgressTiles userId={userId} />
 
         <motion.div
           initial={{ opacity: 0, y: -12 }}
