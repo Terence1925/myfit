@@ -6,7 +6,6 @@ import { ProgressRing } from '@/components/ui/progress-ring'
 import { useAuth } from '@/context/AuthContext'
 import { sessions } from '@/lib/backend/api'
 import { allDoneMessage, greeting, pepTalk } from '@/lib/encouragement'
-import { buzz } from '@/lib/feedback'
 import { computeStreak, countedDates } from '@/lib/streak'
 import { nextWorkoutDay, ringText, setsThisWeek, weekDots, workoutsThisMonth } from '@/lib/todayPlan'
 import { liftedComparison } from '@/lib/lifted'
@@ -106,10 +105,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
             <Button
               size="lg"
               className="mt-4 w-full gap-2"
-              onClick={() => {
-                buzz('tap')
-                onStart(next.day)
-              }}
+              onClick={() => onStart(next.day)}
             >
               <Play className="h-5 w-5 fill-current" /> Start workout
             </Button>

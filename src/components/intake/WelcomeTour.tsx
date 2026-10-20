@@ -2,7 +2,6 @@ import * as React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronRight, Flame, PlayCircle, Sparkles, Utensils } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { buzz } from '@/lib/feedback'
 import { cn } from '@/lib/utils'
 
 const SLIDES = [
@@ -32,7 +31,6 @@ export function WelcomeTour({ onDone }: { onDone: () => void }) {
   const Icon = slide.icon
 
   const next = () => {
-    buzz('tap')
     if (last) onDone()
     else {
       setDir(1)

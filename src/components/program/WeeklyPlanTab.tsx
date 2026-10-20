@@ -10,8 +10,6 @@ import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
 import { buildLog, clearDraft, loadDraft, reconcileLog, saveDraft } from '@/lib/workoutLog'
 import { dayProgress, historyRows } from '@/lib/streak'
-import { buzz } from '@/lib/feedback'
-import { playSound } from '@/lib/sound'
 import type { ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
 
 export function WeeklyPlanTab({
@@ -119,11 +117,7 @@ export function WeeklyPlanTab({
   }
 
   const updateSet = (exerciseIndex: number, setIndex: number, field: 'weight' | 'reps' | 'completed', value: number | boolean) => {
-    if (field === 'completed' && value === true) {
-      startRest(exerciseIndex, setIndex)
-      buzz('set')
-      playSound('tick')
-    }
+    if (field === 'completed' && value === true) startRest(exerciseIndex, setIndex)
     const next = log.map((exLog, i) =>
       i !== exerciseIndex
         ? exLog

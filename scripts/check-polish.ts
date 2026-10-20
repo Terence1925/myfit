@@ -1,8 +1,7 @@
 // Run with: npm run test:polish
-// Checks the "lifted more than last month" sentence, the weekly ring text and the soft sounds (volume and defaults).
+// Checks the "lifted more than last month" sentence and the weekly ring text.
 import { formatLbs, liftedComparison } from '../src/lib/lifted'
 import { ringText } from '../src/lib/todayPlan'
-import { SOUNDS, soundOn } from '../src/lib/sound'
 import type { WorkoutSession } from '../src/lib/types'
 
 const problems: string[] = []
@@ -42,17 +41,9 @@ check('ring: streak secured', ringText(3, 3, 4).note, 'Streak secured this week.
 check('ring: perfect', ringText(4, 3, 4).note, 'Perfect week! Every workout done.')
 check('ring: one planned day', ringText(0, 1, 1).title, '0 of 1 workout this week')
 
-// sounds: soft, short, and on unless switched off
-check('sound is on by default', soundOn(), true)
-for (const [name, s] of Object.entries(SOUNDS)) {
-  if (s.gain > 0.1) problems.push(`sound ${name} is too loud (${s.gain})`)
-  if (s.notes.length === 0) problems.push(`sound ${name} has no notes`)
-  if (s.notes.length * s.step + s.length > 1.2) problems.push(`sound ${name} is too long`)
-}
-
 if (problems.length) {
   console.log('FAILED')
   for (const p of problems) console.log(' - ' + p)
   process.exit(1)
 }
-console.log('PASSED: the "lifted more" sentence, the weekly ring text and the soft sounds are right.')
+console.log('PASSED: the "lifted more" sentence and the weekly ring text are right.')
