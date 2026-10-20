@@ -22,3 +22,31 @@ export function saveSeenBadges(userId: string, ids: string[]): void {
     /* nothing to do */
   }
 }
+
+// Badges earned since the person last opened the Badges window (shown with a "New" tag, no pop-up).
+const newKey = (userId: string) => `myfit_badges_new_${userId}`
+
+export function loadNewBadges(userId: string): string[] {
+  try {
+    const list = JSON.parse(localStorage.getItem(newKey(userId)) ?? '[]')
+    return Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+export function addNewBadges(userId: string, ids: string[]): void {
+  try {
+    localStorage.setItem(newKey(userId), JSON.stringify([...new Set([...loadNewBadges(userId), ...ids])]))
+  } catch {
+    /* nothing to do */
+  }
+}
+
+export function clearNewBadges(userId: string): void {
+  try {
+    localStorage.removeItem(newKey(userId))
+  } catch {
+    /* nothing to do */
+  }
+}

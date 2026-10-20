@@ -49,7 +49,8 @@ export function Dialog({
               <h3 className="font-body text-lg font-bold text-foreground truncate pr-4">{title}</h3>
               <button
                 onClick={onClose}
-                className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                aria-label="Close"
+                className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>

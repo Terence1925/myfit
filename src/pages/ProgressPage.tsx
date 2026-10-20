@@ -93,7 +93,7 @@ export default function ProgressPage() {
               key={u}
               onClick={() => setUnit(u)}
               className={cn(
-                'rounded-md px-4 py-1.5 text-sm font-semibold transition-colors',
+                'min-h-[44px] rounded-md px-5 text-sm font-semibold transition-colors sm:min-h-0 sm:px-4 sm:py-1.5',
                 unit === u ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground',
               )}
             >

@@ -83,14 +83,14 @@ export function ExerciseCard({
             <button
               onClick={onSwap}
               disabled={swapping}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-50"
             >
               {swapping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
               Swap
             </button>
             <button
               onClick={() => setDemoOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
+              className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
             >
               <PlayCircle className="h-3.5 w-3.5" />
               Demo
@@ -98,7 +98,7 @@ export function ExerciseCard({
             {!mindBody && (
             <button
               onClick={handleHistoryClick}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+              className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
             >
               {hasProgressAccess ? <TrendingUp className="h-3.5 w-3.5" /> : <Crown className="h-3.5 w-3.5" />}
               History
@@ -138,14 +138,14 @@ export function ExerciseCard({
                     value={s.weight ?? ''}
                     onChange={(e) => onSetChange(si, 'weight', Number(e.target.value))}
                     placeholder="lbs"
-                    className="h-9 w-full rounded-md border border-input bg-background/60 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="h-12 w-full rounded-md border border-input bg-background/60 px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <input
                     type="number"
                     value={s.reps ?? ''}
                     onChange={(e) => onSetChange(si, 'reps', Number(e.target.value))}
                     placeholder="reps"
-                    className="h-9 w-full rounded-md border border-input bg-background/60 px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="h-12 w-full rounded-md border border-input bg-background/60 px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <motion.button
                     onClick={() => onSetChange(si, 'completed', !s.completed)}
@@ -155,11 +155,11 @@ export function ExerciseCard({
                     transition={{ duration: 0.3 }}
                     aria-label={s.completed ? `Set ${s.setNumber} done` : `Mark set ${s.setNumber} done`}
                     className={cn(
-                      'flex h-9 w-9 items-center justify-center rounded-md border transition-colors',
+                      'flex h-12 w-12 items-center justify-center rounded-md border transition-colors',
                       s.completed ? 'border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'border-border text-muted-foreground',
                     )}
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className="h-5 w-5" />
                   </motion.button>
                 </div>
               ))}

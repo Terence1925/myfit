@@ -2,7 +2,6 @@ import * as React from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Celebration } from '@/components/shared/Celebration'
 import { BadgeWatcher } from '@/components/shared/BadgeWatcher'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { GlowBackground } from '@/components/layout/GlowBackground'
@@ -79,7 +78,6 @@ function AppShell() {
     <div className={profile ? (rest ? 'min-h-screen pb-56 sm:pb-40' : 'min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:pb-0') : 'min-h-screen'}>
       <GlowBackground />
       {profile && <NavBar />}
-      <Celebration />
       {profile && <BadgeWatcher />}
       {/* Each page fades in instead of snapping in (opacity only: a transform would break the pages' fixed bars) */}
       <motion.div key={location.pathname} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, ease: 'easeOut' }}>

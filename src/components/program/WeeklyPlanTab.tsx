@@ -10,10 +10,8 @@ import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
 import { buildLog, clearDraft, loadDraft, reconcileLog, saveDraft } from '@/lib/workoutLog'
 import { dayProgress, historyRows } from '@/lib/streak'
-import { buzz, celebrate } from '@/lib/feedback'
+import { buzz } from '@/lib/feedback'
 import { playSound } from '@/lib/sound'
-import { doneMessage, recordMessage } from '@/lib/encouragement'
-import { findPersonalRecords } from '@/lib/progressiveOverload'
 import type { ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
 
 export function WeeklyPlanTab({
@@ -178,7 +176,6 @@ export function WeeklyPlanTab({
     try {
       await sessions.save({ userId, programId, day: day.day, dayName: day.name, date: new Date().toISOString(), exercises: [] })
       await afterSessionSaved()
-      celebrate(doneMessage())
     } finally {
       setMarkingDone(false)
     }
@@ -187,8 +184,6 @@ export function WeeklyPlanTab({
   const handleSave = async () => {
     // An empty log is not a workout: at least one set has to be ticked
     if (completedSets === 0) return
-    // Checked before saving, against everything saved earlier
-    const records = findPersonalRecords(userSessions, log)
     await sessions.save({
       userId,
       programId,
@@ -202,7 +197,6 @@ export function WeeklyPlanTab({
     setLoggingMode(false)
     stopRestTimer()
     await afterSessionSaved()
-    celebrate(records.length > 0 ? { ...recordMessage(records[0]), kind: 'record' } : doneMessage())
   }
 
   return (

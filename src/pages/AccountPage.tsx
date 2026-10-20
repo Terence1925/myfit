@@ -261,7 +261,7 @@ export default function AccountPage() {
                   type="button"
                   onClick={() => setThemeChoice(option)}
                   className={
-                    'flex-1 rounded-md py-2 text-sm font-semibold capitalize transition-colors ' +
+                    'min-h-[44px] flex-1 rounded-md text-sm font-semibold capitalize transition-colors ' +
                     (themeChoice === option ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground')
                   }
                 >
@@ -291,7 +291,7 @@ export default function AccountPage() {
                     if (on) playSound('tick')
                   }}
                   className={
-                    'flex-1 rounded-md py-2 text-sm font-semibold transition-colors ' +
+                    'min-h-[44px] flex-1 rounded-md text-sm font-semibold transition-colors ' +
                     (sound === on ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground')
                   }
                 >
@@ -299,7 +299,7 @@ export default function AccountPage() {
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">A soft tick when you finish a set, and a chime for a finished workout or a badge. It follows your phone's media volume.</p>
+            <p className="mt-2 text-xs text-muted-foreground">A soft tick when you finish a set. It follows your phone's media volume.</p>
           </CardContent>
         </Card>
 

@@ -29,27 +29,6 @@ export function pepTalk(now: Date = new Date(), taglish = taglishOn()): string {
   return pick(taglish ? tl : en, daySeed(now))
 }
 
-/** Shown when a workout day is finished. */
-export function doneMessage(seed = Date.now(), taglish = taglishOn()): { title: string; subtitle: string } {
-  const en = [
-    { title: 'Workout done!', subtitle: 'Great work. Rest well, you earned it.' },
-    { title: 'Crushed it!', subtitle: 'Another one in the books.' },
-    { title: 'Nice one!', subtitle: 'That is how streaks are built.' },
-  ]
-  const tl = [
-    { title: 'Tapos na ang workout!', subtitle: "Galing! Magpahinga ka, deserve mo 'yan." },
-    { title: 'Panalo!', subtitle: 'Isa na namang araw na natapos mo.' },
-    { title: 'Ang galing mo!', subtitle: 'Ganyan ang paggawa ng streak.' },
-  ]
-  return pick(taglish ? tl : en, seed)
-}
-
-export function recordMessage(exercise: string, taglish = taglishOn()): { title: string; subtitle: string } {
-  return taglish
-    ? { title: 'Bagong record!', subtitle: `${exercise}: mas malakas ka na ngayon.` }
-    : { title: 'New personal record!', subtitle: `${exercise}: you are stronger than ever.` }
-}
-
 /** Shown on the Today card when there is nothing left this week. */
 export function allDoneMessage(taglish = taglishOn()): string {
   return taglish ? 'Tapos na lahat ngayong linggo. Ang galing!' : 'Everything done this week. Amazing!'

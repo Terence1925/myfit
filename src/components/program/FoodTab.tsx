@@ -514,7 +514,7 @@ function AddFoodDialog({
                         setCategory(null)
                       }}
                       className={cn(
-                        'rounded-lg py-2 text-sm font-semibold transition-colors',
+                        'min-h-[44px] rounded-lg text-sm font-semibold transition-colors',
                         tab === id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
                       )}
                     >
@@ -532,7 +532,7 @@ function AddFoodDialog({
                         onClick={() => setRegion(r)}
                         aria-pressed={region === r}
                         className={cn(
-                          'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+                          'min-h-[44px] rounded-full border px-4 text-xs font-semibold transition-colors sm:min-h-0 sm:px-3 sm:py-1',
                           region === r
                             ? 'border-primary bg-primary/15 text-primary'
                             : 'border-border bg-secondary/50 text-muted-foreground hover:text-foreground',
@@ -723,7 +723,7 @@ function AddFoodDialog({
                       onClick={() => pickUnits(u)}
                       aria-pressed={units === u}
                       className={cn(
-                        'rounded-full border px-3 py-1 font-semibold transition-colors',
+                        'min-h-[44px] rounded-full border px-4 font-semibold transition-colors sm:min-h-0 sm:px-3 sm:py-1',
                         units === u ? 'border-primary bg-primary/15 text-primary' : 'border-border bg-secondary/50 hover:text-foreground',
                       )}
                     >

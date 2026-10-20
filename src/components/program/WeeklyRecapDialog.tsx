@@ -1,29 +1,9 @@
-import * as React from 'react'
-import { CalendarCheck, Dumbbell, Flame, Loader2, Share2, Utensils } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { CalendarCheck, Dumbbell, Flame, Utensils } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
-import { renderRecapCard, shareImage } from '@/lib/shareCard'
 import type { Recap } from '@/lib/weeklyRecap'
 
-/** The weekly recap: a card to read, and a button that shares it as a picture. */
+/** The weekly recap: a short, positive card to read. */
 export function WeeklyRecapDialog({ open, onClose, recap, isCurrentWeek }: { open: boolean; onClose: () => void; recap: Recap; isCurrentWeek: boolean }) {
-  const [sharing, setSharing] = React.useState(false)
-  const [note, setNote] = React.useState<string | null>(null)
-
-  const share = async () => {
-    setSharing(true)
-    setNote(null)
-    try {
-      const blob = await renderRecapCard(recap)
-      const result = await shareImage(blob, 'myfit-weekly-recap.png', 'My week on MyFit')
-      if (result === 'saved') setNote('Picture saved. Share it from your downloads.')
-    } catch (err) {
-      if (!/cancel|abort|dismiss/i.test(err instanceof Error ? `${err.name} ${err.message}` : '')) setNote('Could not share. Please try again.')
-    } finally {
-      setSharing(false)
-    }
-  }
-
   const tiles = [
     { icon: <Dumbbell className="h-4 w-4" />, value: recap.workouts > recap.planned ? `${recap.workouts}` : `${recap.workouts}/${recap.planned}`, label: 'workouts' },
     { icon: <CalendarCheck className="h-4 w-4" />, value: `${recap.sets}`, label: 'sets done' },
@@ -60,10 +40,6 @@ export function WeeklyRecapDialog({ open, onClose, recap, isCurrentWeek }: { ope
             <p className="mt-3 font-body text-sm text-muted-foreground">{recap.note}</p>
           </div>
         </div>
-        <Button className="w-full gap-2" size="lg" onClick={() => void share()} disabled={sharing}>
-          {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />} Share my week
-        </Button>
-        {note && <p className="text-center text-xs text-muted-foreground">{note}</p>}
       </div>
     </Dialog>
   )

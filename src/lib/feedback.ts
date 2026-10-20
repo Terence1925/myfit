@@ -1,6 +1,5 @@
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
 import { isNativeApp } from './platform'
-import { playSound } from './sound'
 
 // A small physical "tick" when something good happens. On the phone app it uses the real haptic motor; in a browser
 // it uses the vibration API where the device has one. It never throws: no vibration is better than an error.
@@ -17,20 +16,4 @@ export function buzz(kind: Buzz): void {
   } catch {
     /* no vibration available */
   }
-}
-
-export interface CelebrationDetail {
-  title: string
-  subtitle?: string
-  /** 'done' = a finished workout, 'record' = a personal record, 'badge' = a badge unlocked. */
-  kind?: 'done' | 'record' | 'badge'
-  /** A big emoji shown instead of the icon (badges). */
-  emoji?: string
-}
-
-/** Shows the confetti and the message (see Celebration.tsx), and gives a success buzz. */
-export function celebrate(detail: CelebrationDetail): void {
-  buzz('done')
-  playSound(detail.kind === 'badge' ? 'badge' : detail.kind === 'record' ? 'record' : 'done')
-  window.dispatchEvent(new CustomEvent<CelebrationDetail>('myfit:celebrate', { detail }))
 }

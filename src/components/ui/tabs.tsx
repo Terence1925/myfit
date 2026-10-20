@@ -60,7 +60,7 @@ export function TabsTrigger({
     <button
       onClick={() => ctx.setValue(value)}
       className={cn(
-        'relative z-10 flex-1 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-semibold font-body transition-colors',
+        'relative z-10 flex-1 whitespace-nowrap rounded-lg px-4 py-3 text-sm font-semibold font-body sm:py-2.5 transition-colors',
         active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
         className,
       )}

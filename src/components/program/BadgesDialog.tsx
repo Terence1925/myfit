@@ -1,9 +1,7 @@
-import * as React from 'react'
-import { Loader2, Lock, Share2 } from 'lucide-react'
+import { Lock } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
 import { Progress } from '@/components/ui/progress'
 import { BADGES, GROUP_LABELS, isEarned, type BadgeDef, type BadgeGroup, type BadgeStats } from '@/lib/badges'
-import { renderBadgeCard, shareImage } from '@/lib/shareCard'
 import { cn } from '@/lib/utils'
 
 const TIER_RING: Record<BadgeDef['tier'], string> = {
@@ -14,25 +12,8 @@ const TIER_RING: Record<BadgeDef['tier'], string> = {
 
 const GROUPS: BadgeGroup[] = ['workouts', 'streak', 'strength', 'food']
 
-export function BadgesDialog({ open, onClose, stats }: { open: boolean; onClose: () => void; stats: BadgeStats }) {
-  const [sharing, setSharing] = React.useState<string | null>(null)
-  const [note, setNote] = React.useState<string | null>(null)
+export function BadgesDialog({ open, onClose, stats, newIds = [] }: { open: boolean; onClose: () => void; stats: BadgeStats; newIds?: string[] }) {
   const earned = BADGES.filter((b) => isEarned(b, stats)).length
-
-  const share = async (badge: BadgeDef) => {
-    setSharing(badge.id)
-    setNote(null)
-    try {
-      const blob = await renderBadgeCard(badge)
-      const result = await shareImage(blob, `myfit-${badge.id}.png`, `I earned "${badge.title}" on MyFit!`)
-      if (result === 'saved') setNote('Picture saved. Share it from your downloads.')
-    } catch (err) {
-      // Closing the share sheet is not a problem
-      if (!/cancel|abort|dismiss/i.test(err instanceof Error ? `${err.name} ${err.message}` : '')) setNote('Could not share this one. Please try again.')
-    } finally {
-      setSharing(null)
-    }
-  }
 
   return (
     <Dialog open={open} onClose={onClose} title="Your badges" className="max-w-lg">
@@ -71,15 +52,8 @@ export function BadgesDialog({ open, onClose, stats }: { open: boolean; onClose:
                     <div className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
                       {got ? b.blurb : `${value} / ${b.target}`}
                     </div>
-                    {got && (
-                      <button
-                        onClick={() => void share(b)}
-                        disabled={sharing !== null}
-                        aria-label={`Share the ${b.title} badge`}
-                        className="mt-2 inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary disabled:opacity-50"
-                      >
-                        {sharing === b.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Share2 className="h-3 w-3" />} Share
-                      </button>
+                    {got && newIds.includes(b.id) && (
+                      <span className="absolute right-1.5 top-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary-foreground">New</span>
                     )}
                   </div>
                 )
@@ -87,7 +61,6 @@ export function BadgesDialog({ open, onClose, stats }: { open: boolean; onClose:
             </div>
           </div>
         ))}
-        {note && <p className="text-center text-xs text-muted-foreground">{note}</p>}
       </div>
     </Dialog>
   )

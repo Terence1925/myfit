@@ -1,7 +1,6 @@
-// Short, soft sounds made in code (no sound files): a tick when a set is ticked, and little chimes for a finished workout,
-// a badge and a record. They are quiet on purpose and can be switched off in Account. Stored in localStorage `myfit_sound`
+// A short, soft tick made in code (no sound file) when a set is ticked. It is quiet on purpose and can be switched off in Account. Stored in localStorage `myfit_sound`
 // ('0' = off). It never throws: a phone or browser that cannot play audio simply stays silent.
-export type SoundKind = 'tick' | 'done' | 'badge' | 'record'
+export type SoundKind = 'tick'
 
 export function soundOn(): boolean {
   try {
@@ -22,9 +21,6 @@ export function setSoundOn(on: boolean): void {
 /** Notes (Hz), how long each one rings, and how loud (kept low). */
 export const SOUNDS: Record<SoundKind, { notes: number[]; step: number; length: number; gain: number }> = {
   tick: { notes: [880], step: 0, length: 0.09, gain: 0.05 },
-  done: { notes: [523.25, 659.25, 783.99], step: 0.11, length: 0.35, gain: 0.07 },
-  badge: { notes: [783.99, 1046.5], step: 0.13, length: 0.4, gain: 0.07 },
-  record: { notes: [523.25, 659.25, 783.99, 1046.5], step: 0.1, length: 0.4, gain: 0.07 },
 }
 
 let ctx: AudioContext | null = null
