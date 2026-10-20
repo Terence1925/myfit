@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="wg_bg">#191A1F</color>
+    <color name="wg_text">#F4F4F5</color>
+    <color name="wg_muted">#A1A1AA</color>
+    <color name="wg_accent">#B5F13B</color>
+    <color name="wg_lime">#B5F13B</color>
+    <color name="wg_on_lime">#14161A</color>
+    <color name="wg_dot_border">#3B3C44</color>
+    <color name="wg_chip_bg">#26272D</color>
+    <color name="wg_bar_bg">#3B3C44</color>
+</resources>

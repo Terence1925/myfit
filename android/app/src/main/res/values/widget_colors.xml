@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget colours: light by default, dark when the phone is in dark mode (see values-night). -->
+<resources>
+    <color name="wg_bg">#FFFFFF</color>
+    <color name="wg_text">#14161A</color>
+    <color name="wg_muted">#6B7280</color>
+    <color name="wg_accent">#4D7A0A</color>
+    <color name="wg_lime">#84CC16</color>
+    <color name="wg_on_lime">#14161A</color>
+    <color name="wg_dot_border">#D1D5DB</color>
+    <color name="wg_chip_bg">#F1F5F9</color>
+    <color name="wg_bar_bg">#E5E7EB</color>
+</resources>

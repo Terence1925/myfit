@@ -25,6 +25,7 @@ import { hasProAccess } from '@/lib/billing'
 import { syncTrialReminder } from '@/lib/trialReminder'
 import { stopRestTimer, useRestTimer } from '@/lib/restTimerStore'
 import { syncWorkoutReminders } from '@/lib/workoutReminder'
+import { clearWidget, syncWidget } from '@/lib/widgetSync'
 import { RestTimerHost } from '@/components/program/RestTimerBar'
 import NotFound from '@/pages/NotFound'
 
@@ -67,6 +68,25 @@ function AppShell() {
       window.removeEventListener('myfit:reminders-changed', resync)
     }
   }, [profileId])
+
+  // Keep the Android home-screen widget current: today's workout, the week and the streak. It is refreshed when the app
+  // opens, after a workout is saved, and whenever the app goes to or comes back from the background. Signing out clears it.
+  const firstName = profile?.displayName?.trim().split(/\s+/)[0]
+  React.useEffect(() => {
+    if (loading) return
+    if (!profileId) {
+      void clearWidget()
+      return
+    }
+    const sync = () => void syncWidget(profileId, firstName)
+    sync()
+    window.addEventListener('myfit:session-saved', sync)
+    document.addEventListener('visibilitychange', sync)
+    return () => {
+      window.removeEventListener('myfit:session-saved', sync)
+      document.removeEventListener('visibilitychange', sync)
+    }
+  }, [loading, profileId, firstName])
 
   // Signing out ends any running rest (but wait for the session check on startup before judging).
   React.useEffect(() => {
