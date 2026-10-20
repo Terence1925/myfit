@@ -68,3 +68,15 @@ export function setsThisWeek(saved: SavedWorkout[], now: Date = new Date()): num
     .filter((s) => new Date(s.date).getTime() >= monday)
     .reduce((sum, s) => sum + s.exercises.reduce((n, e) => n + e.sets.filter((x) => x.completed).length, 0), 0)
 }
+
+/** The two lines next to the weekly progress ring. */
+export function ringText(done: number, needed: number, planned: number): { title: string; note: string } {
+  const title = `${done} of ${planned} workout${planned === 1 ? '' : 's'} this week`
+  if (done >= planned) return { title, note: 'Perfect week! Every workout done.' }
+  if (done >= needed) {
+    const left = planned - done
+    return { title, note: `Streak secured this week. ${left} more for a perfect week.` }
+  }
+  const left = needed - done
+  return { title, note: `${left} more workout${left === 1 ? '' : 's'} keeps your streak going.` }
+}

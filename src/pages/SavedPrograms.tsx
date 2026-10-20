@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 import { Trash2, Eye, X, CalendarClock } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -18,10 +19,12 @@ export default function SavedPrograms() {
   const { profile } = useAuth()
   const [list, setList] = React.useState<WorkoutProgram[]>([])
   const [viewing, setViewing] = React.useState<WorkoutProgram | null>(null)
+  const [loaded, setLoaded] = React.useState(false)
 
   const refresh = React.useCallback(async () => {
     if (!profile) return
     setList(await programs.listForUser(profile.id))
+    setLoaded(true)
   }, [profile])
 
   React.useEffect(() => {
@@ -37,6 +40,16 @@ export default function SavedPrograms() {
           <X className="h-4 w-4" /> Close
         </Button>
         <ProgramView program={viewing} userId={profile.id} onProgramUpdate={setViewing} />
+      </div>
+    )
+  }
+
+  if (!loaded) {
+    return (
+      <div className="container space-y-4 py-8 sm:py-12" aria-busy="true">
+        <Skeleton className="h-10 w-56" />
+        <Skeleton className="h-28 rounded-2xl" />
+        <Skeleton className="h-28 rounded-2xl" />
       </div>
     )
   }

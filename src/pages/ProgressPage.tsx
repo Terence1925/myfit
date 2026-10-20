@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 import { Trash2, TrendingDown, TrendingUp, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -19,6 +20,7 @@ export default function ProgressPage() {
   const { profile, role } = useAuth()
   const [unit, setUnit] = React.useState<'lbs' | 'kg'>('lbs')
   const [entries, setEntries] = React.useState<BodyMetricEntry[]>([])
+  const [loaded, setLoaded] = React.useState(false)
   const [date, setDate] = React.useState(() => new Date().toISOString().slice(0, 10))
   const [weight, setWeight] = React.useState('')
   const [bodyFat, setBodyFat] = React.useState('')
@@ -27,6 +29,7 @@ export default function ProgressPage() {
   const refresh = React.useCallback(async () => {
     if (!profile) return
     setEntries(await metrics.listForUser(profile.id))
+    setLoaded(true)
   }, [profile])
 
   React.useEffect(() => {
@@ -41,6 +44,16 @@ export default function ProgressPage() {
         title="PROGRESS TRACKING"
         description="Log your weight and body metrics over time, see your trend charted, and track exactly how your program is working. Upgrade to Pro to unlock it."
       />
+    )
+  }
+
+  if (!loaded) {
+    return (
+      <div className="container max-w-3xl space-y-4 py-8 sm:py-12" aria-busy="true">
+        <Skeleton className="h-10 w-56" />
+        <Skeleton className="h-56 rounded-2xl" />
+        <Skeleton className="h-40 rounded-2xl" />
+      </div>
     )
   }
 

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -32,7 +33,17 @@ export default function FoodPage() {
     }
   }, [profileId])
 
-  if (!profile || !loaded) return null
+  if (!profile) return null
+  if (!loaded) {
+    return (
+      <div className="container max-w-2xl space-y-4 py-8 sm:py-12" aria-busy="true">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-40 rounded-2xl" />
+        <Skeleton className="h-24 rounded-2xl" />
+        <Skeleton className="h-24 rounded-2xl" />
+      </div>
+    )
+  }
 
   return (
     <div className="container max-w-2xl py-8 sm:py-12">

@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro } from '@/lib/billing'
 import { useStorePrices } from '@/lib/storePrices'
+import { playSound, setSoundOn, soundOn } from '@/lib/sound'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
 import { WorkoutReminders } from '@/components/account/WorkoutReminders'
@@ -29,6 +30,7 @@ export default function AccountPage() {
   const [searchParams] = useSearchParams()
   const [syncing, setSyncing] = React.useState(false)
   const { choice: themeChoice, setChoice: setThemeChoice } = useTheme()
+  const [sound, setSound] = React.useState(() => soundOn())
   const [confirmingDelete, setConfirmingDelete] = React.useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = React.useState('')
   const [deleting, setDeleting] = React.useState(false)
@@ -272,6 +274,34 @@ export default function AccountPage() {
         </Card>
 
         <WorkoutReminders userId={profile.id} />
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Sounds</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex rounded-lg border border-border p-1">
+              {([true, false] as const).map((on) => (
+                <button
+                  key={String(on)}
+                  type="button"
+                  onClick={() => {
+                    setSound(on)
+                    setSoundOn(on)
+                    if (on) playSound('tick')
+                  }}
+                  className={
+                    'flex-1 rounded-md py-2 text-sm font-semibold transition-colors ' +
+                    (sound === on ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground')
+                  }
+                >
+                  {on ? 'On' : 'Off'}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">A soft tick when you finish a set, and a chime for a finished workout or a badge. It follows your phone's media volume.</p>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardContent className="flex items-center justify-between gap-3 p-4">

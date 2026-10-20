@@ -28,6 +28,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/context/AuthContext'
 import { foodLog } from '@/lib/backend/api'
 import { hasProAccess } from '@/lib/billing'
@@ -117,6 +118,8 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [addMeal, setAddMeal] = React.useState<MealType | null>(null)
+  // True until the first load finishes (then switching days does not flash the placeholders again)
+  const firstLoad = React.useRef(true)
 
   const load = React.useCallback(async () => {
     try {
@@ -126,6 +129,7 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
       setError('Could not load your food log. Check your connection and try again.')
     } finally {
       setLoading(false)
+      firstLoad.current = false
     }
   }, [userId, date])
 
@@ -150,6 +154,18 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
       setError('Could not delete that item.')
       void load()
     }
+  }
+
+  if (loading && firstLoad.current && !error) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-36 rounded-2xl" />
+        <Skeleton className="h-20 rounded-2xl" />
+        <Skeleton className="h-20 rounded-2xl" />
+        <Skeleton className="h-20 rounded-2xl" />
+      </div>
+    )
   }
 
   return (

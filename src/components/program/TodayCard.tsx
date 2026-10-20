@@ -1,13 +1,15 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { CalendarCheck, Check, Dumbbell, Flame, Play } from 'lucide-react'
+import { CalendarCheck, Check, Dumbbell, Flame, Play, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ProgressRing } from '@/components/ui/progress-ring'
 import { useAuth } from '@/context/AuthContext'
 import { sessions } from '@/lib/backend/api'
 import { allDoneMessage, greeting, pepTalk } from '@/lib/encouragement'
 import { buzz } from '@/lib/feedback'
 import { computeStreak, countedDates } from '@/lib/streak'
-import { nextWorkoutDay, setsThisWeek, weekDots, workoutsThisMonth } from '@/lib/todayPlan'
+import { nextWorkoutDay, ringText, setsThisWeek, weekDots, workoutsThisMonth } from '@/lib/todayPlan'
+import { liftedComparison } from '@/lib/lifted'
 import type { WorkoutProgram, WorkoutSession } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -40,6 +42,8 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
   const streak = computeStreak(countedDates(list), days.length, now)
   const month = workoutsThisMonth(list, now)
   const sets = setsThisWeek(list, now)
+  const ring = ringText(streak.doneThisWeek, streak.needed, days.length)
+  const lifted = liftedComparison(list, now)
   const mindBody = next?.exercises.some((e) => e.format === 'yoga' || e.format === 'pilates')
 
   return (
@@ -80,6 +84,14 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           ))}
         </div>
 
+        <div className="mt-3 flex items-center gap-4 rounded-2xl bg-secondary/40 px-4 py-3">
+          <ProgressRing value={Math.min(streak.doneThisWeek, days.length)} goal={days.length} label={ring.title} />
+          <div className="min-w-0">
+            <div className="font-body text-sm font-bold">{ring.title}</div>
+            <div className="mt-0.5 font-body text-xs text-muted-foreground">{ring.note}</div>
+          </div>
+        </div>
+
         {next ? (
           <div className="mt-3 rounded-2xl border border-border bg-background/50 p-4">
             <div className="text-xs font-bold uppercase tracking-widest text-primary">Next up · Day {next.day}</div>
@@ -114,6 +126,12 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           <Stat icon={<CalendarCheck className="h-4 w-4 text-primary" />} value={`${month}`} label="this month" />
           <Stat icon={<Dumbbell className="h-4 w-4 text-primary" />} value={`${sets}`} label={mindBody ? 'moves this week' : 'sets this week'} />
         </div>
+        {lifted.message && (
+          <div className="mt-3 flex items-start gap-2 rounded-xl bg-primary/10 px-3 py-2.5 font-body text-sm">
+            <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <span>{lifted.message}</span>
+          </div>
+        )}
       </div>
     </motion.div>
   )

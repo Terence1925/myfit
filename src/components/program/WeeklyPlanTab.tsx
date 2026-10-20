@@ -11,6 +11,7 @@ import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerSt
 import { buildLog, clearDraft, loadDraft, reconcileLog, saveDraft } from '@/lib/workoutLog'
 import { dayProgress, historyRows } from '@/lib/streak'
 import { buzz, celebrate } from '@/lib/feedback'
+import { playSound } from '@/lib/sound'
 import { doneMessage, recordMessage } from '@/lib/encouragement'
 import { findPersonalRecords } from '@/lib/progressiveOverload'
 import type { ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
@@ -123,6 +124,7 @@ export function WeeklyPlanTab({
     if (field === 'completed' && value === true) {
       startRest(exerciseIndex, setIndex)
       buzz('set')
+      playSound('tick')
     }
     const next = log.map((exLog, i) =>
       i !== exerciseIndex
