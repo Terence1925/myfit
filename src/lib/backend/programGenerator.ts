@@ -645,6 +645,8 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
       const ordered = [...extras.filter((e) => e.compound), ...extras.filter((e) => !e.compound)]
       for (const ex of ordered) {
         if (exercises.length >= 4) break
+        // A session never needs a second deadlift-style lift just to fill the day (a repeat is a last resort)
+        if (HINGE_NAMES.has(ex.name) && exercises.some((e) => HINGE_NAMES.has(e.name)) && ordered.some((o) => !HINGE_NAMES.has(o.name) && !inDay.has(o.name) && !exercises.some((e) => e.name === o.name))) continue
         exercises.push(makeEntry(ex, ex.compound && exercises.length === 0))
         usedNames.add(ex.name)
         for (const m of ex.muscle) if (!addedMuscles.includes(m)) addedMuscles.push(m)

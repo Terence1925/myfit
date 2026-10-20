@@ -134,13 +134,14 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
           <p>BMR (Mifflin-St Jeor) = 10 × weight(kg) + 6.25 × height(cm) − 5 × age (+5 male / −161 female)</p>
           <p>TDEE = BMR × activity factor</p>
           <p>Calorie target = TDEE adjusted for your goal and recovery capacity</p>
-          <p>Protein = 1.9-2.2g/kg &middot; Fat = ~26.5% of calories &middot; Carbs = remainder</p>
+          <p>Macros = 40% carbs &middot; 30% protein &middot; 30% fat of your calories</p>
+          <p>Protein stays between 1.6 and 2.4g per kg of body weight; carbs and fat adjust to fit</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">AI Nutrition Tips</CardTitle>
+          <CardTitle className="text-lg">Nutrition Tips</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-3">

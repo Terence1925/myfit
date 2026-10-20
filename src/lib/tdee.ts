@@ -128,6 +128,9 @@ export function getRecoveryTier(score: number, style: RecoveryStyle = 'strength'
   }
 }
 
+/** The macro split (share of calories) and the protein limits per kg of body weight. */
+export const MACROS = { protein: 0.3, carbs: 0.4, fat: 0.3, proteinMinPerKg: 1.6, proteinMaxPerKg: 2.4 }
+
 export function calculateNutrition(answers: IntakeAnswers): NutritionPlan {
   const weightKg = answers.weightUnit === 'lbs' ? lbsToKg(answers.weight) : answers.weight
   const heightCm = feetInchesToCm(answers.heightFeet, answers.heightInches)
@@ -148,16 +151,17 @@ export function calculateNutrition(answers: IntakeAnswers): NutritionPlan {
     calorieTarget = tdee
   }
 
-  const proteinPerKg = goalMode === 'cutting' ? 2.2 : 1.9
-  const proteinG = Math.round(weightKg * proteinPerKg)
-  const proteinKcal = proteinG * 4
-
-  const fatPct = 0.265
-  const fatKcal = calorieTarget * fatPct
-  const fatG = Math.round(fatKcal / 9)
-
-  const remainingKcal = Math.max(0, calorieTarget - proteinKcal - fatG * 9)
-  const carbsG = Math.round(remainingKcal / 4)
+  // Macros: 30% protein, 40% carbs, 30% fat of the calories. Protein is kept within a sensible range for the person's
+  // body weight (a very light person would get too little, a very heavy one far more than helps), and carbs and fat share
+  // whatever calories are left in the same 40:30 proportion.
+  const { proteinMinPerKg, proteinMaxPerKg } = MACROS
+  const proteinG = Math.round(
+    Math.min(Math.max((calorieTarget * MACROS.protein) / 4, weightKg * proteinMinPerKg), weightKg * proteinMaxPerKg),
+  )
+  const remainingKcal = Math.max(0, calorieTarget - proteinG * 4)
+  const carbShare = MACROS.carbs / (MACROS.carbs + MACROS.fat)
+  const carbsG = Math.round((remainingKcal * carbShare) / 4)
+  const fatG = Math.round((remainingKcal * (1 - carbShare)) / 9)
 
   const weeklyShiftKcal = Math.round((calorieTarget - tdee) * 7)
 
