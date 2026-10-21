@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/context/AuthContext'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
-import { programs } from '@/lib/backend/api'
+import { programs, sessions } from '@/lib/backend/api'
 import { TRIAL_DAYS, firstPaymentDate } from '@/lib/billing'
 import { useStorePrices } from '@/lib/storePrices'
 import { storeName } from '@/lib/platform'
+import { countedDates } from '@/lib/streak'
 import { goalLabelOf } from '@/lib/goalLabel'
 import type { Equipment, FocusArea, ProgramData, WorkoutProgram } from '@/lib/types'
 
@@ -54,6 +55,25 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
   const firstDay = data.days[0]
   const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const payDate = firstPaymentDate()
+  // Day 1 finished (at least half its sets, or marked done): the natural moment to offer the trial
+  const [day1Done, setDay1Done] = React.useState(false)
+  React.useEffect(() => {
+    if (!profile) return
+    let cancelled = false
+    const check = async () => {
+      const saved = await sessions.listForUser(profile.id).catch(() => [])
+      if (!cancelled) setDay1Done(countedDates(saved.filter((x) => x.programId === program.id && x.day === 1)).length > 0)
+    }
+    void check()
+    window.addEventListener('myfit:session-saved', check)
+    return () => {
+      cancelled = true
+      window.removeEventListener('myfit:session-saved', check)
+    }
+  }, [profile, program.id])
+  const trialLine = pricesLoading
+    ? `${TRIAL_DAYS} days free. Cancel any time and you pay nothing.`
+    : `${TRIAL_DAYS} days free, then ${prices.yearly} a year. Cancel any time before then and you pay nothing.`
 
   const chips = [
     goalLabelOf(answers),
@@ -136,6 +156,25 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
 
       {firstDay && profile && (
         <section className="mt-10">
+          {day1Done ? (
+            <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-gradient">
+                  <Check className="h-5 w-5 text-primary-foreground" strokeWidth={3} />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl tracking-wide text-gradient-gold">DAY 1 DONE</h2>
+                  <p className="mt-0.5 font-body text-sm text-muted-foreground">
+                    Your plan has {data.days.length - 1} more {data.days.length - 1 === 1 ? 'day' : 'days'} built for you. Start your {TRIAL_DAYS}-day free trial to unlock {data.days.length - 1 === 1 ? 'it' : 'them'}.
+                  </p>
+                </div>
+              </div>
+              <Button size="lg" className="mt-4 w-full gap-2" onClick={() => navigate('/pricing')}>
+                <Crown className="h-4 w-4" /> Start free trial
+              </Button>
+              <p className="mt-2 text-center text-xs text-muted-foreground">{trialLine}</p>
+            </div>
+          ) : (
           <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4 sm:p-5">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-gradient">
@@ -149,6 +188,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
               </div>
             </div>
           </div>
+          )}
           <div className="mt-5">
             <WeeklyPlanTab
               program={{ ...data, days: [firstDay] }}
@@ -165,22 +205,27 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
 
       {data.days.length > 1 && (
         <div className="mt-8">
-          <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">The rest of your week</div>
+          <div className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">The rest of your week</div>
+          <p className="mb-3 font-body text-sm text-muted-foreground">These days unlock when you start your {TRIAL_DAYS}-day free trial.</p>
           <div className="space-y-2">
             {data.days.slice(1).map((day) => (
-              <div
+              <button
                 key={day.day}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/60 px-4 py-3"
+                type="button"
+                onClick={() => navigate('/pricing')}
+                className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/60 px-4 py-3 text-left transition-colors hover:border-primary/40"
               >
                 <div className="min-w-0">
                   <div className="text-xs font-bold uppercase tracking-widest text-primary">Day {day.day}</div>
                   <div className="truncate font-body font-bold">{day.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {day.exercises.length} {day.exercises[0]?.format === 'yoga' ? 'poses' : day.exercises[0]?.format === 'pilates' ? 'moves' : 'exercises'} · unlocks with your free trial
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
-                  <span>{day.exercises.length} {day.exercises[0]?.format === 'yoga' ? 'poses' : day.exercises[0]?.format === 'pilates' ? 'moves' : 'exercises'}</span>
-                  <Lock className="h-3.5 w-3.5" />
-                </div>
-              </div>
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-3 py-1.5 text-xs font-bold text-primary">
+                  <Lock className="h-3.5 w-3.5" /> Unlock
+                </span>
+              </button>
             ))}
           </div>
         </div>
@@ -191,7 +236,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
           <div className="text-center">
             <div className="font-display text-2xl tracking-wide">START YOUR {TRIAL_DAYS}-DAY FREE TRIAL</div>
             <p className="mt-1 font-body text-sm text-muted-foreground">
-              Unlock every day of your program, your progress history and your nutrition plan.
+              Unlock all {data.days.length} days of your program, your nutrition plan, progress history and charts.
             </p>
           </div>
 
@@ -253,6 +298,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
           <Button size="lg" className="w-full gap-2" onClick={() => navigate('/pricing')}>
             <Crown className="h-4 w-4" /> Start {TRIAL_DAYS}-day free trial
           </Button>
+          <p className="mt-1.5 text-center text-[11px] leading-tight text-muted-foreground">{trialLine}</p>
         </div>
       </div>
     </div>
