@@ -1,5 +1,6 @@
 import { calculateNutrition } from '../tdee'
 import { isPro } from '../billing'
+import { BLOCK_DAYS, blockStatus } from '../programBlock'
 import type {
   AppliedCode,
   CodeRedemption,
@@ -41,7 +42,9 @@ const ACTIVITY_KEY = 'activity'
 const METRICS_KEY = 'metrics'
 const SESSIONS_KEY = 'sessions'
 
-const PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
+// A program is a 13-week block (12 weeks of training and a deload week), see lib/programBlock.ts. It is kept after that so
+// people can look back at it; it just stops being the active program.
+const PROGRAM_LIFETIME_MS = BLOCK_DAYS * 24 * 60 * 60 * 1000
 
 function ensureSeedAdmin() {
   const users = readAll<StoredUser>(USERS_KEY)
@@ -270,27 +273,20 @@ export const roles = {
   },
 }
 
-function purgeExpired(): void {
-  const all = readAll<WorkoutProgram>(PROGRAMS_KEY)
-  const now = Date.now()
-  const active = all.filter((p) => new Date(p.expiresAt).getTime() > now)
-  if (active.length !== all.length) writeAll(PROGRAMS_KEY, active)
-}
-
 export const programs = {
   async generate(userId: string, answers: IntakeAnswers): Promise<WorkoutProgram> {
-    purgeExpired()
     const isAdmin = await roles.isAdmin(userId)
     const profile = await profiles.get(userId)
     const isProUser = isAdmin || isPro(profile)
     const existing = await programs.listForUser(userId)
-    if (!isProUser && existing.length >= 1) {
+    // A finished program (after its deload week) does not count: a new one can always be made
+    if (!isProUser && existing.filter((p) => !blockStatus(p.createdAt).complete).length >= 1) {
       throw new Error('PROGRAM_LIMIT_REACHED')
     }
     const nutrition = calculateNutrition(answers)
     await profiles.saveIntake(userId, answers, nutrition)
     await new Promise((r) => setTimeout(r, 1400))
-    const programData = generateProgram(answers, nutrition)
+    const programData = generateProgram(answers, nutrition, existing.filter((p) => blockStatus(p.createdAt).complete).length)
     const now = Date.now()
     const program: WorkoutProgram = {
       id: uid(),
@@ -320,14 +316,12 @@ export const programs = {
   },
 
   async listForUser(userId: string): Promise<WorkoutProgram[]> {
-    purgeExpired()
     return readAll<WorkoutProgram>(PROGRAMS_KEY)
       .filter((p) => p.userId === userId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   },
 
   async listAll(): Promise<WorkoutProgram[]> {
-    purgeExpired()
     return readAll<WorkoutProgram>(PROGRAMS_KEY).sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )

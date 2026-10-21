@@ -8,6 +8,8 @@ import { WelcomeTour } from '@/components/intake/WelcomeTour'
 import { markTourSeen, tourSeen } from '@/lib/tour'
 import { ProgramView } from '@/components/program/ProgramView'
 import { ProgramPaywall } from '@/components/program/ProgramPaywall'
+import { ProgramComplete } from '@/components/program/ProgramComplete'
+import { BLOCK_WEEKS, blockStatus } from '@/lib/programBlock'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { programs } from '@/lib/backend/api'
@@ -26,6 +28,7 @@ export default function Home() {
   const [submitting, setSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [tourOpen, setTourOpen] = React.useState(true)
+  const [lookingBack, setLookingBack] = React.useState(false)
 
   // Keyed on the user's id, not the whole profile object: the profile is re-fetched whenever the app
   // resumes or the session refreshes, and reloading the program each time would hand every screen below a
@@ -127,6 +130,27 @@ export default function Home() {
   if (mode === 'program' && program) {
     // Wait for the role lookup so an admin never sees a flash of the paywall.
     if (roleLoading) return null
+    // After the 12 weeks and the deload week: a summary, a way to the next program, and a view-only look back.
+    if (blockStatus(program.createdAt).complete) {
+      if (!lookingBack) {
+        return (
+          <ProgramComplete program={program} userId={profile.id} onGenerate={() => setMode('intake')} onView={() => setLookingBack(true)} />
+        )
+      }
+      return (
+        <div className="container py-8 sm:py-12">
+          <div className="mb-4 flex flex-wrap justify-between gap-2">
+            <Button variant="outline" size="sm" onClick={() => setLookingBack(false)}>
+              Back
+            </Button>
+            <Button size="sm" className="gap-1.5" onClick={() => setMode('intake')}>
+              <Plus className="h-4 w-4" /> Generate your next {BLOCK_WEEKS} weeks
+            </Button>
+          </div>
+          <ProgramView program={program} userId={profile.id} onProgramUpdate={setProgram} readOnly />
+        </div>
+      )
+    }
     // Everyone can build their program (that's the hook); using it needs a subscription.
     if (!proAccess) {
       return (

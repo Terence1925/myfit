@@ -1,5 +1,6 @@
 import { calculateNutrition } from '../tdee'
 import { isPro } from '../billing'
+import { BLOCK_DAYS, blockStatus } from '../programBlock'
 import { isNativeApp } from '../platform'
 import type {
   AppliedCode,
@@ -28,10 +29,9 @@ import { getGoogleIdToken, googleSignOut } from './googleAuth'
 // → Redirect URLs (as `<this>/reset-password`) or password-reset links will be rejected.
 const WEB_APP_URL = 'https://getmyfit.vercel.app'
 
-// Programs effectively never expire. Everyone builds their program before subscribing, so a short
-// lifetime would delete it out from under someone who subscribes on day 3. A 100-year lifetime
-// avoids nullable-column edge cases in the .gt('expires_at', ...) queries below.
-const PROGRAM_LIFETIME_MS = 100 * 365 * 24 * 60 * 60 * 1000
+// A program is a 13-week block (12 weeks of training and a deload week), see lib/programBlock.ts. It is kept after that so
+// people can look back at it; it just stops being the active program.
+const PROGRAM_LIFETIME_MS = BLOCK_DAYS * 24 * 60 * 60 * 1000
 
 function sb() {
   if (!supabase) throw new Error('Supabase is not configured.')
@@ -309,20 +309,19 @@ export const roles = {
 
 export const programs = {
   async generate(userId: string, answers: IntakeAnswers): Promise<WorkoutProgram> {
-    await sb().from('workout_programs').delete().lt('expires_at', new Date().toISOString()).eq('user_id', userId)
-
     const isAdmin = await roles.isAdmin(userId)
     const profile = await profiles.get(userId)
     const isProUser = isAdmin || isPro(profile)
     const existing = await programs.listForUser(userId)
-    if (!isProUser && existing.length >= 1) {
+    // A finished program (after its deload week) does not count: a new one can always be made
+    if (!isProUser && existing.filter((p) => !blockStatus(p.createdAt).complete).length >= 1) {
       throw new Error('PROGRAM_LIMIT_REACHED')
     }
 
     const nutrition = calculateNutrition(answers)
     await profiles.saveIntake(userId, answers, nutrition)
     await new Promise((r) => setTimeout(r, 1400))
-    const programData = generateProgram(answers, nutrition)
+    const programData = generateProgram(answers, nutrition, existing.filter((p) => blockStatus(p.createdAt).complete).length)
     const now = Date.now()
 
     const { data, error } = await sb()
@@ -358,7 +357,6 @@ export const programs = {
       .from('workout_programs')
       .select('*')
       .eq('user_id', userId)
-      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
     if (error) throw new Error(error.message)
     return data.map(mapProgram)
@@ -368,7 +366,6 @@ export const programs = {
     const { data, error } = await sb()
       .from('workout_programs')
       .select('*')
-      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
     if (error) throw new Error(error.message)
     return data.map(mapProgram)

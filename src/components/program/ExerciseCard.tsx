@@ -19,9 +19,12 @@ export function ExerciseCard({
   onSetChange,
   userSessions,
   hasProgressAccess,
+  readOnly,
 }: {
   exercise: Exercise
   index: number
+  /** A finished program is view only: no swapping. */
+  readOnly?: boolean
   onSwap: () => void
   swapping: boolean
   logging?: boolean
@@ -80,14 +83,16 @@ export function ExerciseCard({
             </p>
           )}
           <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              onClick={onSwap}
-              disabled={swapping}
-              className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-50"
-            >
-              {swapping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-              Swap
-            </button>
+            {!readOnly && (
+              <button
+                onClick={onSwap}
+                disabled={swapping}
+                className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary disabled:opacity-50"
+              >
+                {swapping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                Swap
+              </button>
+            )}
             <button
               onClick={() => setDemoOpen(true)}
               className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"

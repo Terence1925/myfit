@@ -1,11 +1,13 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Crown, FileDown, Loader2, Lock } from 'lucide-react'
+import { Crown, Eye, FileDown, Loader2, Lock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { OverviewTab } from './OverviewTab'
 import { StreakCard } from './StreakCard'
+import { BlockBanner, BlockChip } from './BlockTimeline'
+import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus } from '@/lib/programBlock'
 import { TodayCard } from './TodayCard'
 import { ProgressTiles } from './ProgressTiles'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
@@ -25,12 +27,16 @@ export function ProgramView({
   program,
   userId,
   onProgramUpdate,
+  readOnly = false,
 }: {
   program: WorkoutProgram
   userId: string
   onProgramUpdate: (p: WorkoutProgram) => void
+  /** A finished 12-week program can be looked at, but not trained from. */
+  readOnly?: boolean
 }) {
   const { profile, role } = useAuth()
+  const block = blockStatus(program.createdAt)
   const navigate = useNavigate()
   // Reopen where the person left off (e.g. Weekly Plan, Day 3) if the app was closed or reloaded while
   // it was in the background.
@@ -83,16 +89,31 @@ export function ProgramView({
   return (
     <div className="space-y-8">
       <div className="space-y-8">
-        <TodayCard
-          program={program}
-          userId={userId}
-          onStart={(day) => {
-            setActiveDay(day)
-            setTab('weekly')
-            // bring the workout into view
-            setTimeout(() => document.getElementById('plan-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
-          }}
-        />
+        {readOnly ? (
+          <div className="flex items-start gap-3 rounded-2xl border border-border bg-card/60 p-4">
+            <Eye className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+            <div>
+              <div className="font-display text-xl tracking-wide">FINISHED PROGRAM</div>
+              <p className="mt-0.5 font-body text-sm text-muted-foreground">
+                You are looking back at a program you completed. It is view only. Generate a new program to keep training.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <BlockBanner status={block} note={block.phase === 'deload' ? DELOAD_ADVICE : FINAL_WEEK_NOTE} />
+            <TodayCard
+              program={program}
+              userId={userId}
+              onStart={(day) => {
+                setActiveDay(day)
+                setTab('weekly')
+                // bring the workout into view
+                setTimeout(() => document.getElementById('plan-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+              }}
+            />
+          </>
+        )}
 
         <ProgressTiles userId={userId} />
 
@@ -137,7 +158,12 @@ export function ProgramView({
           <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-current opacity-[0.08] blur-3xl" />
         </motion.div>
 
-        <StreakCard userId={userId} plannedDays={program.programData.days.length} />
+        {!readOnly && (
+          <>
+            <BlockChip status={block} />
+            <StreakCard userId={userId} plannedDays={program.programData.days.length} />
+          </>
+        )}
 
         <Tabs id="plan-tabs" value={tab} onValueChange={setTab} className="scroll-mt-20">
           <TabsList>
@@ -150,6 +176,7 @@ export function ProgramView({
           <TabsContent value="overview" className="mt-6">
             <OverviewTab
               program={program.programData}
+              createdAt={program.createdAt}
               onSelectDay={(day) => {
                 setActiveDay(day)
                 setTab('weekly')
@@ -166,6 +193,7 @@ export function ProgramView({
               onActiveDayChange={setActiveDay}
               onSwapExercise={handleSwap}
               hasProgressAccess={proAccess}
+              readOnly={readOnly}
             />
           </TabsContent>
 

@@ -20,7 +20,10 @@ export function WeeklyPlanTab({
   onActiveDayChange,
   onSwapExercise,
   hasProgressAccess,
+  readOnly,
 }: {
+  /** A finished program is view only: no logging, no swapping. */
+  readOnly?: boolean
   program: ProgramData
   programId: string
   userId: string
@@ -215,16 +218,18 @@ export function WeeklyPlanTab({
             <div className="flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
               <Clock className="h-4 w-4" /> {day.duration}
             </div>
-            <Button
-              size="sm"
-              variant={loggingMode ? 'secondary' : 'outline'}
-              className="gap-1.5"
-              onClick={toggleLogging}
-            >
-              <ClipboardList className="h-4 w-4" />
-              {loggingMode ? 'Cancel Log' : 'Log Workout'}
-            </Button>
-            {!loggingMode &&
+            {!readOnly && (
+              <Button
+                size="sm"
+                variant={loggingMode ? 'secondary' : 'outline'}
+                className="gap-1.5"
+                onClick={toggleLogging}
+              >
+                <ClipboardList className="h-4 w-4" />
+                {loggingMode ? 'Cancel Log' : 'Log Workout'}
+              </Button>
+            )}
+            {!readOnly && !loggingMode &&
               (doneToday ? (
                 <span className="inline-flex h-9 items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" /> Done today
@@ -280,6 +285,7 @@ export function WeeklyPlanTab({
               onSetChange={(setIndex, field, value) => updateSet(i, setIndex, field, value)}
               userSessions={userSessions}
               hasProgressAccess={hasProgressAccess}
+              readOnly={readOnly}
             />
           ))}
         </div>

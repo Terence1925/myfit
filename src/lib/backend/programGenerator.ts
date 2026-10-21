@@ -16,6 +16,7 @@ import {
 import { DUMBBELL_SLOT_SPECS, DUMBBELL_TEMPLATES, dumbbellKeyFor } from './dumbbellTemplates'
 import { BAND_SLOT_SPECS, BAND_TEMPLATES, bandKeyFor } from './bandTemplates'
 import { buildHomeDays, homeLevelFor, homeProgressionText } from './homeProgram'
+import { trainingBlockFor, type TrainingBlock } from '../programBlock'
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr]
@@ -245,6 +246,8 @@ interface TemplateSlot {
   seconds?: boolean
   eachSide?: boolean
   focusExtra: boolean
+  /** One of the first two lifts of the day: kept the same in every block so strength carries over. */
+  main?: boolean
 }
 
 const HINGE_NAMES = new Set(EXERCISES.filter((e) => e.subgroup === 'hinge').map((e) => e.name))
@@ -297,6 +300,8 @@ function buildTemplateDays(
   tier: ReturnType<typeof getRecoveryTier>,
   scheme: ReturnType<typeof repSchemeFor>,
   holdTime: string,
+  finished = 0,
+  block: TrainingBlock = trainingBlockFor(finished),
 ): { days: ProgramDay[]; label: string; key: string } | null {
   // Reference programs exist for a full gym, dumbbells only and resistance bands. Bodyweight has its own builder (homeProgram.ts).
   const plan = REFERENCE_PLANS[normalizeEquipment(answers.equipment)]
@@ -323,12 +328,29 @@ function buildTemplateDays(
     lines.forEach((line, i) => {
       const spec = specs[i]
       if (!spec) return
-      const ex =
-        spec.picks.map((n) => byName.get(n)).find((e): e is LibraryExercise => allowed(e) && !used.has(e.name)) ??
-        standIn(spec, used, kind, answers.equipment, answers.injuries)
+      const main = i < 2
+      const options = spec.picks.map((n) => byName.get(n)).filter((e): e is LibraryExercise => allowed(e) && !used.has(e.name))
+      // After the first block the accessories rotate: the next option in line (the named alternatives first, then other
+      // moves for the same muscle and movement), so a new program does not repeat the last one. The main lifts stay.
+      if (!main && finished > 0) {
+        const names = new Set(options.map((e) => e.name))
+        const more = poolFor(spec.muscle, answers.equipment, answers.injuries)
+          .filter(
+            (e) =>
+              e.muscle[0] === spec.muscle &&
+              e.subgroup === spec.subgroup &&
+              !names.has(e.name) &&
+              !used.has(e.name) &&
+              (spec.muscle === 'arms' ? armFitsDay(e, kind) : sideFitsDay(e, kind)),
+          )
+          .sort((a, b) => a.name.localeCompare(b.name))
+        options.push(...more)
+      }
+      const turn = !main && finished > 0 && options.length > 1 ? finished % options.length : 0
+      const ex = options[turn] ?? standIn(spec, used, kind, answers.equipment, answers.injuries)
       if (!ex) return
       used.add(ex.name)
-      slots.push({ ex, muscle: spec.muscle, sets: line.sets, reps: line.reps, seconds: line.seconds, eachSide: line.eachSide, focusExtra: false })
+      slots.push({ ex, muscle: spec.muscle, sets: line.sets, reps: line.reps, seconds: line.seconds, eachSide: line.eachSide, focusExtra: false, main })
     })
     return { name: day.name, muscles, kind, used, slots }
   })
@@ -417,11 +439,23 @@ function buildTemplateDays(
             : ex.compound
               ? scheme.compoundReps
               : scheme.accessoryReps
+      // The block sets the rep range (Strength: heavy and low, Size: higher, Peak: heaviest). Timed holds and "to failure"
+      // lines keep what they have, and beginners get gentler ranges.
+      const plain = !hold && !failure && !slot.seconds
+      const beginner = answers.experience === '0-1'
+      const blockReps = !plain
+        ? undefined
+        : slot.main
+          ? beginner && block.number === 2 ? '5-8' : beginner && block.number === 4 ? '5-6' : block.mainReps
+          : slot.focusExtra || ex.subgroup === 'calf' || slot.muscle === 'core'
+            ? undefined
+            : block.accessoryReps
+      const finalReps = blockReps ?? reps
       return {
         name: ex.name,
         sets: Math.min(6, Math.max(2, sets)),
-        reps,
-        rest: hold ? '45-60 sec' : ex.compound ? scheme.rest : '60-75 sec',
+        reps: finalReps,
+        rest: hold ? '45-60 sec' : ex.compound ? (plain && slot.main && block.mainRest) || scheme.rest : '60-75 sec',
         notes: hold
           ? 'Hold with a neutral spine and braced core — stop the set early if form breaks down.'
           : failure
@@ -445,7 +479,8 @@ function buildTemplateDays(
   return { days, label: template.label, key }
 }
 
-export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan): ProgramData {
+/** `finished` is how many 12-week programs this person has already completed: it picks the block of the year and rotates the accessories. */
+export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan, finished = 0): ProgramData {
   // Yoga and Pilates are timed, flowing sessions rather than sets and reps, so they have their own builder.
   if (disciplineOf(answers.equipment) !== 'strength') return generateMindBodyProgram(answers, nutrition)
 
@@ -458,7 +493,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     answers.focusAreas,
   )
   const templated =
-    buildTemplateDays(answers, tier, scheme, holdTime) ?? buildHomeDays(answers, tier, volumeMultiplier(tier.tier))
+    buildTemplateDays(answers, tier, scheme, holdTime, finished) ?? buildHomeDays(answers, tier, volumeMultiplier(tier.tier))
   const isHomeProgram = !!templated && templated.key.includes('-home-')
   const usedNames = new Set<string>()
 
@@ -750,9 +785,12 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     'Prioritize 7-9 hours of sleep on training nights; recovery score recalculates each time you regenerate a program.',
   ]
 
+  // Only the reference programs rotate from block to block (the home and legacy layouts are fixed)
+  const blockInfo = templated && !isHomeProgram ? trainingBlockFor(finished) : null
   return {
     programName: `${goalLabel} Protocol`,
     tagline: `${answers.trainingDays}-day ${equipmentLabel} program built for your ${tier.tier.toLowerCase()} recovery capacity`,
+    ...(blockInfo ? { trainingBlock: { number: blockInfo.number, name: blockInfo.name, summary: blockInfo.summary } } : {}),
     overview: `This program is built around ${goalLabel.toLowerCase()} as the primary objective, using ${equipmentLabel} equipment across ${answers.trainingDays} training days per week. Volume and intensity are calibrated to your ${answers.experience === '0-1' ? 'beginner' : answers.experience} experience level and your current recovery score of ${nutrition.recoveryScore}/100.`,
     personalizationNotes,
     weeklyVolume: `${days.reduce((sum, d) => sum + d.exercises.reduce((s, e) => s + e.sets, 0), 0)} total working sets/week across ${answers.trainingDays} sessions`,

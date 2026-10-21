@@ -2,16 +2,22 @@ import { motion } from 'framer-motion'
 import { CalendarDays, ListChecks, Sparkles, TrendingUp, Waves } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProgramData } from '@/lib/types'
+import { BlockOverviewCard } from './BlockTimeline'
 
 export function OverviewTab({
   program,
+  createdAt,
   onSelectDay,
 }: {
   program: ProgramData
+  /** When the program was generated: week 1 starts that day. */
+  createdAt: string
   onSelectDay: (day: number) => void
 }) {
   return (
     <div className="space-y-8">
+      <BlockOverviewCard createdAt={createdAt} block={program.trainingBlock} />
+
       <Card className="border-primary/20 bg-gradient-to-br from-card to-card/40">
         <CardContent className="p-6 sm:p-8">
           <p className="font-body leading-relaxed text-foreground/90">{program.overview}</p>
