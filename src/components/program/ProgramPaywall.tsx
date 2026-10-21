@@ -198,6 +198,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
               onActiveDayChange={() => undefined}
               onSwapExercise={handleSwap}
               hasProgressAccess={false}
+              startedAt={program.createdAt}
             />
           </div>
         </section>

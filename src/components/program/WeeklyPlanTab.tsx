@@ -5,6 +5,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseCard } from './ExerciseCard'
+import { WeekTargetCard } from './WeekTargetCard'
+import { blockStatus } from '@/lib/programBlock'
+import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
+import { warmupFor } from '@/lib/warmup'
 import { sessions } from '@/lib/backend/api'
 import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
@@ -21,7 +25,10 @@ export function WeeklyPlanTab({
   onSwapExercise,
   hasProgressAccess,
   readOnly,
+  startedAt,
 }: {
+  /** When the program was generated: it sets which week's targets show. Leave out to show the plan as written. */
+  startedAt?: string
   /** A finished program is view only: no logging, no swapping. */
   readOnly?: boolean
   program: ProgramData
@@ -41,7 +48,11 @@ export function WeeklyPlanTab({
   const [userSessions, setUserSessions] = React.useState<WorkoutSession[]>([])
   const [justSaved, setJustSaved] = React.useState(false)
 
-  const day = program.days.find((d) => d.day === activeDay) ?? program.days[0]
+  // This week's targets (effort, aim for each exercise, half the sets in the deload week). A finished program is shown as written.
+  const target = startedAt && !readOnly ? weekTarget(blockStatus(startedAt).week) : null
+  const planned = program.days.find((d) => d.day === activeDay) ?? program.days[0]
+  const day = target ? dayForWeek(planned, target) : planned
+  const suggestions = day.exercises.map((ex, i) => (target ? suggestFor(userSessions, ex, target, { main: i < 2 }) : null))
 
   const startRest = (exerciseIndex: number, setIndex: number) => {
     const ex = day.exercises[exerciseIndex]
@@ -211,6 +222,8 @@ export function WeeklyPlanTab({
         </Tabs>
       )}
 
+      {target && <WeekTargetCard target={target} />}
+
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
           <h3 className="font-display text-2xl tracking-wide">{day.name}</h3>
@@ -286,6 +299,8 @@ export function WeeklyPlanTab({
               userSessions={userSessions}
               hasProgressAccess={hasProgressAccess}
               readOnly={readOnly}
+              suggestion={suggestions[i]}
+              warmup={target ? warmupFor(day.exercises, i, suggestions[i]?.weight, target) : null}
             />
           ))}
         </div>

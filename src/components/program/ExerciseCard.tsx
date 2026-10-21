@@ -1,11 +1,13 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Check, Crown, Loader2, PlayCircle, RefreshCw, TrendingUp } from 'lucide-react'
+import { Check, ChevronDown, Crown, Flame, Loader2, PlayCircle, RefreshCw, Target, TrendingUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
 import { ExerciseHistoryDialog } from './ExerciseHistoryDialog'
 import { lastSessionHint } from '@/lib/progressiveOverload'
+import type { Suggestion } from '@/lib/weekPlan'
+import type { WarmupPlan } from '@/lib/warmup'
 import { cn } from '@/lib/utils'
 import type { Exercise, SetLog, WorkoutSession } from '@/lib/types'
 
@@ -20,11 +22,17 @@ export function ExerciseCard({
   userSessions,
   hasProgressAccess,
   readOnly,
+  suggestion,
+  warmup,
 }: {
   exercise: Exercise
   index: number
   /** A finished program is view only: no swapping. */
   readOnly?: boolean
+  /** This week's aim for the exercise, worked out from what was logged before. */
+  suggestion?: Suggestion | null
+  /** Warm-up sets for a heavy opening lift (shown, not logged). */
+  warmup?: WarmupPlan | null
   onSwap: () => void
   swapping: boolean
   logging?: boolean
@@ -36,6 +44,7 @@ export function ExerciseCard({
   const navigate = useNavigate()
   const [demoOpen, setDemoOpen] = React.useState(false)
   const [historyOpen, setHistoryOpen] = React.useState(false)
+  const [warmupOpen, setWarmupOpen] = React.useState(false)
   // Yoga and Pilates flow from move to move: no sets table, no rest, no weights to track.
   const mindBody = exercise.format === 'yoga' || exercise.format === 'pilates'
   const hint = logging && !mindBody ? lastSessionHint(userSessions, exercise.name) : null
@@ -77,7 +86,53 @@ export function ExerciseCard({
           {exercise.notes && (
             <p className="mt-2 text-sm text-muted-foreground font-body">{exercise.notes}</p>
           )}
-          {hint && (
+          {suggestion && (
+            <div className="mt-2">
+              <p className="flex items-start gap-1.5 text-xs font-semibold text-primary">
+                <Target className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span>This week: {suggestion.aim}</span>
+              </p>
+              {suggestion.coach && <p className="mt-1 pl-5 text-xs leading-relaxed text-muted-foreground">{suggestion.coach}</p>}
+            </div>
+          )}
+          {warmup && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => setWarmupOpen((o) => !o)}
+                aria-expanded={warmupOpen}
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+              >
+                <Flame className="h-3.5 w-3.5" /> Warm up first
+                <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', warmupOpen && 'rotate-180')} />
+              </button>
+              {warmupOpen && (
+                <div className="mt-2 rounded-lg border border-border/60 bg-background/40 p-3">
+                  {warmup.rows.length > 0 && (
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                          <th className="py-1 pr-2">Set</th>
+                          <th className="py-1 pr-2">Weight</th>
+                          <th className="py-1">Reps</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {warmup.rows.map((r, n) => (
+                          <tr key={n} className="border-t border-border/60">
+                            <td className="py-2 pr-2">{n + 1}</td>
+                            <td className="py-2 pr-2">{r.label}</td>
+                            <td className="py-2">{r.reps}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                  <p className={cn('text-xs text-muted-foreground', warmup.rows.length > 0 && 'mt-2')}>{warmup.note}</p>
+                </div>
+              )}
+            </div>
+          )}
+          {hint && !suggestion && (
             <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-primary">
               <TrendingUp className="h-3.5 w-3.5" /> {hint}
             </p>

@@ -194,6 +194,7 @@ export function ProgramView({
               onSwapExercise={handleSwap}
               hasProgressAccess={proAccess}
               readOnly={readOnly}
+              startedAt={program.createdAt}
             />
           </TabsContent>
 
