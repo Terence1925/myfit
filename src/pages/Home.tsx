@@ -16,7 +16,7 @@ import { programs } from '@/lib/backend/api'
 import { hasProAccess } from '@/lib/billing'
 import type { IntakeAnswers, WorkoutProgram } from '@/lib/types'
 
-type Mode = 'loading' | 'intake' | 'program' | 'limit'
+type Mode = 'loading' | 'intake' | 'program' | 'limit' | 'error'
 
 export default function Home() {
   const { profile, role, roleLoading } = useAuth()
@@ -29,6 +29,7 @@ export default function Home() {
   const [error, setError] = React.useState<string | null>(null)
   const [tourOpen, setTourOpen] = React.useState(true)
   const [lookingBack, setLookingBack] = React.useState(false)
+  const [attempt, setAttempt] = React.useState(0)
 
   // Keyed on the user's id, not the whole profile object: the profile is re-fetched whenever the app
   // resumes or the session refreshes, and reloading the program each time would hand every screen below a
@@ -38,19 +39,24 @@ export default function Home() {
     if (!profileId) return
     let cancelled = false
     ;(async () => {
-      const existing = await programs.listForUser(profileId)
-      if (cancelled) return
-      if (existing.length > 0) {
-        setProgram(existing[0])
-        setMode('program')
-      } else {
-        setMode('intake')
+      try {
+        const existing = await programs.listForUser(profileId)
+        if (cancelled) return
+        if (existing.length > 0) {
+          setProgram(existing[0])
+          setMode('program')
+        } else {
+          setMode('intake')
+        }
+      } catch {
+        // A failed lookup (no signal, a server hiccup) should show a way to retry, not an endless loading screen
+        if (!cancelled) setMode('error')
       }
     })()
     return () => {
       cancelled = true
     }
-  }, [profileId])
+  }, [profileId, attempt])
 
   if (!profile) return null
 
@@ -78,6 +84,27 @@ export default function Home() {
         <Skeleton className="h-64 rounded-3xl" />
         <Skeleton className="h-40 rounded-2xl" />
         <Skeleton className="h-12" />
+      </div>
+    )
+  }
+
+  if (mode === 'error') {
+    return (
+      <div className="container flex min-h-[70vh] flex-col items-center justify-center text-center">
+        <h2 className="font-display text-3xl tracking-wide text-foreground">COULD NOT LOAD YOUR PROGRAM</h2>
+        <p className="mt-3 max-w-sm font-body text-sm text-muted-foreground">
+          Check your connection and try again. Your data is safe.
+        </p>
+        <Button
+          size="lg"
+          className="mt-5"
+          onClick={() => {
+            setMode('loading')
+            setAttempt((n) => n + 1)
+          }}
+        >
+          Try again
+        </Button>
       </div>
     )
   }

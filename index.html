@@ -26,6 +26,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // If the app has drawn nothing after a few seconds, say so instead of leaving an empty page, and show what went wrong.
+      (function () {
+        var errors = []
+        window.addEventListener('error', function (e) { errors.push(String(e.message) + ' (' + String(e.filename || '').split('/').pop() + ':' + e.lineno + ')') })
+        window.addEventListener('unhandledrejection', function (e) { errors.push('Promise: ' + String((e.reason && (e.reason.message || e.reason)) || '')) })
+        setTimeout(function () {
+          var root = document.getElementById('root')
+          if (!root || root.children.length > 0) return
+          root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;font-family:sans-serif;color:#888"><div style="font-size:22px;font-weight:700">The app could not start</div><div style="font-size:14px;max-width:320px">Close the app and open it again. If it keeps happening, send a screenshot of this page.</div><pre style="max-width:320px;white-space:pre-wrap;word-break:break-word;font-size:11px;text-align:left">' + errors.join(String.fromCharCode(10)).replace(/</g, '&lt;').slice(0, 600) + '</pre></div>'
+        }, 8000)
+      })()
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
