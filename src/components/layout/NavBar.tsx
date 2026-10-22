@@ -18,7 +18,7 @@ export function NavBar() {
 
   return (
     <header className="sticky top-0 z-50 w-full print:hidden">
-      <div className="border-b border-border bg-card">
+      <div className="border-b border-border bg-card pt-safe">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex min-h-[44px] items-center gap-2 group">
             <Logo className="h-9 w-9 rounded-lg" />

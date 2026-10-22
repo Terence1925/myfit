@@ -39,7 +39,7 @@ export function Dialog({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className={cn('fixed inset-0 z-[100] flex flex-col bg-background pt-[env(safe-area-inset-top)]', className)}
+            className={cn('fixed inset-0 z-[100] flex flex-col bg-background pt-safe', className)}
           >
             {children}
           </motion.div>

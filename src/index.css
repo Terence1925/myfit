@@ -131,6 +131,11 @@
 }
 
 @layer utilities {
+  /* Space for the phone's status bar. Uses the browser's own value, or the one the Android app provides when the browser has none. */
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  }
+
   /* Big coloured headings: lime on dark, deep green on light. */
   .text-gradient-gold {
     color: hsl(var(--primary-ink));
