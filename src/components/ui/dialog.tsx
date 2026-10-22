@@ -9,12 +9,15 @@ export function Dialog({
   title,
   children,
   className,
+  screen = false,
 }: {
   open: boolean
   onClose: () => void
   title: string
   children: React.ReactNode
   className?: string
+  /** Fills the whole screen with no title bar: the content brings its own header (used by the food search). */
+  screen?: boolean
 }) {
   React.useEffect(() => {
     if (!open) return
@@ -24,6 +27,26 @@ export function Dialog({
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  if (screen) {
+    return (
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            role="dialog"
+            aria-label={title}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className={cn('fixed inset-0 z-[100] flex flex-col bg-background pt-[env(safe-area-inset-top)]', className)}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    )
+  }
 
   return (
     <AnimatePresence>
