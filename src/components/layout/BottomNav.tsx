@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { cn } from '@/lib/utils'
 
-/** The tab bar at the bottom of the screen on phones (the same links are in the top bar on bigger screens). */
+/** The tab bar at the bottom of the screen on phones (the same links are in the top bar on bigger screens). Icons only; each one is named for screen readers. */
 export function BottomNav() {
   const { profile, role } = useAuth()
   if (!profile) return null
@@ -29,17 +29,18 @@ export function BottomNav() {
             <NavLink
               to={to}
               end={end}
+              aria-label={label}
+              title={label}
               className={({ isActive }) =>
                 cn(
-                  'flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors',
+                  'flex h-full items-center justify-center transition-colors',
                   isActive ? 'text-primary' : 'text-muted-foreground active:text-foreground',
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
-                  {label}
+                  <Icon className="h-6 w-6" strokeWidth={isActive ? 2.5 : 2} />
                 </>
               )}
             </NavLink>

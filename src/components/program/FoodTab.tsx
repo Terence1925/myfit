@@ -83,12 +83,20 @@ const MEAL_STYLE: Record<MealType, { icon: LucideIcon; tint: string }> = {
   snack: { icon: Moon, tint: 'bg-violet-500/15 text-violet-600 dark:text-violet-400' },
 }
 
-/** One figure of the day's summary: what was eaten, its target and a slim bar. */
+/**
+ * Every row of the diary uses the same five columns so the numbers line up from the top summary down through each meal and
+ * each food: fat, carbs, protein, % of the day's calorie goal, then calories (or the buttons) on the right.
+ */
+const COLS = 'grid grid-cols-[1fr_1fr_1fr_1fr_4.5rem] items-center gap-1'
+const NUM = 'text-center tabular-nums'
+const f1 = (n: number) => (Math.round(n * 10) / 10).toFixed(1)
+
+/** One macro of the day's summary: what was eaten, its target and a slim bar. */
 function SummaryFigure({ label, eaten, target, barClass }: { label: string; eaten: number; target: number; barClass: string }) {
   return (
     <div className="min-w-0 text-center">
       <div className="text-[11px] font-semibold text-muted-foreground">{label}</div>
-      <div className="font-body text-lg font-bold leading-tight">{r0(eaten)}</div>
+      <div className="font-body text-lg font-bold leading-tight tabular-nums">{f1(eaten)}</div>
       <div className="text-[10px] text-muted-foreground">of {target} g</div>
       <Progress value={target ? (eaten / target) * 100 : 0} barClassName={barClass} className="mx-auto mt-1 h-1 w-10" />
     </div>
@@ -188,24 +196,24 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         </div>
       </div>
 
-      {/* The day at a glance: fat, carbs, protein, what is left, and calories */}
+      {/* The day at a glance: fat, carbs, protein, how much of the calorie goal is used, and calories */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] items-start gap-1">
+          <div className={cn(COLS, 'items-start')}>
             <SummaryFigure label="Fat" eaten={totals.f} target={nutrition.fatG} barClass="bg-cyan-500" />
             <SummaryFigure label="Carbs" eaten={totals.c} target={nutrition.carbsG} barClass="bg-amber-500" />
             <SummaryFigure label="Protein" eaten={totals.p} target={nutrition.proteinG} barClass="bg-red-500" />
             <div className="min-w-0 text-center">
-              <div className="text-[11px] font-semibold text-muted-foreground">{over ? 'Over' : 'Left'}</div>
-              <div className={cn('font-body text-lg font-bold leading-tight', over && 'text-destructive')}>
-                {Math.abs(r0(left)).toLocaleString('en-PH')}
-              </div>
-              <div className="text-[10px] text-muted-foreground">kcal</div>
+              <div className="text-[11px] font-semibold text-muted-foreground">Goal</div>
+              <div className={cn('font-body text-lg font-bold leading-tight tabular-nums', over && 'text-destructive')}>{r0((totals.kcal / target) * 100)}%</div>
+              <div className="text-[10px] text-muted-foreground">of calories</div>
             </div>
             <div className="min-w-0 text-right">
               <div className="text-[11px] font-semibold text-muted-foreground">Calories</div>
-              <div className="font-display text-3xl leading-none tracking-wide">{r0(totals.kcal).toLocaleString('en-PH')}</div>
-              <div className="text-[10px] text-muted-foreground">of {target.toLocaleString('en-PH')}</div>
+              <div className="font-display text-3xl leading-none tracking-wide tabular-nums">{r0(totals.kcal).toLocaleString('en-PH')}</div>
+              <div className={cn('text-[10px]', over ? 'text-destructive' : 'text-muted-foreground')}>
+                {Math.abs(r0(left)).toLocaleString('en-PH')} {over ? 'over' : 'left'}
+              </div>
             </div>
           </div>
           <Progress value={(totals.kcal / target) * 100} barClassName={over ? 'bg-destructive' : undefined} className="mt-3 h-2" />
@@ -218,6 +226,7 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         const items = entries.filter((e) => e.meal === id)
         const kcal = items.reduce((s, e) => s + e.kcal, 0)
         const sum = items.reduce((t, e) => ({ p: t.p + e.proteinG, c: t.c + e.carbsG, f: t.f + e.fatG }), { p: 0, c: 0, f: 0 })
+        const pct = (k: number) => `${r0((k / target) * 100)}%`
         const { icon: Icon, tint } = MEAL_STYLE[id]
         const opened = openMeals.has(id)
         return (
@@ -229,7 +238,7 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
               <div className="min-w-0 flex-1 font-body text-lg font-bold">{label}</div>
               {items.length > 0 && (
                 <div className="text-right">
-                  <div className="font-display text-2xl leading-none tracking-wide">{r0(kcal).toLocaleString('en-PH')}</div>
+                  <div className="font-display text-2xl leading-none tracking-wide tabular-nums">{r0(kcal).toLocaleString('en-PH')}</div>
                   <div className="text-[11px] text-muted-foreground">Calories</div>
                 </div>
               )}
@@ -246,33 +255,50 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
                 <button
                   onClick={() => toggleMeal(id)}
                   aria-expanded={opened}
-                  className="flex min-h-[44px] w-full items-center justify-between bg-secondary/60 px-4 text-sm text-muted-foreground"
+                  aria-label={`${opened ? 'Hide' : 'Show'} what is in ${label}`}
+                  className={cn(COLS, 'min-h-[44px] w-full bg-secondary/60 px-4 text-sm text-foreground')}
                 >
-                  <span className="flex gap-5">
-                    <span>F <b className="font-semibold text-foreground">{r0(sum.f)}</b></span>
-                    <span>C <b className="font-semibold text-foreground">{r0(sum.c)}</b></span>
-                    <span>P <b className="font-semibold text-foreground">{r0(sum.p)}</b></span>
+                  <span className={NUM}>{f1(sum.f)}</span>
+                  <span className={NUM}>{f1(sum.c)}</span>
+                  <span className={NUM}>{f1(sum.p)}</span>
+                  <span className={cn(NUM, 'text-muted-foreground')}>{pct(kcal)}</span>
+                  <span className="flex justify-end">
+                    <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', opened && 'rotate-180')} />
                   </span>
-                  <ChevronDown className={cn('h-5 w-5 transition-transform', opened && 'rotate-180')} />
                 </button>
                 {opened && (
                   <ul className="divide-y divide-border px-4">
+                    <li className={cn(COLS, 'py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground')} aria-hidden>
+                      <span className={NUM}>Fat</span>
+                      <span className={NUM}>Carbs</span>
+                      <span className={NUM}>Protein</span>
+                      <span className={NUM}>Goal</span>
+                      <span />
+                    </li>
                     {items.map((e) => (
-                      <li key={e.id} className="flex items-center gap-3 py-2.5">
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold">{e.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {e.servings === 1 ? e.serving : `${e.servings} × ${e.serving}`} · P {r0(e.proteinG)} · C {r0(e.carbsG)} · F {r0(e.fatG)}
+                      <li key={e.id} className="py-2.5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-bold">{e.name}</div>
+                            <div className="text-xs font-semibold text-primary">{e.servings === 1 ? e.serving : `${e.servings} × ${e.serving}`}</div>
                           </div>
+                          <div className="shrink-0 text-base font-bold tabular-nums">{r0(e.kcal)}</div>
                         </div>
-                        <div className="shrink-0 text-sm font-semibold">{r0(e.kcal)}</div>
-                        <button
-                          aria-label={`Remove ${e.name}`}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive"
-                          onClick={() => void remove(e.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        <div className={cn(COLS, 'mt-1 text-sm text-muted-foreground')}>
+                          <span className={NUM}>{f1(e.fatG)}</span>
+                          <span className={NUM}>{f1(e.carbsG)}</span>
+                          <span className={NUM}>{f1(e.proteinG)}</span>
+                          <span className={NUM}>{pct(e.kcal)}</span>
+                          <span className="flex justify-end">
+                            <button
+                              aria-label={`Remove ${e.name}`}
+                              className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive"
+                              onClick={() => void remove(e.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </span>
+                        </div>
                       </li>
                     ))}
                   </ul>
