@@ -20,7 +20,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="glass fixed inset-x-0 bottom-0 z-40 border-t border-border sm:hidden print:hidden"
+      className="fixed inset-x-0 bottom-0 bg-card z-40 border-t border-border sm:hidden print:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <ul className="flex h-14 items-stretch">
