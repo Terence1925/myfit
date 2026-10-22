@@ -1,14 +1,13 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { CalendarCheck, Check, Dumbbell, Flame, Play, TrendingUp } from 'lucide-react'
+import { CalendarCheck, Check, Dumbbell, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProgressRing } from '@/components/ui/progress-ring'
 import { useAuth } from '@/context/AuthContext'
 import { sessions } from '@/lib/backend/api'
 import { allDoneMessage, greeting, pepTalk } from '@/lib/encouragement'
 import { computeStreak, countedDates } from '@/lib/streak'
-import { nextWorkoutDay, ringText, setsThisWeek, weekDots, workoutsThisMonth } from '@/lib/todayPlan'
-import { liftedComparison } from '@/lib/lifted'
+import { nextWorkoutDay, ringText, weekDots } from '@/lib/todayPlan'
 import type { WorkoutProgram, WorkoutSession } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -39,10 +38,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
   const nextDayNumber = nextWorkoutDay(list, program.id, days.map((d) => d.day), now)
   const next = days.find((d) => d.day === nextDayNumber)
   const streak = computeStreak(countedDates(list), days.length, now)
-  const month = workoutsThisMonth(list, now)
-  const sets = setsThisWeek(list, now)
   const ring = ringText(streak.doneThisWeek, streak.needed, days.length)
-  const lifted = liftedComparison(list, now)
   const mindBody = next?.exercises.some((e) => e.format === 'yoga' || e.format === 'pilates')
 
   return (
@@ -117,30 +113,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           </div>
         )}
 
-        <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-          <Stat icon={<Flame className={cn('h-4 w-4', streak.weeks > 0 ? 'fill-orange-500/40 text-orange-500' : 'text-muted-foreground')} />} value={`${streak.weeks}`} label={streak.weeks === 1 ? 'week streak' : 'week streak'} />
-          <Stat icon={<CalendarCheck className="h-4 w-4 text-primary" />} value={`${month}`} label="this month" />
-          <Stat icon={<Dumbbell className="h-4 w-4 text-primary" />} value={`${sets}`} label={mindBody ? 'moves this week' : 'sets this week'} />
-        </div>
-        {lifted.message && (
-          <div className="mt-3 flex items-start gap-2 rounded-xl bg-primary/10 px-3 py-2.5 font-body text-sm">
-            <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span>{lifted.message}</span>
-          </div>
-        )}
       </div>
     </motion.div>
-  )
-}
-
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
-  return (
-    <div className="rounded-xl bg-secondary/50 px-2 py-2.5">
-      <div className="flex items-center justify-center gap-1.5 font-display text-2xl leading-none">
-        {icon}
-        {value}
-      </div>
-      <div className="mt-1 text-[11px] text-muted-foreground">{label}</div>
-    </div>
   )
 }

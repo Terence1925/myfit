@@ -1,7 +1,7 @@
 // Run with: npm run test:today
 // Checks the Today card's numbers (week dots, next workout, month and set counts) and the English / Taglish messages, with fixed dates.
 import { allDoneMessage, greeting, pepTalk } from '../src/lib/encouragement'
-import { nextWorkoutDay, setsThisWeek, weekDots, workoutsThisMonth } from '../src/lib/todayPlan'
+import { nextWorkoutDay, weekDots } from '../src/lib/todayPlan'
 import type { SavedWorkout } from '../src/lib/streak'
 
 const problems: string[] = []
@@ -40,8 +40,6 @@ check('a day only half started is still next', nextWorkoutDay([save(iso(9, 19), 
 check('marked done counts', nextWorkoutDay([{ date: iso(9, 19), programId: 'p1', day: 1, exercises: [] }], 'p1', days, now), 2)
 
 // ---- month and set counts ----
-check('workouts this month', workoutsThisMonth([save(iso(9, 2), 9), save(iso(9, 19), 9), save(iso(8, 29), 9)], now), 2)
-check('sets this week', setsThisWeek([save(iso(9, 19), 5), save(iso(9, 20), 4), save(iso(9, 12), 8)], now), 9)
 
 // ---- messages ----
 const morning = new Date(2026, 9, 21, 8, 0, 0)

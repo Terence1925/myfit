@@ -53,22 +53,6 @@ export function nextWorkoutDay(saved: SavedWorkout[], programId: string, dayNumb
   return dayNumbers.find((n) => !done.has(n)) ?? null
 }
 
-/** Workouts that counted so far this calendar month. */
-export function workoutsThisMonth(saved: SavedWorkout[], now: Date = new Date()): number {
-  return countedDates(saved).filter((iso) => {
-    const d = new Date(iso)
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
-  }).length
-}
-
-/** Sets ticked this week, across everything saved. */
-export function setsThisWeek(saved: SavedWorkout[], now: Date = new Date()): number {
-  const monday = mondayOf(now).getTime()
-  return saved
-    .filter((s) => new Date(s.date).getTime() >= monday)
-    .reduce((sum, s) => sum + s.exercises.reduce((n, e) => n + e.sets.filter((x) => x.completed).length, 0), 0)
-}
-
 /** The two lines next to the weekly progress ring. */
 export function ringText(done: number, needed: number, planned: number): { title: string; note: string } {
   const title = `${done} of ${planned} workout${planned === 1 ? '' : 's'} this week`

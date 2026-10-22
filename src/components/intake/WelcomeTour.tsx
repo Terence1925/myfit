@@ -18,7 +18,7 @@ const SLIDES = [
   {
     icon: Flame,
     title: 'Stay on track',
-    text: 'Log your food, keep your weekly streak, earn badges and get a recap of your week. Reminders help you show up.',
+    text: 'Log your food and keep your weekly streak. Reminders help you show up.',
   },
 ] as const
 

@@ -9,7 +9,6 @@ import { StreakCard } from './StreakCard'
 import { BlockBanner, BlockChip } from './BlockTimeline'
 import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus } from '@/lib/programBlock'
 import { TodayCard } from './TodayCard'
-import { ProgressTiles } from './ProgressTiles'
 import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
@@ -114,8 +113,6 @@ export function ProgramView({
             />
           </>
         )}
-
-        <ProgressTiles userId={userId} />
 
         <motion.div
           initial={{ opacity: 0, y: -12 }}
