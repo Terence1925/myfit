@@ -101,24 +101,6 @@ export function RecipeCard({ recipe, onOpen }: { recipe: Recipe; onOpen: (r: Rec
   )
 }
 
-/** A compact row, for recipes that match what was typed in the search box. */
-export function RecipeRow({ recipe, onOpen }: { recipe: Recipe; onOpen: (r: Recipe) => void }) {
-  return (
-    <button onClick={() => onOpen(recipe)} className="flex min-h-[64px] w-full items-center gap-3 py-2 text-left">
-      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl">
-        <RecipeImage recipe={recipe} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold">{recipe.title}</div>
-        <div className="truncate text-xs text-muted-foreground">
-          Recipe · {recipe.minutes} min · {Math.round(recipe.proteinG)} g protein
-        </div>
-      </div>
-      <div className="shrink-0 text-sm font-semibold">{recipe.kcal} kcal</div>
-    </button>
-  )
-}
-
 /** One recipe in full: photo, numbers, ingredients and the steps. The button at the bottom logs it. */
 export function RecipeDetail({
   recipe,

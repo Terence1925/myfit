@@ -29,7 +29,7 @@ import { hasProAccess } from '@/lib/billing'
 import { searchFoods } from '@/lib/foods/filipinoFoods'
 import { isFavorite, loadFavorites, toggleFavorite } from '@/lib/foods/favorites'
 import { CATEGORY_LABELS, RECIPES, filterRecipes, recipeToFood, type Recipe, type RecipeCategory } from '@/lib/cookbook/cookbook'
-import { CookbookFilters, RecipeCard, RecipeDetail, RecipeRow } from './CookbookParts'
+import { CookbookFilters, RecipeCard, RecipeDetail } from './CookbookParts'
 import { clearSearches, forgetSearch, loadRecentSearches, rememberSearch } from '@/lib/foods/recentSearches'
 import { isFilipinoPlate, PLATES } from '@/lib/foods/plates'
 import {
@@ -428,7 +428,7 @@ function AddFoodDialog({
     setOnline([])
     setOnlineError(null)
     const q = query.trim()
-    if (!proAccess || q.length < 3) {
+    if (!proAccess || q.length < 3 || tab === 'cookbook') {
       setOnlineLoading(false)
       return
     }
@@ -446,7 +446,7 @@ function AddFoodDialog({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [query, proAccess])
+  }, [query, proAccess, tab])
 
   const choose = (food: FoodItem) => {
     // A search that led to a food is worth remembering
@@ -529,7 +529,8 @@ function AddFoodDialog({
   const heading = step === 'amount' ? 'Amount' : step === 'custom' ? 'Add your own food' : step === 'recipe' ? 'Recipe' : null
 
   const cookbookList = React.useMemo(() => filterRecipes(RECIPES, { category: cbCategory, tags: cbTags }), [cbCategory, cbTags])
-  const matchingRecipes = React.useMemo(() => filterRecipes(RECIPES, { query }).slice(0, 4), [query])
+  // Typing in the search box on the Cookbook tab searches the recipes; on every other tab it searches foods only
+  const matchingRecipes = React.useMemo(() => filterRecipes(RECIPES, { query, category: cbCategory, tags: cbTags }), [query, cbCategory, cbTags])
   const showRecipe = (r: Recipe) => {
     setOpenRecipe(r)
     setRecipeCount(1)
@@ -713,20 +714,21 @@ function AddFoodDialog({
                 </>
               )}
 
-              {query.trim() !== '' && (
-                <>
-                  {matchingRecipes.length > 0 && (
-                    <div>
-                      <div className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">Recipes</div>
-                      <ul className="divide-y divide-border">
-                        {matchingRecipes.map((r) => (
-                          <li key={r.id}>
-                            <RecipeRow recipe={r} onOpen={showRecipe} />
-                          </li>
-                        ))}
-                      </ul>
+              {query.trim() !== '' && tab === 'cookbook' && (
+                <div className="space-y-3">
+                  {matchingRecipes.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {matchingRecipes.map((r) => (
+                        <RecipeCard key={r.id} recipe={r} onOpen={showRecipe} />
+                      ))}
                     </div>
+                  ) : (
+                    <p className="py-3 text-sm text-muted-foreground">No recipes match. Try another word.</p>
                   )}
+                </div>
+              )}
+              {query.trim() !== '' && tab !== 'cookbook' && (
+                <>
                   <FoodRows foods={results} onPick={choose} />
                   {results.length === 0 && online.length === 0 && !onlineLoading && (
                     <p className="py-3 text-sm text-muted-foreground">No match. Try another word, or add it yourself.</p>
