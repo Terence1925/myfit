@@ -1,6 +1,7 @@
 import { calculateNutrition } from '../tdee'
 import { isPro } from '../billing'
 import { BLOCK_DAYS, blockStatus } from '../programBlock'
+import { programDataWithDefaults } from '../programShape'
 import type {
   AppliedCode,
   CodeRedemption,
@@ -318,6 +319,7 @@ export const programs = {
   async listForUser(userId: string): Promise<WorkoutProgram[]> {
     return readAll<WorkoutProgram>(PROGRAMS_KEY)
       .filter((p) => p.userId === userId)
+      .map((p) => ({ ...p, programData: programDataWithDefaults(p.programData) }))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   },
 

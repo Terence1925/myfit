@@ -136,7 +136,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         ))}
       </div>
 
-      {data.personalizationNotes.length > 0 && (
+      {(data.personalizationNotes?.length ?? 0) > 0 && (
         <Card className="mt-6">
           <CardContent className="p-5">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">

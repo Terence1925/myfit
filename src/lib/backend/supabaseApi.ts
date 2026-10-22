@@ -1,6 +1,7 @@
 import { calculateNutrition } from '../tdee'
 import { isPro } from '../billing'
 import { BLOCK_DAYS, blockStatus } from '../programBlock'
+import { programDataWithDefaults } from '../programShape'
 import { isNativeApp } from '../platform'
 import type {
   AppliedCode,
@@ -74,7 +75,7 @@ function mapProgram(row: Record<string, unknown>): WorkoutProgram {
     id: row.id as string,
     userId: row.user_id as string,
     programName: row.program_name as string,
-    programData: row.program_data as WorkoutProgram['programData'],
+    programData: programDataWithDefaults(row.program_data as WorkoutProgram['programData']),
     answers: row.answers as WorkoutProgram['answers'],
     nutrition: row.nutrition as WorkoutProgram['nutrition'],
     recoveryScore: row.recovery_score as number,
