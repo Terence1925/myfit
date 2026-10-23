@@ -31,3 +31,6 @@ dist-ssr
 # Supabase CLI local state
 supabase/.temp
 supabase/.branches
+
+# Private working notes (kept on the owner's computer only)
+PROJECT_NOTES.md
