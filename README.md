@@ -1,6 +1,114 @@
-# MyFit
+# MyFit: Workout & Calorie Tracker
 
-AI-powered workout & nutrition program generator, with Pro subscriptions (₱199/mo or ₱1,790/yr, 7-day free trial).
+A workout and nutrition app that builds a **12-week program** around your goal, equipment and recovery, tells you exactly what to lift each week, and tracks your food with a built-in **cookbook of healthy recipes**. Web app plus a native Android app, with subscriptions through Google Play.
+
+**Stack:** React 19 · TypeScript · Vite · Tailwind CSS · Framer Motion · Supabase (Postgres, Auth, Row Level Security, Edge Functions) · Capacitor 8 (Android) · RevenueCat / Google Play Billing · Vercel
+
+**Live app:** https://getmyfit.vercel.app (sign up free: the first workout of every program is free)
+
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/01-today.jpg" width="190" alt="Today screen"></td>
+    <td><img src="docs/screenshots/02-weekly-plan.jpg" width="190" alt="Weekly plan with this week's target"></td>
+    <td><img src="docs/screenshots/03-warmup-and-coaching.jpg" width="190" alt="Warm-up sets and coaching"></td>
+    <td><img src="docs/screenshots/08-deload-week.jpg" width="190" alt="Deload week"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Today: your week at a glance</sub></td>
+    <td align="center"><sub>This week's target and what to lift</sub></td>
+    <td align="center"><sub>Warm-up sets and coaching lines</sub></td>
+    <td align="center"><sub>Deload week</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/04-food-log.jpg" width="190" alt="Food log"></td>
+    <td><img src="docs/screenshots/05-cookbook.jpg" width="190" alt="Cookbook"></td>
+    <td><img src="docs/screenshots/06-recipe.jpg" width="190" alt="A recipe"></td>
+    <td><img src="docs/screenshots/09-12-weeks-done.jpg" width="190" alt="12 weeks done"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Food log, aligned macro columns</sub></td>
+    <td align="center"><sub>Cookbook: protein desserts</sub></td>
+    <td align="center"><sub>Recipe with steps, one tap to log</sub></td>
+    <td align="center"><sub>12 weeks done: next program</sub></td>
+  </tr>
+</table>
+
+---
+
+## Features
+
+| | |
+|---|---|
+| **Program builder** | A 13-step guided wizard (goal, experience, equipment, days per week, injuries, focus areas such as glutes, recovery and sleep). It builds a full program for a full gym, dumbbells only, resistance bands, bodyweight at home, yoga or Pilates. |
+| **12-week lifecycle** | Every program is built for 12 weeks: Base, Build, Push, a test week, then a **deload week** (about half the sets, about half the weight). After that the program is finished, stays viewable, and the next one is generated. |
+| **A new program each time** | A year is four blocks (Foundation, Strength, Size, Peak). The main lifts stay so strength carries over, the accessories rotate, and the rep ranges follow the block, so a new program is never a copy of the last. |
+| **Week-by-week weights** | From what you logged last time, each exercise says what to aim for: add 2.5 lb at the top of the rep range and start the reps again, otherwise one more rep. It handles misses, stalls (three workouts with no better set), long breaks and the deload week, with a short coaching line for each case. |
+| **Warm-up sets** | Heavy opening lifts get a warm-up ramp worked out from the weight you are about to lift. Warm-up sets are shown but never counted as work. |
+| **Food log** | Day summary, meals with aligned macro columns, recent searches, and a full-screen search over a built-in food list (including 170+ Filipino foods) plus the USDA FoodData Central and Open Food Facts databases through a server-side function. |
+| **Cookbook** | 43 healthy recipes with a photo, steps and macros: protein desserts (cookie dough bites, pancakes, ice cream), breakfast, lunch and dinner, snacks. The numbers are **calculated from the ingredients**, so they always add up. One tap adds a recipe to the food log. |
+| **Nutrition targets** | Calories from the Mifflin-St Jeor equation and activity level; a 40/30/30 split with protein held between 1.6 and 2.4 g per kg of body weight. |
+| **Reminders and widget** | Local notifications for workout days and rest timers, and an Android home-screen widget with the next workout and the week's progress. |
+| **Subscriptions** | Google Play Billing through RevenueCat, 7-day free trial, prices shown in the buyer's own currency, and a webhook Edge Function that keeps the subscription state in Postgres in sync. |
+| **Admin dashboard** | Members, programs, discount codes and activity, locked behind a role that cannot be self-assigned. |
+| **Privacy** | Row Level Security on every table, in-app account deletion (with a public deletion page, as Google Play requires), and subscription columns that users cannot write to. |
+| **Resilient by design** | A global error screen instead of a blank page, retry on failed loads, and every saved program is normalised on load so programs from older versions never crash newer screens. |
+
+## Architecture
+
+```
+React + TypeScript (Vite) ── web (Vercel) and Android app (Capacitor)
+   │
+   ├─ rules-based program generator (client side, deterministic, no AI cost)
+   │     templates per level and days ─ equipment filters ─ injury filters
+   │     ─ focus-area rules ─ 12-week block + deload ─ weekly progression
+   │
+   ├─ api.ts ── one interface, two backends
+   │     mockApi (browser storage, demo mode)   supabaseApi (production)
+   │
+   └─ Supabase ── Postgres + Row Level Security
+         Auth (email, Google)    Edge Functions (Deno)
+         food-search · revenuecat-webhook · delete-account · admin-delete-member
+```
+
+**Why a rules-based generator instead of an AI model?** Programs are deterministic, free to produce, work offline, never invent an unsafe exercise, and can be unit-tested exhaustively. The "coach" voice comes from rules over the person's own logged numbers.
+
+## Testing
+
+22 test scripts run with one command (`npm test`). Examples of what they prove:
+
+- **Programs:** every generated program follows its reference template; focus areas land on the right half of the body (1,536 combinations); a new block keeps the main lifts and changes the accessories across 108 setups.
+- **Progression:** the 12-week calendar moves through training, test and deload on exactly the right days; the weight to aim for is right after a good week, a miss, a stall and a long break.
+- **Nutrition:** 4,800 body and activity combinations give a valid macro split.
+- **Cookbook:** all 43 recipes are complete, and their calories and macros match their ingredients.
+- **Resilience:** programs saved by older versions, with missing fields, are filled in so nothing crashes.
+
+## Highlights
+
+- Designing the **12-week lifecycle** end to end: state worked out from a single start date, so there is no extra stored state to get out of step.
+- Turning coaching rules (double progression, stalls, deloads) into small **pure functions that are fully tested**.
+- Making an app that is safe to ship: access rules in the database, server-side secrets, store-compliant billing and account deletion.
+- Debugging a production crash on a real phone by adding an error screen, reading the minified stack trace, and tracing it to data saved by an older version.
+
+## Project layout
+
+```
+src/pages            screens (Home, Food, Progress, Account, Admin, ...)
+src/components       UI by area (program, food, intake, admin, layout)
+src/lib              logic: program generator, 12-week block, weekly progression, nutrition, cookbook
+src/lib/backend      api.ts facade, mockApi (demo) and supabaseApi (production)
+supabase/            migrations (schema and Row Level Security) and Edge Functions
+scripts/             the test scripts (npm test)
+android/  ios/       Capacitor native projects
+```
+
+---
+
+# Setup and deployment
 
 ## Run it locally (demo mode, no setup)
 
@@ -79,3 +187,9 @@ Any static host works (`npm run build` → deploy `dist/`): Vercel, Netlify, Clo
 - `src/lib/backend/api.ts` is a facade — every page imports from here, never from `mockApi.ts` / `supabaseApi.ts` directly, so the whole app is backend-agnostic.
 - `src/lib/backend/types.ts` defines the shared interface both implementations must satisfy — if you extend the backend, add the method there first so TypeScript catches any drift between mock and real.
 - The TDEE/recovery math (`src/lib/tdee.ts`) is deterministic and client-side either way — it doesn't change when you swap backends.
+
+---
+
+## License
+
+All rights reserved. The code is public so it can be read and reviewed; it may not be copied, sold or used to build another product without permission. See [LICENSE](LICENSE). Recipe photos are from [Pixabay](https://pixabay.com) and credited inside the app.
