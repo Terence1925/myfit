@@ -56,7 +56,7 @@ export default function SavedPrograms() {
 
   return (
     <div className="container py-8 sm:py-12">
-      <h1 className="font-display text-4xl tracking-wide mb-8">MY PROGRAMS</h1>
+      <h1 className="font-display text-4xl tracking-wide mb-8">My programs</h1>
 
       {list.length === 0 ? (
         <Card>

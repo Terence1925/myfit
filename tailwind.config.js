@@ -1,3 +1,5 @@
+const SYSTEM = ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif']
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
@@ -10,10 +12,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Bebas Neue"', 'sans-serif'],
-        body: ['"Barlow"', 'sans-serif'],
-        // The MyFit wordmark: bold and rounded, with real lowercase letters.
-        brand: ['"Outfit"', 'system-ui', 'sans-serif'],
+        // The phone's own font (San Francisco on iPhone, Roboto on Android, Segoe UI on Windows): clean, familiar and fast.
+        display: SYSTEM,
+        body: SYSTEM,
+        brand: SYSTEM,
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -57,6 +59,9 @@ export default {
         },
       },
       borderRadius: {
+        // Softer than before, but not bubbly
+        '2xl': '0.875rem',
+        '3xl': '1.125rem',
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
@@ -67,10 +72,10 @@ export default {
         'gold-gradient-hover': 'linear-gradient(hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.9))',
       },
       boxShadow: {
-        // A soft lime glow in dark mode, a barely-there neutral shadow in light mode (see --glow in index.css).
-        glow: '0 0 40px -8px hsl(var(--glow) / var(--glow-alpha))',
-        'glow-lg': '0 0 80px -12px hsl(var(--glow) / var(--glow-alpha))',
-        card: '0 4px 24px -4px hsl(225 20% 5% / var(--shadow-alpha))',
+        // No glows: a barely-there neutral shadow.
+        glow: '0 1px 2px hsl(225 20% 5% / 0.06)',
+        'glow-lg': '0 1px 3px hsl(225 20% 5% / 0.08)',
+        card: '0 1px 2px hsl(225 20% 5% / 0.06)',
       },
       keyframes: {
         'fade-up': {

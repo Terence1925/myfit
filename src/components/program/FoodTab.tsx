@@ -77,10 +77,10 @@ const r1 = (n: number) => Math.round(n * 10) / 10
 const r0 = (n: number) => Math.round(n)
 
 const MEAL_STYLE: Record<MealType, { icon: LucideIcon; tint: string }> = {
-  breakfast: { icon: Sunrise, tint: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
-  lunch: { icon: Sun, tint: 'bg-sky-500/15 text-sky-600 dark:text-sky-400' },
-  dinner: { icon: Sunset, tint: 'bg-orange-500/15 text-orange-600 dark:text-orange-400' },
-  snack: { icon: Moon, tint: 'bg-violet-500/15 text-violet-600 dark:text-violet-400' },
+  breakfast: { icon: Sunrise, tint: 'bg-muted text-foreground' },
+  lunch: { icon: Sun, tint: 'bg-muted text-foreground' },
+  dinner: { icon: Sunset, tint: 'bg-muted text-foreground' },
+  snack: { icon: Moon, tint: 'bg-muted text-foreground' },
 }
 
 /**

@@ -492,7 +492,7 @@ export function IntakeWizard({
           </div>
         </div>
         <div>
-          <h2 className="font-display text-3xl tracking-wide text-gradient-gold">FORGING YOUR PROGRAM</h2>
+          <h2 className="font-display text-3xl tracking-wide text-gradient-gold">Building your program</h2>
           <p className="mt-2 font-body text-muted-foreground max-w-sm">
             Calculating your TDEE, recovery score, and building a periodized training split tailored to your answers...
           </p>

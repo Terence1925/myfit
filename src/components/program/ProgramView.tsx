@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { OverviewTab } from './OverviewTab'
-import { StreakCard } from './StreakCard'
 import { BlockBanner, BlockChip } from './BlockTimeline'
 import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus } from '@/lib/programBlock'
 import { TodayCard } from './TodayCard'
@@ -92,7 +91,7 @@ export function ProgramView({
           <div className="flex items-start gap-3 rounded-2xl border border-border bg-card/60 p-4">
             <Eye className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
             <div>
-              <div className="font-display text-xl tracking-wide">FINISHED PROGRAM</div>
+              <div className="font-display text-xl tracking-wide">Finished program</div>
               <p className="mt-0.5 font-body text-sm text-muted-foreground">
                 You are looking back at a program you completed. It is view only. Generate a new program to keep training.
               </p>
@@ -152,13 +151,11 @@ export function ProgramView({
               {exportError && <p className="max-w-[16rem] text-right text-xs text-destructive">{exportError}</p>}
             </div>
           </div>
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-current opacity-[0.08] blur-3xl" />
         </motion.div>
 
         {!readOnly && (
           <>
             <BlockChip status={block} />
-            <StreakCard userId={userId} plannedDays={program.programData.days.length} />
           </>
         )}
 

@@ -128,7 +128,7 @@ export default function AccountPage() {
 
   return (
     <div className="container py-8 sm:py-12 max-w-2xl">
-      <h1 className="font-display text-4xl tracking-wide mb-8">ACCOUNT</h1>
+      <h1 className="font-display text-4xl tracking-wide mb-8">Account</h1>
 
       {syncing && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">

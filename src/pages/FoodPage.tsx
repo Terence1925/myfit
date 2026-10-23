@@ -52,14 +52,14 @@ export default function FoodPage() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-6 font-display text-4xl tracking-wide"
       >
-        FOOD LOG
+        Food log
       </motion.h1>
       {nutrition ? (
         <FoodTab nutrition={nutrition} userId={profile.id} />
       ) : (
         <Card>
           <CardContent className="space-y-3 p-6 text-center">
-            <div className="font-display text-2xl tracking-wide">SET YOUR DAILY TARGETS FIRST</div>
+            <div className="font-display text-2xl tracking-wide">Set your daily targets first</div>
             <p className="font-body text-sm text-muted-foreground">
               Answer a few quick questions and we'll work out your calories and macros, so your food log has a goal to
               track against.

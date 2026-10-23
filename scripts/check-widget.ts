@@ -48,7 +48,7 @@ check('caption singular week', streak.caption, '1 of 4 workouts · 🔥 1 week')
 
 // everything done this week
 const all = buildWidgetData({ days, programId: 'p1', saved: [1, 2, 3, 4].map((n) => save(9, 18 + n, n)), now })
-check('all done: flag and text', [all.allDone, all.label, all.name, all.meta], [true, 'THIS WEEK', 'All done!', 'Great week. Rest up.'])
+check('all done: flag and text', [all.allDone, all.label, all.name, all.meta], [true, 'THIS WEEK', 'All done', 'All workouts done this week.'])
 
 // yoga counts moves, a one-day plan says "workout"
 const yoga = buildWidgetData({ days: [{ ...days[0], exercises: ex(5, 'yoga') }], programId: 'p1', saved: [], now })

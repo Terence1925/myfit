@@ -63,12 +63,12 @@ export function buildWidgetData(opts: {
     meta = `${titleCase(next.focus)} · ${next.exercises.length} ${mind ? 'moves' : 'exercises'} · ${next.duration}`
   } else {
     label = 'THIS WEEK'
-    name = 'All done!'
-    meta = 'Great week. Rest up.'
+    name = 'All done'
+    meta = 'All workouts done this week.'
   }
 
   return {
-    greeting: greeting(opts.firstName, now, false),
+    greeting: greeting(opts.firstName, now),
     streakWeeks: weeks,
     label,
     name,

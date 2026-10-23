@@ -21,7 +21,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
     if (!error) return this.props.children
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center text-foreground">
-        <h1 className="font-display text-4xl tracking-wide">SOMETHING WENT WRONG</h1>
+        <h1 className="font-display text-4xl tracking-wide">Something went wrong</h1>
         <p className="max-w-sm font-body text-sm text-muted-foreground">
           The app hit a problem while loading this screen. Your data is safe. Tap Try again, and if it keeps happening, send us a
           screenshot of this page.

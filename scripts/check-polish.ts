@@ -14,7 +14,7 @@ check('thousands separator', formatLbs(12400), '12,400')
 check('ring: none done', ringText(0, 3, 4), { title: '0 of 4 workouts this week', note: '3 more workouts keeps your streak going.' })
 check('ring: one to go for the streak', ringText(2, 3, 4).note, '1 more workout keeps your streak going.')
 check('ring: streak secured', ringText(3, 3, 4).note, 'Streak secured this week. 1 more for a perfect week.')
-check('ring: perfect', ringText(4, 3, 4).note, 'Perfect week! Every workout done.')
+check('ring: perfect', ringText(4, 3, 4).note, 'All workouts done this week.')
 check('ring: one planned day', ringText(0, 1, 1).title, '0 of 1 workout this week')
 
 if (problems.length) {

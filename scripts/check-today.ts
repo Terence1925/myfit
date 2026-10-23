@@ -1,6 +1,6 @@
 // Run with: npm run test:today
-// Checks the Today card's numbers (week dots, next workout, month and set counts) and the English / Taglish messages, with fixed dates.
-import { allDoneMessage, greeting, pepTalk } from '../src/lib/encouragement'
+// Checks the Today card's numbers (week dots, next workout, month and set counts) and the greeting, with fixed dates.
+import { allDoneMessage, greeting } from '../src/lib/encouragement'
 import { nextWorkoutDay, weekDots } from '../src/lib/todayPlan'
 import type { SavedWorkout } from '../src/lib/streak'
 
@@ -45,18 +45,14 @@ check('marked done counts', nextWorkoutDay([{ date: iso(9, 19), programId: 'p1',
 const morning = new Date(2026, 9, 21, 8, 0, 0)
 const afternoon = new Date(2026, 9, 21, 14, 0, 0)
 const evening = new Date(2026, 9, 21, 20, 0, 0)
-check('English morning', greeting('Ana', morning, false), 'Good morning, Ana')
-check('English afternoon', greeting('Ana', afternoon, false), 'Good afternoon, Ana')
-check('English evening, no name', greeting(undefined, evening, false), 'Good evening')
-check('Taglish morning', greeting('Ana', morning, true), 'Magandang umaga, Ana')
-check('Taglish evening', greeting('Ana', evening, true), 'Magandang gabi, Ana')
-check('the pep talk is steady within a day', pepTalk(morning, true), pepTalk(evening, true))
-check('the pep talk differs by language', pepTalk(morning, true) !== pepTalk(morning, false), true)
-check('all-done message by language', [allDoneMessage(false), allDoneMessage(true)].every((m) => m.length > 10), true)
+check('morning greeting', greeting('Ana', morning), 'Good morning, Ana')
+check('afternoon greeting', greeting('Ana', afternoon), 'Good afternoon, Ana')
+check('evening greeting, no name', greeting(undefined, evening), 'Good evening')
+check('all-done message', allDoneMessage(), 'All workouts done this week.')
 
 if (problems.length) {
   console.log('FAILED')
   for (const p of problems) console.log(' - ' + p)
   process.exit(1)
 }
-console.log('PASSED: the Today card numbers and the English / Taglish messages are right.')
+console.log('PASSED: the Today card numbers and the greeting are right.')

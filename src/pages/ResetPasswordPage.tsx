@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
             <ShieldCheck className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">PASSWORD UPDATED</h1>
+          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Password updated</h1>
           <p className="mt-3 text-sm text-muted-foreground font-body">Taking you back to MyFit...</p>
         </motion.div>
       </div>
@@ -74,7 +74,7 @@ export default function ResetPasswordPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md text-center">
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">RESET LINK INVALID</h1>
+          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Reset link invalid</h1>
           <p className="mt-3 text-sm text-muted-foreground font-body">
             This link may have expired or already been used. Request a new one from the sign-in page.
           </p>
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
-          <h1 className="font-display text-4xl tracking-wide text-gradient-gold">SET NEW PASSWORD</h1>
+          <h1 className="font-display text-4xl tracking-wide text-gradient-gold">Set new password</h1>
         </div>
 
         <Card className="shadow-glow-lg border-primary/10">

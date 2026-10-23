@@ -103,7 +103,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         </div>
         <p className="text-xs font-bold uppercase tracking-widest text-primary">Built just for you</p>
         <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-gradient-gold">
-          {firstName ? `${firstName.toUpperCase()}, YOUR PROGRAM IS READY` : 'YOUR PROGRAM IS READY'}
+          {firstName ? `${firstName}, your program is ready` : 'Your program is ready'}
         </h1>
         <p className="mt-3 font-body text-muted-foreground">
           {data.programName} — {data.tagline}
@@ -163,7 +163,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
                   <Check className="h-5 w-5 text-primary-foreground" strokeWidth={3} />
                 </div>
                 <div>
-                  <h2 className="font-display text-2xl tracking-wide text-gradient-gold">DAY 1 DONE</h2>
+                  <h2 className="font-display text-2xl tracking-wide text-gradient-gold">Day 1 done</h2>
                   <p className="mt-0.5 font-body text-sm text-muted-foreground">
                     Your plan has {data.days.length - 1} more {data.days.length - 1 === 1 ? 'day' : 'days'} built for you. Start your {TRIAL_DAYS}-day free trial to unlock {data.days.length - 1 === 1 ? 'it' : 'them'}.
                   </p>
@@ -181,7 +181,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
                 <Gift className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h2 className="font-display text-2xl tracking-wide text-gradient-gold">DAY 1 IS FREE</h2>
+                <h2 className="font-display text-2xl tracking-wide text-gradient-gold">Day 1 is free</h2>
                 <p className="mt-0.5 font-body text-sm text-muted-foreground">
                   Do your first workout right now. Demos, the rest timer and your workout log all work. No trial and no card needed.
                 </p>

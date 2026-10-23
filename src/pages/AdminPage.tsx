@@ -53,7 +53,7 @@ export default function AdminPage() {
 
   return (
     <div className="container py-8 sm:py-12">
-      <h1 className="font-display text-4xl tracking-wide mb-8">ADMIN DASHBOARD</h1>
+      <h1 className="font-display text-4xl tracking-wide mb-8">Admin dashboard</h1>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>

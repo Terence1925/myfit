@@ -91,7 +91,7 @@ export default function Home() {
   if (mode === 'error') {
     return (
       <div className="container flex min-h-[70vh] flex-col items-center justify-center text-center">
-        <h2 className="font-display text-3xl tracking-wide text-foreground">COULD NOT LOAD YOUR PROGRAM</h2>
+        <h2 className="font-display text-3xl tracking-wide text-foreground">Could not load your program</h2>
         <p className="mt-3 max-w-sm font-body text-sm text-muted-foreground">
           Check your connection and try again. Your data is safe.
         </p>
@@ -116,7 +116,7 @@ export default function Home() {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10 border border-destructive/30">
             <Lock className="h-9 w-9 text-destructive" />
           </div>
-          <h2 className="font-display text-4xl tracking-wide text-foreground">PROGRAM LIMIT REACHED</h2>
+          <h2 className="font-display text-4xl tracking-wide text-foreground">Program limit reached</h2>
           <p className="mt-3 max-w-md font-body text-muted-foreground">
             Free accounts can keep one active program at a time. Upgrade to Pro for unlimited programs, or delete
             your current one from My Programs to generate a new one.

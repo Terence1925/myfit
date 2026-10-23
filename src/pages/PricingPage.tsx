@@ -153,7 +153,7 @@ export default function PricingPage() {
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Go Pro</span>
         </div>
         <h1 className="font-display text-5xl sm:text-6xl tracking-wide text-gradient-gold">
-          TRAIN WITHOUT LIMITS
+          Train without limits
         </h1>
         <p className="mt-3 font-body text-muted-foreground max-w-lg mx-auto">
           Unlock every day of your personalized program, your progress history and your nutrition plan. Day 1 is always free.

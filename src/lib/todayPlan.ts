@@ -56,7 +56,7 @@ export function nextWorkoutDay(saved: SavedWorkout[], programId: string, dayNumb
 /** The two lines next to the weekly progress ring. */
 export function ringText(done: number, needed: number, planned: number): { title: string; note: string } {
   const title = `${done} of ${planned} workout${planned === 1 ? '' : 's'} this week`
-  if (done >= planned) return { title, note: 'Perfect week! Every workout done.' }
+  if (done >= planned) return { title, note: 'All workouts done this week.' }
   if (done >= needed) {
     const left = planned - done
     return { title, note: `Streak secured this week. ${left} more for a perfect week.` }

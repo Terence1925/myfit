@@ -38,13 +38,6 @@ export function BlockOverviewCard({ createdAt, block }: { createdAt: string; blo
         <div className="text-xs font-bold uppercase tracking-widest text-primary">{block ? `Block ${block.number} of 4 · ${block.name}` : '12-week program'}</div>
         <div className="text-sm font-semibold">{status.label}</div>
       </div>
-      <div className="mt-3">
-        <BlockBars status={status} />
-        <div className="mt-1.5 flex justify-between text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-          <span>Week 1</span>
-          <span>Week 12 · Deload</span>
-        </div>
-      </div>
       {block && <p className="mt-3 font-body text-sm font-semibold text-foreground">{block.summary}</p>}
       <p className={cn('font-body text-sm leading-relaxed text-foreground/90', block ? 'mt-1' : 'mt-3')}>{BLOCK_NOTE}</p>
       <p className="mt-1 font-body text-sm text-muted-foreground">
@@ -67,7 +60,7 @@ export function BlockBanner({ status, note }: { status: BlockStatus; note: strin
     <div className={cn('flex items-start gap-3 rounded-2xl border p-4', className)}>
       <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
       <div>
-        <div className="font-display text-xl tracking-wide">{title.toUpperCase()}</div>
+        <div className="font-display text-xl tracking-wide">{title}</div>
         <p className="mt-0.5 font-body text-sm text-foreground/90">{note}</p>
         <p className="mt-1 text-xs text-muted-foreground">{status.daysLeft} {status.daysLeft === 1 ? 'day' : 'days'} left in this program.</p>
       </div>

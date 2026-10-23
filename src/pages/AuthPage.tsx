@@ -94,7 +94,7 @@ export default function AuthPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
             <MailCheck className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">CHECK YOUR EMAIL</h1>
+          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Check your email</h1>
           <p className="mt-3 text-sm text-muted-foreground font-body">
             We sent a confirmation link to <span className="text-foreground">{email}</span>. Click it, then come
             back and sign in.
@@ -114,7 +114,7 @@ export default function AuthPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
             <MailCheck className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">CHECK YOUR EMAIL</h1>
+          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Check your email</h1>
           <p className="mt-3 text-sm text-muted-foreground font-body">
             If an account exists for <span className="text-foreground">{email}</span>, we sent a link to reset your
             password. Click it to set a new one.
@@ -152,7 +152,7 @@ export default function AuthPage() {
         >
           <div className="mb-8 flex flex-col items-center text-center">
             <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
-            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">RESET PASSWORD</h1>
+            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">Reset password</h1>
             <p className="mt-1 text-sm text-muted-foreground font-body">
               Enter your email and we'll send you a reset link.
             </p>

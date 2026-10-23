@@ -3,9 +3,10 @@ import { motion } from 'framer-motion'
 import { CalendarCheck, Check, Dumbbell, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProgressRing } from '@/components/ui/progress-ring'
+import { ReminderRow } from './ReminderRow'
 import { useAuth } from '@/context/AuthContext'
 import { sessions } from '@/lib/backend/api'
-import { allDoneMessage, greeting, pepTalk } from '@/lib/encouragement'
+import { allDoneMessage, greeting } from '@/lib/encouragement'
 import { computeStreak, countedDates } from '@/lib/streak'
 import { nextWorkoutDay, ringText, weekDots } from '@/lib/todayPlan'
 import type { WorkoutProgram, WorkoutSession } from '@/lib/types'
@@ -48,10 +49,9 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border border-primary/25 bg-card p-5 shadow-card sm:p-7"
     >
-      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
       <div className="relative">
         <h2 className="font-display text-3xl tracking-wide sm:text-4xl">{greeting(firstName, now)}</h2>
-        <p className="mt-0.5 font-body text-sm text-muted-foreground">{pepTalk(now)}</p>
+        <p className="mt-0.5 font-body text-sm text-muted-foreground">{now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
 
         <div className="mt-5 flex items-center justify-between gap-1.5" aria-label="This week">
           {dots.map((d, i) => (
@@ -113,6 +113,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           </div>
         )}
 
+        <ReminderRow userId={userId} />
       </div>
     </motion.div>
   )

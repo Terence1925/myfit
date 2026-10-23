@@ -47,7 +47,6 @@ export function WelcomeTour({ onDone }: { onDone: () => void }) {
       role="dialog"
       aria-label="Welcome to MyFit"
     >
-      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl" />
       <div className="relative flex items-center justify-between px-5 pt-[calc(1rem+env(safe-area-inset-top))]">
         <span className="font-brand text-2xl font-medium">MyFit</span>
         {!last && (

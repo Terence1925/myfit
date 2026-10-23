@@ -5,10 +5,10 @@ import { CATEGORY_LABELS, FILTER_TAGS, type Recipe, type RecipeCategory } from '
 import { cn } from '@/lib/utils'
 
 const CATEGORY_LOOK: Record<RecipeCategory, { icon: LucideIcon; tint: string }> = {
-  dessert: { icon: IceCreamCone, tint: 'from-pink-500/30 to-amber-400/20 text-pink-700 dark:text-pink-300' },
-  breakfast: { icon: EggFried, tint: 'from-amber-400/30 to-orange-400/20 text-amber-700 dark:text-amber-300' },
-  main: { icon: UtensilsCrossed, tint: 'from-emerald-500/25 to-lime-400/20 text-emerald-700 dark:text-emerald-300' },
-  snack: { icon: Salad, tint: 'from-sky-400/25 to-teal-400/20 text-sky-700 dark:text-sky-300' },
+  dessert: { icon: IceCreamCone, tint: 'from-muted to-muted text-muted-foreground' },
+  breakfast: { icon: EggFried, tint: 'from-muted to-muted text-muted-foreground' },
+  main: { icon: UtensilsCrossed, tint: 'from-muted to-muted text-muted-foreground' },
+  snack: { icon: Salad, tint: 'from-muted to-muted text-muted-foreground' },
 }
 
 /** The recipe photo, or a soft colored tile with an icon while a recipe has no photo (or the photo fails to load). */
