@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
-import { ChoiceGrid, MultiChoiceGrid, type ChoiceOption } from './ChoiceGrid'
+import { ChoiceGrid, type ChoiceOption } from './ChoiceGrid'
 import { cn } from '@/lib/utils'
 import type { IntakeAnswers } from '@/lib/types'
 import { disciplineOf, isMindBody } from '@/lib/discipline'
@@ -41,103 +41,6 @@ function StepShell({ title, subtitle, children }: { title: string; subtitle: str
   )
 }
 
-function Step1Sex({ answers, update }: StepProps) {
-  const options: ChoiceOption[] = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-  ]
-  return (
-    <StepShell title="Biological Sex" subtitle="Used to calculate your BMR accurately.">
-      <ChoiceGrid options={options} value={answers.sex} onChange={(v) => update('sex', v as IntakeAnswers['sex'])} />
-    </StepShell>
-  )
-}
-
-function Step2Age({ answers, update }: StepProps) {
-  return (
-    <StepShell title="Your Age" subtitle="Between 16 and 80 years old.">
-      <div className="max-w-xs">
-        <Label htmlFor="age">Age (years)</Label>
-        <Input
-          id="age"
-          type="number"
-          min={16}
-          max={80}
-          value={answers.age ?? ''}
-          onChange={(e) => update('age', Number(e.target.value))}
-          className="mt-2 text-lg h-14"
-          placeholder="e.g. 28"
-        />
-      </div>
-    </StepShell>
-  )
-}
-
-function Step3Weight({ answers, update }: StepProps) {
-  const unit = answers.weightUnit ?? 'lbs'
-  return (
-    <StepShell title="Current Weight" subtitle="We'll use this for your calorie and macro targets.">
-      <div className="max-w-sm space-y-4">
-        <div className="inline-flex rounded-lg border border-border p-1">
-          {(['lbs', 'kg'] as const).map((u) => (
-            <button
-              key={u}
-              onClick={() => update('weightUnit', u)}
-              className={cn(
-                'rounded-md px-4 py-1.5 text-sm font-semibold transition-colors',
-                unit === u ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground',
-              )}
-            >
-              {u.toUpperCase()}
-            </button>
-          ))}
-        </div>
-        <Input
-          type="number"
-          min={0}
-          value={answers.weight ?? ''}
-          onChange={(e) => update('weight', Number(e.target.value))}
-          className="text-lg h-14"
-          placeholder={unit === 'lbs' ? 'e.g. 165' : 'e.g. 75'}
-        />
-      </div>
-    </StepShell>
-  )
-}
-
-function Step4Height({ answers, update }: StepProps) {
-  return (
-    <StepShell title="Your Height" subtitle="Feet and inches.">
-      <div className="flex max-w-sm gap-4">
-        <div className="flex-1">
-          <Label>Feet</Label>
-          <Input
-            type="number"
-            min={3}
-            max={8}
-            value={answers.heightFeet ?? ''}
-            onChange={(e) => update('heightFeet', Number(e.target.value))}
-            className="mt-2 text-lg h-14"
-            placeholder="5"
-          />
-        </div>
-        <div className="flex-1">
-          <Label>Inches</Label>
-          <Input
-            type="number"
-            min={0}
-            max={11}
-            value={answers.heightInches ?? ''}
-            onChange={(e) => update('heightInches', Number(e.target.value))}
-            className="mt-2 text-lg h-14"
-            placeholder="10"
-          />
-        </div>
-      </div>
-    </StepShell>
-  )
-}
-
 function Step5Experience({ answers, update }: StepProps) {
   const options: ChoiceOption[] = [
     { value: '0-1', label: 'Beginner', description: '0-1 years training' },
@@ -146,7 +49,7 @@ function Step5Experience({ answers, update }: StepProps) {
     { value: '5+', label: 'Elite', description: '5+ years training' },
   ]
   return (
-    <StepShell title="Training Experience" subtitle="How long have you been training with intent?">
+    <StepShell title="Training experience" subtitle="How long have you been training with intent?">
       <ChoiceGrid
         options={options}
         value={answers.experience}
@@ -156,78 +59,231 @@ function Step5Experience({ answers, update }: StepProps) {
   )
 }
 
-function Step6Activity({ answers, update }: StepProps) {
-  const options: ChoiceOption[] = [
-    { value: 'sedentary', label: 'Sedentary', description: 'Desk job, little movement' },
-    { value: 'light', label: 'Lightly Active', description: 'Light exercise 1-3 days/wk' },
-    { value: 'moderate', label: 'Moderately Active', description: 'On your feet most of the day' },
-    { value: 'active', label: 'Active', description: 'Physical job or daily training' },
-    { value: 'athlete', label: 'Athlete', description: 'Intense daily training' },
-  ]
+/** A row of small buttons for a short question, with the question above it. */
+function ChipRow<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+  caption,
+}: {
+  label: string
+  options: { value: T; label: string }[]
+  value: T | undefined
+  onChange: (v: T) => void
+  caption?: string
+}) {
   return (
-    <StepShell title="Daily Activity" subtitle="Outside of the gym — how much do you move day to day?">
-      <ChoiceGrid
-        options={options}
-        value={answers.activityLevel}
-        onChange={(v) => update('activityLevel', v as IntakeAnswers['activityLevel'])}
-        columns={1}
-      />
+    <div>
+      <Label className="text-sm font-semibold">{label}</Label>
+      <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={label}>
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onChange(o.value)}
+            aria-pressed={value === o.value}
+            className={cn(
+              'min-h-[44px] rounded-full border px-3.5 text-sm font-semibold transition-colors',
+              value === o.value ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-foreground hover:border-primary/50',
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {caption && <p className="mt-1.5 text-xs text-muted-foreground">{caption}</p>}
+    </div>
+  )
+}
+
+/** Like ChipRow, but any number can be on at once. */
+function MultiChipRow({
+  label,
+  options,
+  values,
+  onChange,
+}: {
+  label: string
+  options: { value: string; label: string }[]
+  values: string[]
+  onChange: (v: string[]) => void
+}) {
+  const toggle = (v: string) => onChange(values.includes(v) ? values.filter((x) => x !== v) : [...values, v])
+  return (
+    <div>
+      <Label className="text-sm font-semibold">{label}</Label>
+      <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={label}>
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => toggle(o.value)}
+            aria-pressed={values.includes(o.value)}
+            className={cn(
+              'min-h-[44px] rounded-full border px-3.5 text-sm font-semibold transition-colors',
+              values.includes(o.value) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-foreground hover:border-primary/50',
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Sex, age, weight and height together: the four numbers the calorie targets need, on one screen. */
+function StepAboutYou({ answers, update }: StepProps) {
+  const unit = answers.weightUnit ?? 'lbs'
+  return (
+    <StepShell title="About you" subtitle="Used to work out your calorie and macro targets.">
+      <div className="space-y-5">
+        <ChipRow
+          label="Sex"
+          options={[
+            { value: 'male', label: 'Male' },
+            { value: 'female', label: 'Female' },
+          ]}
+          value={answers.sex}
+          onChange={(v) => update('sex', v as IntakeAnswers['sex'])}
+        />
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <Label htmlFor="age" className="text-sm font-semibold">Age</Label>
+            <Input
+              id="age"
+              type="number"
+              inputMode="numeric"
+              min={16}
+              max={80}
+              value={answers.age ?? ''}
+              onChange={(e) => update('age', Number(e.target.value))}
+              className="mt-2 h-12 text-base"
+              placeholder="28"
+            />
+          </div>
+          <div>
+            <Label htmlFor="feet" className="text-sm font-semibold">Height (ft)</Label>
+            <Input
+              id="feet"
+              type="number"
+              inputMode="numeric"
+              min={3}
+              max={8}
+              value={answers.heightFeet ?? ''}
+              onChange={(e) => update('heightFeet', Number(e.target.value))}
+              className="mt-2 h-12 text-base"
+              placeholder="5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="inches" className="text-sm font-semibold">Height (in)</Label>
+            <Input
+              id="inches"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={11}
+              value={answers.heightInches ?? ''}
+              onChange={(e) => update('heightInches', Number(e.target.value))}
+              className="mt-2 h-12 text-base"
+              placeholder="10"
+            />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="weight" className="text-sm font-semibold">Current weight</Label>
+            <div className="inline-flex rounded-lg border border-border p-0.5" role="group" aria-label="Weight unit">
+              {(['lbs', 'kg'] as const).map((u) => (
+                <button
+                  key={u}
+                  type="button"
+                  onClick={() => update('weightUnit', u)}
+                  aria-pressed={unit === u}
+                  className={cn(
+                    'min-h-[36px] min-w-[44px] rounded-md px-3 text-sm font-semibold transition-colors',
+                    unit === u ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  {u === 'lbs' ? 'lb' : 'kg'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <Input
+            id="weight"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            value={answers.weight ?? ''}
+            onChange={(e) => update('weight', Number(e.target.value))}
+            className="mt-2 h-12 text-base"
+            placeholder={unit === 'lbs' ? 'e.g. 165' : 'e.g. 75'}
+          />
+        </div>
+      </div>
     </StepShell>
   )
 }
 
-function Step7Sleep({ answers, update }: StepProps) {
-  const options: ChoiceOption[] = [
-    { value: '<5', label: '< 5 hours' },
-    { value: '5-6', label: '5-6 hours' },
-    { value: '6-7', label: '6-7 hours' },
-    { value: '7-8', label: '7-8 hours' },
-    { value: '8+', label: '8+ hours' },
-  ]
-  return (
-    <StepShell title="Sleep Duration" subtitle="Average hours of sleep per night.">
-      <ChoiceGrid
-        options={options}
-        value={answers.sleepHours}
-        onChange={(v) => update('sleepHours', v as IntakeAnswers['sleepHours'])}
-        columns={3}
-      />
-    </StepShell>
-  )
-}
+const ACTIVITY_OPTIONS: { value: IntakeAnswers['activityLevel']; label: string; description: string }[] = [
+  { value: 'sedentary', label: 'Sedentary', description: 'Sedentary: desk job, little movement' },
+  { value: 'light', label: 'Light', description: 'Light: exercise 1-3 days a week' },
+  { value: 'moderate', label: 'Moderate', description: 'Moderate: on your feet most of the day' },
+  { value: 'active', label: 'Active', description: 'Active: physical job or daily training' },
+  { value: 'athlete', label: 'Athlete', description: 'Athlete: intense daily training' },
+]
 
-function Step8SleepQuality({ answers, update }: StepProps) {
-  const options: ChoiceOption[] = [
-    { value: 'excellent', label: 'Excellent' },
-    { value: 'good', label: 'Good' },
-    { value: 'fair', label: 'Fair' },
-    { value: 'poor', label: 'Poor' },
-  ]
+/** Daily activity, sleep and stress together: the answers that set your recovery and your calories, on one screen. */
+function StepYourWeek({ answers, update }: StepProps) {
+  const activity = ACTIVITY_OPTIONS.find((o) => o.value === answers.activityLevel)
   return (
-    <StepShell title="Sleep Quality" subtitle="How rested do you generally feel?">
-      <ChoiceGrid
-        options={options}
-        value={answers.sleepQuality}
-        onChange={(v) => update('sleepQuality', v as IntakeAnswers['sleepQuality'])}
-      />
-    </StepShell>
-  )
-}
-
-function Step9Stress({ answers, update }: StepProps) {
-  const options: ChoiceOption[] = [
-    { value: 'low', label: 'Low' },
-    { value: 'moderate', label: 'Moderate' },
-    { value: 'high', label: 'High' },
-    { value: 'very-high', label: 'Very High' },
-  ]
-  return (
-    <StepShell title="Daily Stress" subtitle="Your typical day-to-day stress level.">
-      <ChoiceGrid
-        options={options}
-        value={answers.stressLevel}
-        onChange={(v) => update('stressLevel', v as IntakeAnswers['stressLevel'])}
-      />
+    <StepShell title="Your week" subtitle="Sets your calories and training load.">
+      <div className="space-y-5">
+        <ChipRow
+          label="Daily activity"
+          options={ACTIVITY_OPTIONS}
+          value={answers.activityLevel}
+          onChange={(v) => update('activityLevel', v)}
+          caption={activity?.description}
+        />
+        <ChipRow
+          label="Sleep per night (hours)"
+          options={[
+            { value: '<5', label: 'Under 5' },
+            { value: '5-6', label: '5-6' },
+            { value: '6-7', label: '6-7' },
+            { value: '7-8', label: '7-8' },
+            { value: '8+', label: '8+' },
+          ]}
+          value={answers.sleepHours}
+          onChange={(v) => update('sleepHours', v as IntakeAnswers['sleepHours'])}
+        />
+        <ChipRow
+          label="How rested you feel"
+          options={[
+            { value: 'excellent', label: 'Excellent' },
+            { value: 'good', label: 'Good' },
+            { value: 'fair', label: 'Fair' },
+            { value: 'poor', label: 'Poor' },
+          ]}
+          value={answers.sleepQuality}
+          onChange={(v) => update('sleepQuality', v as IntakeAnswers['sleepQuality'])}
+        />
+        <ChipRow
+          label="Daily stress"
+          options={[
+            { value: 'low', label: 'Low' },
+            { value: 'moderate', label: 'Moderate' },
+            { value: 'high', label: 'High' },
+            { value: 'very-high', label: 'Very high' },
+          ]}
+          value={answers.stressLevel}
+          onChange={(v) => update('stressLevel', v as IntakeAnswers['stressLevel'])}
+        />
+      </div>
     </StepShell>
   )
 }
@@ -242,7 +298,7 @@ function StepStyle({ answers, update }: StepProps) {
   }))
   return (
     <StepShell
-      title={discipline === 'yoga' ? 'What Do You Want From Yoga?' : 'What Do You Want From Pilates?'}
+      title={discipline === 'yoga' ? 'What do you want from yoga?' : 'What do you want from Pilates?'}
       subtitle="This is your goal. Pick the kind of session that fits it. Each one is a set sequence you repeat."
     >
       <ChoiceGrid
@@ -285,7 +341,7 @@ function Step10Days({ answers, update }: StepProps) {
       ]
   return (
     <StepShell
-      title={mindBody ? 'Sessions per Week' : 'Training Frequency'}
+      title={mindBody ? 'Sessions per week' : 'Training frequency'}
       subtitle={
         mindBody
           ? style
@@ -311,7 +367,7 @@ function Step11Goal({ answers, update }: StepProps) {
     { value: 'body-recomposition', label: 'Body Recomposition', description: 'Lose fat, build muscle', dot: 'bg-goal-recomp' },
   ]
   return (
-    <StepShell title="Primary Goal" subtitle="What's the main outcome you're training for?">
+    <StepShell title="Primary goal" subtitle="What's the main outcome you're training for?">
       <ChoiceGrid
         options={options.map(({ dot, ...o }) => ({
           ...o,
@@ -334,7 +390,7 @@ function Step12Equipment({ answers, update }: StepProps) {
     { value: 'pilates', label: 'Pilates', description: 'Mat Pilates. Slow, controlled moves, no machine' },
   ]
   return (
-    <StepShell title="How Do You Want to Train?" subtitle="Pick what you have or what you enjoy. We only program moves you can actually do.">
+    <StepShell title="How do you want to train?" subtitle="Pick what you have or what you enjoy. We only program moves you can actually do.">
       <ChoiceGrid
         options={options}
         value={answers.equipment}
@@ -365,34 +421,28 @@ function Step13Focus({ answers, update }: StepProps) {
   const mindBody = isMindBody(answers.equipment ?? '')
   return (
     <StepShell
-      title={mindBody ? 'Limitations' : 'Focus Areas & Limitations'}
+      title={mindBody ? 'Limitations' : 'Focus areas and limitations'}
       subtitle={
         mindBody
           ? 'Flag any injury so we swap out poses and moves that are not right for you.'
-          : 'Pick any muscle groups to emphasize, and flag any injuries.'
+          : 'Muscles to emphasize, and any injuries.'
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         {!mindBody && (
-          <div>
-            <Label className="mb-3 block">Focus areas (select any)</Label>
-            <MultiChoiceGrid
-              options={focusOptions}
-              values={answers.focusAreas ?? []}
-              onChange={(v) => update('focusAreas', v as IntakeAnswers['focusAreas'])}
-              columns={3}
-            />
-          </div>
-        )}
-        <div>
-          <Label className="mb-3 block">Injuries / limitations</Label>
-          <ChoiceGrid
-            options={injuryOptions}
-            value={answers.injuries}
-            onChange={(v) => update('injuries', v as IntakeAnswers['injuries'])}
-            columns={3}
+          <MultiChipRow
+            label="Focus areas (select any)"
+            options={focusOptions}
+            values={answers.focusAreas ?? []}
+            onChange={(v) => update('focusAreas', v as IntakeAnswers['focusAreas'])}
           />
-        </div>
+        )}
+        <ChipRow
+          label="Injuries or limitations"
+          options={injuryOptions}
+          value={answers.injuries}
+          onChange={(v) => update('injuries', v as IntakeAnswers['injuries'])}
+        />
       </div>
     </StepShell>
   )
@@ -411,14 +461,12 @@ const STEP_DAYS: StepDef = {
       MIND_BODY_DAY_OPTIONS[disciplineOf(a.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'].includes(a.trainingDays)),
 }
 const BODY_STEPS: StepDef[] = [
-  { Component: Step1Sex, valid: (a) => !!a.sex },
-  { Component: Step2Age, valid: (a) => !!a.age && a.age >= 16 && a.age <= 80 },
-  { Component: Step3Weight, valid: (a) => !!a.weight && a.weight > 0 },
-  { Component: Step4Height, valid: (a) => a.heightFeet !== undefined && a.heightInches !== undefined && a.heightFeet > 0 },
-  { Component: Step6Activity, valid: (a) => !!a.activityLevel },
-  { Component: Step7Sleep, valid: (a) => !!a.sleepHours },
-  { Component: Step8SleepQuality, valid: (a) => !!a.sleepQuality },
-  { Component: Step9Stress, valid: (a) => !!a.stressLevel },
+  {
+    Component: StepAboutYou,
+    valid: (a) =>
+      !!a.sex && !!a.age && a.age >= 16 && a.age <= 80 && !!a.weight && a.weight > 0 && !!a.heightFeet && a.heightInches !== undefined,
+  },
+  { Component: StepYourWeek, valid: (a) => !!a.activityLevel && !!a.sleepHours && !!a.sleepQuality && !!a.stressLevel },
   { Component: Step13Focus, valid: (a) => !!a.injuries },
 ]
 
@@ -502,8 +550,8 @@ export function IntakeWizard({
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-10 sm:py-16">
-      <div className="mb-10 space-y-4">
+    <div className="mx-auto max-w-2xl py-6 sm:py-16">
+      <div className="mb-6 space-y-4 sm:mb-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -527,7 +575,7 @@ export function IntakeWizard({
         </div>
       </div>
 
-      <div className="relative min-h-[380px] overflow-hidden">
+      <div className="relative overflow-hidden sm:min-h-[380px]">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step}
@@ -548,7 +596,7 @@ export function IntakeWizard({
         </div>
       )}
 
-      <div className="mt-10 flex items-center justify-between">
+      <div className="mt-6 flex items-center justify-between sm:mt-10">
         <Button variant="ghost" onClick={goBack} disabled={step === 0} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" />
           Back
