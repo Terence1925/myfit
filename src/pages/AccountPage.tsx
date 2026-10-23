@@ -13,6 +13,7 @@ import { useStorePrices } from '@/lib/storePrices'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
 import { WorkoutReminders } from '@/components/account/WorkoutReminders'
+import { WeightUnitToggle } from '@/components/shared/WeightUnitToggle'
 import { useTheme, type ThemeChoice } from '@/lib/theme'
 
 // Must match capacitor.config.ts's appId
@@ -268,6 +269,16 @@ export default function AccountPage() {
               ))}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Auto follows your phone's light or dark setting.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div>
+              <div className="font-body text-sm font-bold">Weight units</div>
+              <div className="text-xs text-muted-foreground">Used for your lifts, body weight and charts.</div>
+            </div>
+            <WeightUnitToggle />
           </CardContent>
         </Card>
 

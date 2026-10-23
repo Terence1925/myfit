@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { WeightChart } from '@/components/progress/WeightChart'
 import { getExerciseHistory, isLatestAPR } from '@/lib/progressiveOverload'
 import type { WorkoutSession } from '@/lib/types'
+import { fmtNumber, toUnit, unitLabel, useWeightUnit } from '@/lib/weightUnit'
 
 export function ExerciseHistoryDialog({
   exerciseName,
@@ -16,8 +17,9 @@ export function ExerciseHistoryDialog({
   open: boolean
   onClose: () => void
 }) {
+  const [unit] = useWeightUnit()
   const history = getExerciseHistory(sessions, exerciseName)
-  const points = history.map((h) => ({ date: h.date, value: h.estimated1RM }))
+  const points = history.map((h) => ({ date: h.date, value: toUnit(h.estimated1RM, unit) }))
   const newPR = isLatestAPR(history)
 
   return (
@@ -38,7 +40,7 @@ export function ExerciseHistoryDialog({
             <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Estimated 1-Rep Max Trend
             </h4>
-            <WeightChart points={points} unitLabel="lbs" />
+            <WeightChart points={points} unitLabel={unitLabel(unit)} />
           </div>
 
           <div>
@@ -53,10 +55,10 @@ export function ExerciseHistoryDialog({
                 >
                   <span className="shrink-0 text-muted-foreground">{new Date(h.date).toLocaleDateString()}</span>
                   <span className="font-semibold">
-                    {h.topWeight} × {h.topReps}
+                    {fmtNumber(toUnit(h.topWeight, unit))} × {h.topReps}
                   </span>
                   <Badge variant="outline" className="shrink-0">
-                    ~{h.estimated1RM} lbs 1RM
+                    ~{fmtNumber(toUnit(h.estimated1RM, unit))} {unitLabel(unit)} 1RM
                   </Badge>
                 </div>
               ))}

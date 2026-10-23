@@ -4,6 +4,7 @@ import { CalendarCheck, Dumbbell, Eye, PartyPopper, Plus, Scale } from 'lucide-r
 import { Button } from '@/components/ui/button'
 import { sessions } from '@/lib/backend/api'
 import { formatLbs } from '@/lib/lifted'
+import { toUnit, unitLabel, useWeightUnit } from '@/lib/weightUnit'
 import { BLOCK_WEEKS, COMPLETE_NOTE, blockStatus } from '@/lib/programBlock'
 import { countedDates } from '@/lib/streak'
 import type { WorkoutProgram, WorkoutSession } from '@/lib/types'
@@ -33,6 +34,7 @@ export function ProgramComplete({
     }
   }, [userId, program.id])
 
+  const [unit] = useWeightUnit()
   const list = saved ?? []
   const workouts = countedDates(list).length
   let sets = 0
@@ -48,7 +50,7 @@ export function ProgramComplete({
   const tiles = [
     { icon: <CalendarCheck className="h-4 w-4" />, value: String(workouts), label: workouts === 1 ? 'workout done' : 'workouts done' },
     { icon: <Dumbbell className="h-4 w-4" />, value: String(sets), label: 'sets done' },
-    { icon: <Scale className="h-4 w-4" />, value: volume > 0 ? formatLbs(Math.round(volume)) : '0', label: 'lbs lifted' },
+    { icon: <Scale className="h-4 w-4" />, value: volume > 0 ? formatLbs(Math.round(toUnit(volume, unit))) : '0', label: `${unitLabel(unit)} lifted` },
   ]
 
   return (

@@ -9,6 +9,8 @@ import { WeekTargetCard } from './WeekTargetCard'
 import { blockStatus } from '@/lib/programBlock'
 import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
 import { warmupFor } from '@/lib/warmup'
+import { useWeightUnit } from '@/lib/weightUnit'
+import { WeightUnitToggle } from '@/components/shared/WeightUnitToggle'
 import { sessions } from '@/lib/backend/api'
 import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
@@ -39,6 +41,7 @@ export function WeeklyPlanTab({
   onSwapExercise: (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => Promise<void>
   hasProgressAccess: boolean
 }) {
+  const [unit] = useWeightUnit()
   const [swappingKey, setSwappingKey] = React.useState<string | null>(null)
   const [loggingMode, setLoggingMode] = React.useState(false)
   const loggingRef = React.useRef(false)
@@ -52,7 +55,7 @@ export function WeeklyPlanTab({
   const target = startedAt && !readOnly ? weekTarget(blockStatus(startedAt).week) : null
   const planned = program.days.find((d) => d.day === activeDay) ?? program.days[0]
   const day = target ? dayForWeek(planned, target) : planned
-  const suggestions = day.exercises.map((ex, i) => (target ? suggestFor(userSessions, ex, target, { main: i < 2 }) : null))
+  const suggestions = day.exercises.map((ex, i) => (target ? suggestFor(userSessions, ex, target, { main: i < 2, unit }) : null))
 
   const startRest = (exerciseIndex: number, setIndex: number) => {
     const ex = day.exercises[exerciseIndex]
@@ -285,6 +288,13 @@ export function WeeklyPlanTab({
           </div>
         )}
 
+        {loggingMode && !mindBody && (
+          <div className="mb-4 flex items-center justify-between gap-3 text-sm text-muted-foreground">
+            <span>Weights in</span>
+            <WeightUnitToggle />
+          </div>
+        )}
+
         <div className="space-y-3">
           {day.exercises.map((ex, i) => (
             <ExerciseCard
@@ -300,7 +310,7 @@ export function WeeklyPlanTab({
               hasProgressAccess={hasProgressAccess}
               readOnly={readOnly}
               suggestion={suggestions[i]}
-              warmup={target ? warmupFor(day.exercises, i, suggestions[i]?.weight, target) : null}
+              warmup={target ? warmupFor(day.exercises, i, suggestions[i]?.weight, target, unit) : null}
             />
           ))}
         </div>

@@ -13,6 +13,7 @@ import { BLOCK_WEEKS, blockStatus } from '@/lib/programBlock'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { programs } from '@/lib/backend/api'
+import { adoptWeightUnit } from '@/lib/weightUnit'
 import { hasProAccess } from '@/lib/billing'
 import type { IntakeAnswers, WorkoutProgram } from '@/lib/types'
 
@@ -43,6 +44,7 @@ export default function Home() {
         const existing = await programs.listForUser(profileId)
         if (cancelled) return
         if (existing.length > 0) {
+          adoptWeightUnit(existing[0].answers?.weightUnit)
           setProgram(existing[0])
           setMode('program')
         } else {
@@ -65,6 +67,7 @@ export default function Home() {
     setSubmitting(true)
     try {
       const created = await programs.generate(profile.id, answers)
+      adoptWeightUnit(answers.weightUnit)
       setProgram(created)
       setMode('program')
     } catch (err) {

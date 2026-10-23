@@ -1,4 +1,5 @@
 import type { SetLog, WorkoutSession } from './types'
+import { fmtNumber, toUnit, type WeightUnit } from './weightUnit'
 
 export interface ExerciseHistoryPoint {
   date: string
@@ -53,11 +54,11 @@ export function getExerciseHistory(sessions: WorkoutSession[], exerciseName: str
   return points.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 }
 
-export function lastSessionHint(sessions: WorkoutSession[], exerciseName: string): string | null {
+export function lastSessionHint(sessions: WorkoutSession[], exerciseName: string, unit: WeightUnit = 'lbs'): string | null {
   const history = getExerciseHistory(sessions, exerciseName)
   if (history.length === 0) return null
   const last = history[history.length - 1]
-  return `Last time: ${last.topWeight} × ${last.topReps}`
+  return `Last time: ${fmtNumber(toUnit(last.topWeight, unit))} × ${last.topReps}`
 }
 
 export function isLatestAPR(history: ExerciseHistoryPoint[]): boolean {

@@ -3,6 +3,7 @@
 import { EXERCISES } from './backend/exerciseLibrary'
 import type { Exercise } from './types'
 import type { WeekTarget } from './weekPlan'
+import { unitShort, type WeightUnit } from './weightUnit'
 
 export interface WarmupRow {
   /** "Empty bar" for the bar on its own, otherwise the weight in pounds. */
@@ -20,6 +21,12 @@ export interface WarmupPlan {
 /** Below this the weights are too light to need a ramp: the first work set does the job. */
 export const WARMUP_FROM_LB = 60
 const BAR = 45
+
+// Per unit: where warm-ups start, the empty bar, the rounding, and where a fourth (90%) set is added
+const CFG = {
+  lbs: { from: WARMUP_FROM_LB, bar: BAR, round: 5, fourth: 185, tiny: 10 },
+  kg: { from: 27, bar: 20, round: 2.5, fourth: 85, tiny: 5 },
+} as const
 
 const byName = new Map(EXERCISES.map((e) => [e.name, e]))
 
@@ -48,7 +55,10 @@ export function warmupFor(
   index: number,
   workWeight: number | null | undefined,
   target: WeekTarget,
+  unit: WeightUnit = 'lbs',
 ): WarmupPlan | null {
+  const cfg = CFG[unit]
+  const short = unitShort(unit)
   const ex = exercises[index]
   if (!ex || index > 1 || target.deload) return null
   if (ex.format === 'yoga' || ex.format === 'pilates' || /sec|min|pump/i.test(ex.reps)) return null
@@ -59,7 +69,7 @@ export function warmupFor(
   const first = exercises[0]
   const warmAlready = index === 1 && !!first && isHeavyLift(first.name) && muscleOf(first.name) !== undefined && muscleOf(first.name) === muscleOf(ex.name)
 
-  if (!workWeight || workWeight < WARMUP_FROM_LB) {
+  if (!workWeight || workWeight < cfg.from) {
     return {
       rows: [],
       note: warmAlready
@@ -70,23 +80,23 @@ export function warmupFor(
 
   const steps = warmAlready
     ? [{ pct: 0.6, reps: 4 }, { pct: 0.8, reps: 2 }]
-    : workWeight >= 185
+    : workWeight >= cfg.fourth
       ? [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }, { pct: 0.9, reps: 1 }]
       : [{ pct: 0.4, reps: 8 }, { pct: 0.6, reps: 5 }, { pct: 0.8, reps: 3 }]
 
   const rows: WarmupRow[] = []
   for (const { pct, reps } of steps) {
-    let weight = roundTo(workWeight * pct, 5)
+    let weight = roundTo(workWeight * pct, cfg.round)
     if (weight >= workWeight) continue
-    if (usesBar(ex.name) && weight <= BAR) {
+    if (usesBar(ex.name) && weight <= cfg.bar) {
       // On a barbell the lightest set cannot go below the empty bar
       if (rows.some((r) => r.weight === null)) continue
-      rows.push({ label: `Empty bar (${BAR} lb)`, weight: null, reps: warmAlready ? reps : 10 })
+      rows.push({ label: `Empty bar (${cfg.bar} ${short})`, weight: null, reps: warmAlready ? reps : 10 })
       continue
     }
-    if (weight < 10) continue
+    if (weight < cfg.tiny) continue
     if (rows.length && rows[rows.length - 1].weight === weight) continue
-    rows.push({ label: `${fmt(weight)} lb`, weight, reps })
+    rows.push({ label: `${fmt(weight)} ${short}`, weight, reps })
   }
-  return { rows, note: `Warm-up sets are not counted in your work sets. Then do your work sets at ${fmt(workWeight)} lb.` }
+  return { rows, note: `Warm-up sets are not counted in your work sets. Then do your work sets at ${fmt(workWeight)} ${short}.` }
 }

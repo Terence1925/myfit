@@ -14,11 +14,12 @@ import { metrics } from '@/lib/backend/api'
 import { hasProAccess } from '@/lib/billing'
 import { kgToLbs, lbsToKg } from '@/lib/tdee'
 import { cn } from '@/lib/utils'
+import { useWeightUnit } from '@/lib/weightUnit'
 import type { BodyMetricEntry } from '@/lib/types'
 
 export default function ProgressPage() {
   const { profile, role } = useAuth()
-  const [unit, setUnit] = React.useState<'lbs' | 'kg'>('lbs')
+  const [unit, setUnit] = useWeightUnit()
   const [entries, setEntries] = React.useState<BodyMetricEntry[]>([])
   const [loaded, setLoaded] = React.useState(false)
   const [date, setDate] = React.useState(() => new Date().toISOString().slice(0, 10))

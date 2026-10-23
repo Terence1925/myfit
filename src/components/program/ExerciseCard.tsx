@@ -10,6 +10,33 @@ import type { Suggestion } from '@/lib/weekPlan'
 import type { WarmupPlan } from '@/lib/warmup'
 import { cn } from '@/lib/utils'
 import type { Exercise, SetLog, WorkoutSession } from '@/lib/types'
+import { fmtNumber, toLbs, toUnit, unitShort, useWeightUnit, type WeightUnit } from '@/lib/weightUnit'
+
+/** The weight box: shows and takes the chosen unit, while the workout is saved in pounds. */
+function WeightInput({ valueLb, unit, onChange }: { valueLb: number | null | undefined; unit: WeightUnit; onChange: (lbs: number) => void }) {
+  const shown = valueLb ? fmtNumber(toUnit(valueLb, unit)) : ''
+  const [text, setText] = React.useState(shown)
+  // Follow changes from outside (a restored draft, or switching the unit) without fighting what is being typed
+  React.useEffect(() => {
+    const typed = Number(text)
+    if (!(text !== '' && Math.abs(toLbs(typed, unit) - (valueLb ?? 0)) < 0.01)) setText(shown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [valueLb, unit])
+  return (
+    <input
+      type="number"
+      inputMode="decimal"
+      value={text}
+      onChange={(e) => {
+        setText(e.target.value)
+        onChange(e.target.value === '' ? 0 : toLbs(Number(e.target.value), unit))
+      }}
+      placeholder={unitShort(unit)}
+      aria-label={`Weight in ${unitShort(unit)}`}
+      className="h-12 w-full rounded-md border border-input bg-background/60 px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    />
+  )
+}
 
 export function ExerciseCard({
   exercise,
@@ -42,12 +69,13 @@ export function ExerciseCard({
   hasProgressAccess: boolean
 }) {
   const navigate = useNavigate()
+  const [unit] = useWeightUnit()
   const [demoOpen, setDemoOpen] = React.useState(false)
   const [historyOpen, setHistoryOpen] = React.useState(false)
   const [warmupOpen, setWarmupOpen] = React.useState(false)
   // Yoga and Pilates flow from move to move: no sets table, no rest, no weights to track.
   const mindBody = exercise.format === 'yoga' || exercise.format === 'pilates'
-  const hint = logging && !mindBody ? lastSessionHint(userSessions, exercise.name) : null
+  const hint = logging && !mindBody ? lastSessionHint(userSessions, exercise.name, unit) : null
 
   const handleHistoryClick = () => {
     if (!hasProgressAccess) {
@@ -193,13 +221,7 @@ export function ExerciseCard({
               {setLogs.map((s, si) => (
                 <div key={si} className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 items-center">
                   <span className="w-6 text-center text-sm font-semibold text-muted-foreground">{s.setNumber}</span>
-                  <input
-                    type="number"
-                    value={s.weight ?? ''}
-                    onChange={(e) => onSetChange(si, 'weight', Number(e.target.value))}
-                    placeholder="lbs"
-                    className="h-12 w-full rounded-md border border-input bg-background/60 px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
+                  <WeightInput valueLb={s.weight} unit={unit} onChange={(lbs) => onSetChange(si, 'weight', lbs)} />
                   <input
                     type="number"
                     value={s.reps ?? ''}

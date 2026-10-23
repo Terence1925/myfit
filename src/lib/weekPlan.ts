@@ -4,6 +4,7 @@
 import { BLOCK_WEEKS, DELOAD_ADVICE, TOTAL_WEEKS } from './programBlock'
 import { estimated1RM } from './progressiveOverload'
 import type { Exercise, ProgramDay, SetLog, WorkoutSession } from './types'
+import { toUnit, unitShort, type WeightUnit } from './weightUnit'
 
 export type WeekPhase = 'base' | 'build' | 'push' | 'test' | 'deload'
 
@@ -73,6 +74,9 @@ function repRange(reps: string): { low: number; high: number } | null {
 }
 
 const roundTo = (n: number, step: number) => Math.round(n / step) * step
+
+/** The step weights are rounded to: pounds in 5s (2.5 when light), kilograms in 2.5s (1.25 when light). */
+const plateRound = (w: number, unit: WeightUnit) => (unit === 'kg' ? (w >= 27 ? 2.5 : 1.25) : w >= 60 ? 5 : 2.5)
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1))
 
 interface Done {
@@ -103,7 +107,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 
 /**
  * What to aim for on an exercise this week, from what was logged before, said the way a coach would:
- * - training weeks: add 2.5 lb when every set reached the top of the rep range (then back to the bottom of the range),
+ * - training weeks: add 2.5 (lb or kg) when every set reached the top of the rep range (then back to the bottom of the range),
  *   otherwise the same weight and one more rep
  * - missed by a lot: stay once, go down after two misses in a row
  * - three workouts with no progress: a lighter way back up, and what to check
@@ -116,12 +120,17 @@ export function suggestFor(
   sessions: WorkoutSession[],
   exercise: Exercise,
   target: WeekTarget,
-  opts: { main?: boolean; now?: Date } = {},
+  opts: { main?: boolean; now?: Date; unit?: WeightUnit } = {},
 ): Suggestion | null {
   if (exercise.format === 'yoga' || exercise.format === 'pilates') return null
   const range = repRange(exercise.reps)
   if (!range) return null
-  const history = doneSets(sessions, exercise.name)
+  // Saved weights are in pounds; everything below is worked out in the unit the person uses
+  const unit = opts.unit ?? 'lbs'
+  const u = unitShort(unit)
+  // (kilograms are tidied to the nearest 0.5, so a weight saved in pounds still gives plate-friendly numbers)
+  const tidy = (w: number) => (unit === 'kg' ? Math.round(w * 2) / 2 : w)
+  const history = doneSets(sessions, exercise.name).map((h) => ({ ...h, sets: h.sets.map((x) => ({ ...x, weight: tidy(toUnit(x.weight, unit)) })) }))
   const now = opts.now ?? new Date()
 
   if (history.length === 0) {
@@ -137,10 +146,10 @@ export function suggestFor(
 
   if (target.deload) {
     const usual = Math.max(...history.slice(-8).flatMap((h) => h.sets.map((s) => s.weight)))
-    const step = usual >= 60 ? 5 : 2.5
+    const step = plateRound(usual, unit)
     const half = Math.max(step, roundTo(usual * 0.5, step))
     return {
-      aim: `Use about ${fmt(half)} lb, half of your usual ${fmt(usual)} lb. Keep it easy.`,
+      aim: `Use about ${fmt(half)} ${u}, half of your usual ${fmt(usual)} ${u}. Keep it easy.`,
       coach: 'This week is for recovery. Move well and leave plenty in the tank. You come back stronger for it.',
     }
   }
@@ -153,11 +162,11 @@ export function suggestFor(
 
   // Back after a long break: ease in instead of picking up where it stopped
   if (daysAway >= 28) {
-    const step = topWeight >= 60 ? 5 : 2.5
+    const step = plateRound(topWeight, unit)
     const restart = Math.max(step, roundTo(topWeight * 0.9, step))
     return {
       weight: restart,
-      aim: `Restart at ${fmt(restart)} lb × ${range.low}. ${was}`,
+      aim: `Restart at ${fmt(restart)} ${u} × ${range.low}. ${was}`,
       coach: `It has been ${daysAway} days since you trained this. Start a little lighter, then build back up. It comes back faster than you think.`,
     }
   }
@@ -175,13 +184,13 @@ export function suggestFor(
     if (beforeAtWeight && beforeAtWeight.length > 0 && Math.min(...beforeAtWeight) <= range.low - 2) {
       return {
         weight: Math.max(LOAD_STEP, topWeight - 2 * LOAD_STEP),
-        aim: `${fmt(topWeight)} was too heavy twice. Drop to ${fmt(Math.max(LOAD_STEP, topWeight - 2 * LOAD_STEP))} lb and aim for ${rangeText} reps, then build back up.`,
-        coach: `${away}Dropping the weight is not failing. It is how you get past this. Own every rep at the lighter weight, then climb in 2.5 lb steps.`,
+        aim: `${fmt(topWeight)} was too heavy twice. Drop to ${fmt(Math.max(LOAD_STEP, topWeight - 2 * LOAD_STEP))} ${u} and aim for ${rangeText} reps, then build back up.`,
+        coach: `${away}Dropping the weight is not failing. It is how you get past this. Own every rep at the lighter weight, then climb in ${fmt(LOAD_STEP)} ${u} steps.`,
       }
     }
     return {
       weight: topWeight,
-      aim: `Stay at ${fmt(topWeight)} lb and aim for ${rangeText} reps. ${was}`,
+      aim: `Stay at ${fmt(topWeight)} ${u} and aim for ${rangeText} reps. ${was}`,
       coach: `${away}A new weight can take a couple of workouts. Rest the full ${exercise.rest}, keep your form clean, and go again.`,
     }
   }
@@ -189,8 +198,8 @@ export function suggestFor(
   if (atTop.every((s) => s.reps >= range.high)) {
     return {
       weight: topWeight + LOAD_STEP,
-      aim: `Aim for ${fmt(topWeight + LOAD_STEP)} lb × ${range.low}. ${was}`,
-      coach: `${away}You hit the top of the range on every set. That earns you ${fmt(LOAD_STEP)} lb. ${progressed ? 'Progress again and again, keep it going.' : 'Now win those reps back at the new weight.'}`,
+      aim: `Aim for ${fmt(topWeight + LOAD_STEP)} ${u} × ${range.low}. ${was}`,
+      coach: `${away}You hit the top of the range on every set. That earns you ${fmt(LOAD_STEP)} ${u}. ${progressed ? 'Progress again and again, keep it going.' : 'Now win those reps back at the new weight.'}`,
     }
   }
 
@@ -200,11 +209,11 @@ export function suggestFor(
   if (recent.length === 3) {
     const best = recent.map((h) => Math.max(...h.sets.map((s) => estimated1RM(s.weight, s.reps))))
     if (best[2] <= best[0] && best[2] <= best[1]) {
-      const step = topWeight >= 60 ? 5 : 2.5
+      const step = plateRound(topWeight, unit)
       const lighter = Math.max(step, roundTo(topWeight * 0.9, step))
       return {
         weight: topWeight,
-        aim: `Stuck at ${fmt(topWeight)} lb for 3 workouts? That happens. Try ${fmt(lighter)} lb × ${range.high} and build back up, or keep ${fmt(topWeight)} lb and slow each rep down.`,
+        aim: `Stuck at ${fmt(topWeight)} ${u} for 3 workouts? That happens. Try ${fmt(lighter)} ${u} × ${range.high} and build back up, or keep ${fmt(topWeight)} ${u} and slow each rep down.`,
         coach: `${away}Before you change the weight, check the usual causes: sleep, eating enough (your calories and protein are in the Nutrition tab), rushing the reps, and short rests. Fix one and go again.`,
       }
     }
@@ -219,5 +228,5 @@ export function suggestFor(
         : progressed
           ? `${away}You moved up last time. Do it again. One more rep than last time is all it takes.`
           : `${away}One more rep than last time. Squeeze out that last rep with good form.`
-  return { aim: `Aim for ${fmt(topWeight)} lb × ${next}. ${was}`, coach, weight: topWeight }
+  return { aim: `Aim for ${fmt(topWeight)} ${u} × ${next}. ${was}`, coach, weight: topWeight }
 }
