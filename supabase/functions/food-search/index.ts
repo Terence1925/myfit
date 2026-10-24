@@ -7,10 +7,9 @@
 // Searches two free, worldwide food databases for the Food tab:
 //   - USDA FoodData Central: plain foods, cooked dishes and US brands
 //   - Open Food Facts: packaged foods from around the world (data under the ODbL licence, credited in the app)
-// The key never leaves this server. Searching by name is for a signed-in person with Pro (or an admin); looking up a
-// scanned barcode is free for every signed-in member.
-// Body: { query: string } or { barcode: string }. Returns { foods: [...] } in the app's food shape (a barcode gives one food, or none). If one database is down the other
-// still answers.
+// The key never leaves this server. Searching by name and looking up a scanned barcode are free for every signed-in member.
+// Body: { query: string } or { barcode: string }. Returns { foods: [...] } in the app's food shape (a barcode gives one
+// food, or none). If one database is down the other still answers.
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
