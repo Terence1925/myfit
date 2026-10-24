@@ -27,25 +27,28 @@ export function BarcodeScan({
   const stopCamera = React.useRef<(() => void) | null>(null)
   const alive = React.useRef(true)
 
-  const lookUp = React.useCallback(
-    (barcode: string) => {
-      setCode(barcode)
-      setPhase('looking')
-      foodLog
-        .lookupBarcode(barcode)
-        .then((food) => {
-          if (!alive.current) return
-          if (food) onFood(food)
-          else setPhase('notfound')
-        })
-        .catch((err) => {
-          if (!alive.current) return
-          setMessage(err instanceof Error ? err.message : 'Could not look that up.')
-          setPhase('error')
-        })
-    },
-    [onFood],
-  )
+  // Always the latest callback, without making `lookUp` and `start` change on every render (the scanner must open only once)
+  const onFoodRef = React.useRef(onFood)
+  React.useEffect(() => {
+    onFoodRef.current = onFood
+  })
+
+  const lookUp = React.useCallback((barcode: string) => {
+    setCode(barcode)
+    setPhase('looking')
+    foodLog
+      .lookupBarcode(barcode)
+      .then((food) => {
+        if (!alive.current) return
+        if (food) onFoodRef.current(food)
+        else setPhase('notfound')
+      })
+      .catch((err) => {
+        if (!alive.current) return
+        setMessage(err instanceof Error ? err.message : 'Could not look that up.')
+        setPhase('error')
+      })
+  }, [])
 
   const start = React.useCallback(async () => {
     setMessage('')
@@ -61,7 +64,10 @@ export function BarcodeScan({
         // the video element exists as soon as the phase is 'scanning'
         await new Promise((r) => setTimeout(r, 0))
         if (!videoRef.current) return
-        stopCamera.current = await scanWithCamera(videoRef.current, lookUp)
+        const stop = await scanWithCamera(videoRef.current, lookUp)
+        // Left the screen while the camera was still starting: switch it off again
+        if (alive.current) stopCamera.current = stop
+        else stop()
       }
     } catch (err) {
       if (!alive.current) return
@@ -74,9 +80,15 @@ export function BarcodeScan({
     }
   }, [lookUp])
 
+  // The scanner opens once when this screen opens. Coming back to the app (after the scanner, or from another app) can make
+  // the screen redraw; that must never open the scanner again, or it could not be closed.
+  const opened = React.useRef(false)
   React.useEffect(() => {
     alive.current = true
-    void start()
+    if (!opened.current) {
+      opened.current = true
+      void start()
+    }
     return () => {
       alive.current = false
       stopCamera.current?.()
