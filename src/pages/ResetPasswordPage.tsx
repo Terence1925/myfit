@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
           <CardContent className="p-6 sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="newPassword">New Password</Label>
+                <Label htmlFor="newPassword">New password</Label>
                 <Input
                   id="newPassword"
                   type="password"
@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">Confirm password</Label>
                 <Input
                   id="confirmPassword"
                   type="password"

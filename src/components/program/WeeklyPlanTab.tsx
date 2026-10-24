@@ -242,7 +242,7 @@ export function WeeklyPlanTab({
                 onClick={toggleLogging}
               >
                 <ClipboardList className="h-4 w-4" />
-                {loggingMode ? 'Cancel Log' : 'Log Workout'}
+                {loggingMode ? 'Cancel Log' : 'Log workout'}
               </Button>
             )}
             {!readOnly && !loggingMode &&
@@ -283,7 +283,7 @@ export function WeeklyPlanTab({
               {completedSets === 0 && <span className="block text-xs">{mindBody ? 'Tick at least one to save.' : 'Tick at least one set to save.'}</span>}
             </span>
             <Button size="sm" className="gap-1.5" onClick={handleSave} disabled={completedSets === 0}>
-              <Save className="h-3.5 w-3.5" /> Save Session
+              <Save className="h-3.5 w-3.5" /> Save session
             </Button>
           </div>
         )}

@@ -90,10 +90,10 @@ export function ExerciseCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative rounded-xl border border-border bg-card/60 p-4 sm:p-5 transition-colors hover:border-primary/40"
+      className="group relative rounded-xl border border-border bg-card p-4 sm:p-5"
     >
       <div className="flex items-start gap-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold-gradient font-display text-lg text-primary-foreground">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-foreground">
           {index + 1}
         </div>
         <div className="min-w-0 flex-1">

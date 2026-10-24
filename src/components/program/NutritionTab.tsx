@@ -75,7 +75,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="font-display text-2xl tracking-wide mb-4">Calorie Blueprint</h3>
+        <h3 className="font-display text-2xl tracking-wide mb-4">Calorie blueprint</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard icon={<Flame className="h-4 w-4" />} label="BMR" value={`${nutrition.bmr}`} sub="kcal at rest" />
           <StatCard icon={<TrendingUp className="h-4 w-4" />} label="TDEE" value={`${nutrition.tdee}`} sub="kcal maintenance" />
@@ -87,7 +87,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
           />
           <StatCard
             icon={nutrition.weeklyShiftKcal < 0 ? <TrendingDown className="h-4 w-4" /> : <TrendingUp className="h-4 w-4" />}
-            label="Weekly Shift"
+            label="Weekly shift"
             value={`${nutrition.weeklyShiftKcal > 0 ? '+' : ''}${nutrition.weeklyShiftKcal}`}
             sub="kcal vs. maintenance"
           />
@@ -96,7 +96,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Macro Split</CardTitle>
+          <CardTitle className="text-lg">Macro split</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <MacroBar
@@ -128,7 +128,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">The Formula</CardTitle>
+          <CardTitle className="text-lg">The formula</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm font-body text-muted-foreground">
           <p>BMR (Mifflin-St Jeor) = 10 × weight(kg) + 6.25 × height(cm) − 5 × age (+5 male / −161 female)</p>
@@ -141,7 +141,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Nutrition Tips</CardTitle>
+          <CardTitle className="text-lg">Nutrition tips</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-3">

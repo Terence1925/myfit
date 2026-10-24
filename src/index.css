@@ -154,9 +154,9 @@
     padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
   }
 
-  /* Big coloured headings: lime on dark, deep green on light. */
+  /* Big headings keep the normal text colour; green is kept for actions and small labels. */
   .text-gradient-gold {
-    color: hsl(var(--primary-ink));
+    color: hsl(var(--foreground));
   }
 
   /* `text-primary` is used for small labels and links all over the app. Bright lime is unreadable on a light

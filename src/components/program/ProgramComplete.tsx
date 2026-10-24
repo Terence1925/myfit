@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { CalendarCheck, Dumbbell, Eye, PartyPopper, Plus, Scale } from 'lucide-react'
+import { CalendarCheck, CircleCheck, Dumbbell, Eye, Plus, Scale } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { sessions } from '@/lib/backend/api'
 import { formatLbs } from '@/lib/lifted'
@@ -56,11 +56,11 @@ export function ProgramComplete({
   return (
     <div className="container max-w-xl py-10 sm:py-14">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
-          <PartyPopper className="h-8 w-8 text-primary-foreground" />
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
+          <CircleCheck className="h-8 w-8 text-primary" />
         </div>
         <p className="text-xs font-bold uppercase tracking-widest text-primary">{program.programName}</p>
-        <h1 className="mt-2 font-display text-4xl tracking-wide sm:text-5xl">{BLOCK_WEEKS} WEEKS DONE</h1>
+        <h1 className="mt-2 font-display text-3xl tracking-wide sm:text-4xl">{BLOCK_WEEKS} weeks done</h1>
         <p className="mx-auto mt-3 max-w-md font-body text-muted-foreground">
           {COMPLETE_NOTE} Your next program will use what you learned here, with your updated weight and goal.
         </p>
@@ -70,7 +70,7 @@ export function ProgramComplete({
         <BlockBars status={blockStatus(program.createdAt)} />
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
           {tiles.map((t) => (
-            <div key={t.label} className="rounded-xl bg-secondary/50 px-2 py-3">
+            <div key={t.label} className="rounded-xl bg-secondary/60 px-2 py-3">
               <div className="flex items-center justify-center gap-1.5 font-display text-2xl leading-none text-primary">
                 {t.icon}
                 {t.value}

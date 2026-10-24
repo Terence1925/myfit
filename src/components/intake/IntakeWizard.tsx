@@ -4,9 +4,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Dumbbell,
-  Flame,
   Loader2,
-  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -533,12 +531,7 @@ export function IntakeWizard({
   if (submitting) {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 text-center">
-        <div className="relative">
-          <div className="absolute inset-0 animate-ping rounded-full bg-primary/30" />
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gold-gradient shadow-glow-lg">
-            <Loader2 className="h-9 w-9 animate-spin text-primary-foreground" />
-          </div>
-        </div>
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <div>
           <h2 className="font-display text-3xl tracking-wide text-gradient-gold">Building your program</h2>
           <p className="mt-2 font-body text-muted-foreground max-w-sm">
@@ -553,13 +546,9 @@ export function IntakeWizard({
     <div className="mx-auto max-w-2xl py-6 sm:py-16">
       <div className="mb-6 space-y-4 sm:mb-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-body text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Step {step + 1} of {TOTAL_STEPS}
-            </span>
-          </div>
-          <Flame className="h-4 w-4 text-accent" />
+          <span className="font-body text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            Step {step + 1} of {TOTAL_STEPS}
+          </span>
         </div>
         <Progress value={((step + 1) / TOTAL_STEPS) * 100} />
         <div className="flex justify-center gap-1.5">
@@ -605,7 +594,7 @@ export function IntakeWizard({
           {isLast ? (
             <>
               <Dumbbell className="h-4 w-4" />
-              Generate My Program
+              Generate my program
             </>
           ) : (
             <>

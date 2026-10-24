@@ -32,16 +32,7 @@ export function Tabs({
 }
 
 export function TabsList({ className, children }: { className?: string; children: React.ReactNode }) {
-  return (
-    <div
-      className={cn(
-        'relative flex gap-1 rounded-xl border border-border bg-card/60 p-1 overflow-x-auto',
-        className,
-      )}
-    >
-      {children}
-    </div>
-  )
+  return <div className={cn('relative flex overflow-x-auto border-b border-border', className)}>{children}</div>
 }
 
 export function TabsTrigger({
@@ -59,20 +50,22 @@ export function TabsTrigger({
   return (
     <button
       onClick={() => ctx.setValue(value)}
+      aria-selected={active}
+      role="tab"
       className={cn(
-        'relative z-10 flex-1 whitespace-nowrap rounded-lg px-4 py-3 text-sm font-semibold font-body sm:py-2.5 transition-colors',
-        active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+        'relative flex-1 whitespace-nowrap px-1 py-3 text-sm font-semibold font-body transition-colors',
+        active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
         className,
       )}
     >
+      {children}
       {active && (
         <motion.div
           layoutId={ctx.pillId}
-          className="absolute inset-0 -z-10 rounded-lg bg-gold-gradient shadow-glow"
+          className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-primary"
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
         />
       )}
-      {children}
     </button>
   )
 }

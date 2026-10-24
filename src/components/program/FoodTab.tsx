@@ -630,7 +630,7 @@ function AddFoodDialog({
                         onToggleTag={(t) => setCbTags((list) => (list.includes(t) ? list.filter((x) => x !== t) : [...list, t]))}
                       />
                       {cbCategory === 'all' && cbTags.length === 0 && (
-                        <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
+                        <div className="rounded-2xl border border-border bg-card p-4">
                           <div className="text-xs font-bold uppercase tracking-widest text-primary">New in the cookbook</div>
                           <p className="mt-1 text-sm">
                             Protein desserts: cookie dough bites, pancakes, ice cream and more. Sweet, with real protein and a photo and steps for every recipe.

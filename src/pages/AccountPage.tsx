@@ -245,7 +245,7 @@ export default function AccountPage() {
             navigate('/auth')
           }}
         >
-          <LogOut className="h-4 w-4" /> Sign Out
+          <LogOut className="h-4 w-4" /> Sign out
         </Button>
 
         <Card>
@@ -389,7 +389,7 @@ export default function AccountPage() {
                   logs. This cannot be undone.
                 </p>
                 <Button variant="destructive" size="sm" className="gap-1.5" onClick={() => setConfirmingDelete(true)}>
-                  <Trash2 className="h-3.5 w-3.5" /> Delete Account
+                  <Trash2 className="h-3.5 w-3.5" /> Delete account
                 </Button>
               </>
             ) : (

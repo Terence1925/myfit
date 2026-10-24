@@ -8,8 +8,8 @@ export function Footer() {
         <div className="flex flex-wrap items-center justify-center gap-x-2">
           <Link to="/terms" className="px-2 py-3.5 hover:text-primary transition-colors">Terms</Link>
           <Link to="/privacy" className="px-2 py-3.5 hover:text-primary transition-colors">Privacy</Link>
-          <Link to="/refund-policy" className="px-2 py-3.5 hover:text-primary transition-colors">Refund Policy</Link>
-          <Link to="/delete-account" className="px-2 py-3.5 hover:text-primary transition-colors">Delete Account</Link>
+          <Link to="/refund-policy" className="px-2 py-3.5 hover:text-primary transition-colors">Refund policy</Link>
+          <Link to="/delete-account" className="px-2 py-3.5 hover:text-primary transition-colors">Delete account</Link>
         </div>
       </div>
     </footer>

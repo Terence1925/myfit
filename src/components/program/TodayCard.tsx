@@ -47,7 +47,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className="relative overflow-hidden rounded-3xl border border-primary/25 bg-card p-5 shadow-card sm:p-7"
+      className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-card sm:p-7"
     >
       <div className="relative">
         <h2 className="font-display text-3xl tracking-wide sm:text-4xl">{greeting(firstName, now)}</h2>
@@ -107,7 +107,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
             </Button>
           </div>
         ) : (
-          <div className="mt-3 flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4">
+          <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-secondary/60 p-4">
             <CalendarCheck className="h-8 w-8 shrink-0 text-primary" />
             <div className="font-body text-sm font-semibold">{allDoneMessage()}</div>
           </div>

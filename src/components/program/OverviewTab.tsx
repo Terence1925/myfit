@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { CalendarDays, ListChecks, Sparkles, TrendingUp, Waves } from 'lucide-react'
+import { CalendarDays, ListChecks, TrendingUp, Waves } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProgramData } from '@/lib/types'
 import { BlockOverviewCard } from './BlockTimeline'
@@ -18,17 +18,17 @@ export function OverviewTab({
     <div className="space-y-8">
       <BlockOverviewCard createdAt={createdAt} block={program.trainingBlock} />
 
-      <Card className="border-primary/20 bg-gradient-to-br from-card to-card/40">
+      <Card>
         <CardContent className="p-6 sm:p-8">
           <p className="font-body leading-relaxed text-foreground/90">{program.overview}</p>
         </CardContent>
       </Card>
 
       {program.personalizationNotes?.length > 0 && (
-        <Card className="border-primary/20">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" /> Why This Program Is Built For You
+              Why this program is built for you
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -49,7 +49,7 @@ export function OverviewTab({
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
-            <CardTitle className="text-lg">Weekly Volume</CardTitle>
+            <CardTitle className="text-lg">Weekly volume</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground font-body">{program.weeklyVolume}</CardContent>
         </Card>
@@ -100,7 +100,7 @@ export function OverviewTab({
       </div>
 
       <div>
-        <h3 className="mb-4 font-display text-2xl tracking-wide">Your Training Days</h3>
+        <h3 className="mb-4 font-display text-2xl tracking-wide">Your training days</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {program.days.map((day, i) => (
             <motion.button

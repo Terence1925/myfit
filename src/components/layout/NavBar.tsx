@@ -56,7 +56,7 @@ export function NavBar() {
 
             <Button variant="ghost" size="sm" onClick={() => navigate('/saved')} className="hidden gap-1.5 px-2 sm:inline-flex sm:px-3">
               <LayoutList className="h-4 w-4" />
-              <span className="hidden sm:inline">My Programs</span>
+              <span className="hidden sm:inline">My programs</span>
             </Button>
 
             {role === 'admin' && (
@@ -66,7 +66,7 @@ export function NavBar() {
               </Button>
             )}
 
-            {/* Phones: Account and Sign Out live in the bottom bar and on the Account page. */}
+            {/* Phones: Account and Sign out live in the bottom bar and on the Account page. */}
             <Button
               variant="outline"
               size="sm"
@@ -77,7 +77,7 @@ export function NavBar() {
               className="hidden sm:inline-flex gap-1.5"
             >
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <span className="hidden sm:inline">Sign out</span>
             </Button>
           </div>
         </div>

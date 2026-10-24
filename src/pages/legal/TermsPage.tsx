@@ -48,7 +48,7 @@ export default function TermsPage() {
           for. A Pro subscription also applies when you sign in to MyFit on the web.
         </li>
         <li>The price you pay is the one Google Play or the App Store shows you before you subscribe, in your local currency (in the Philippines: ₱199 a month or ₱1,790 a year). Prices may change with prior notice for future billing periods.</li>
-        <li>Refunds are handled under our <a href="/refund-policy">Refund Policy</a>.</li>
+        <li>Refunds are handled under our <a href="/refund-policy">Refund policy</a>.</li>
       </ul>
 
       <h2>5. Acceptable Use</h2>

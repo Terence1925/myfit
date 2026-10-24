@@ -97,8 +97,9 @@ export default function SavedPrograms() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="destructive"
-                        className="gap-1.5"
+                        variant="outline"
+                        aria-label="Delete program"
+                        className="gap-1.5 text-destructive hover:border-destructive/50 hover:text-destructive"
                         onClick={async () => {
                           await programs.delete(p.id, profile.id)
                           refresh()

@@ -39,15 +39,15 @@ export function RecoveryTab({
 
   return (
     <div className="space-y-8">
-      <Card className="border-primary/20">
+      <Card>
         <CardContent className="space-y-5 p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-gradient shadow-glow">
-                <BatteryMedium className="h-6 w-6 text-primary-foreground" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
+                <BatteryMedium className="h-6 w-6 text-foreground" />
               </div>
               <div>
-                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Recovery Score</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Recovery score</div>
                 <div className="font-display text-4xl tracking-wide text-gradient-gold">{recoveryScore}/100</div>
               </div>
             </div>

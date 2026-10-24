@@ -33,7 +33,7 @@ export function BlockBars({ status }: { status: BlockStatus }) {
 export function BlockOverviewCard({ createdAt, block }: { createdAt: string; block?: { number: number; name: string; summary: string } }) {
   const status = blockStatus(createdAt)
   return (
-    <div className="rounded-2xl border border-primary/25 bg-primary/5 p-5">
+    <div className="rounded-2xl border border-border bg-card p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="text-xs font-bold uppercase tracking-widest text-primary">{block ? `Block ${block.number} of 4 · ${block.name}` : '12-week program'}</div>
         <div className="text-sm font-semibold">{status.label}</div>

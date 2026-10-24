@@ -36,7 +36,7 @@ export function ProgramView({
   const { profile, role } = useAuth()
   const block = blockStatus(program.createdAt)
   const navigate = useNavigate()
-  // Reopen where the person left off (e.g. Weekly Plan, Day 3) if the app was closed or reloaded while
+  // Reopen where the person left off (e.g. Weekly plan, Day 3) if the app was closed or reloaded while
   // it was in the background.
   const [tab, setTab] = React.useState(() => loadView(program.id)?.tab ?? 'overview')
   const [activeDay, setActiveDay] = React.useState(() => loadView(program.id)?.day ?? 1)
@@ -162,7 +162,7 @@ export function ProgramView({
         <Tabs id="plan-tabs" value={tab} onValueChange={setTab} className="scroll-mt-20">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly Plan</TabsTrigger>
+            <TabsTrigger value="weekly">Weekly plan</TabsTrigger>
             <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
             <TabsTrigger value="recovery">Recovery</TabsTrigger>
           </TabsList>

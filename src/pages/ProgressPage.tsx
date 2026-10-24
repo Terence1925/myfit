@@ -107,7 +107,7 @@ export default function ProgressPage() {
       {entries.length >= 2 && (
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-lg">Weight Trend</CardTitle>
+            <CardTitle className="text-lg">Weight trend</CardTitle>
             <Badge variant={goodDirection === null ? 'outline' : goodDirection ? 'success' : 'danger'} className="gap-1">
               {delta > 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
               {delta > 0 ? '+' : ''}
@@ -122,7 +122,7 @@ export default function ProgressPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Log an Entry</CardTitle>
+          <CardTitle className="text-lg">Log an entry</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end">
@@ -156,7 +156,7 @@ export default function ProgressPage() {
               />
             </div>
             <Button type="submit" className="gap-1.5">
-              <Plus className="h-4 w-4" /> Log Entry
+              <Plus className="h-4 w-4" /> Log entry
             </Button>
             <div className="col-span-2 sm:col-span-4">
               <Label htmlFor="notes">Notes (optional)</Label>

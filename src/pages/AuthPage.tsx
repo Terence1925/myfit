@@ -275,7 +275,7 @@ export default function AuthPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === 'signup' && (
                 <div>
-                  <Label htmlFor="displayName">Display Name</Label>
+                  <Label htmlFor="displayName">Display name</Label>
                   <Input
                     id="displayName"
                     value={displayName}

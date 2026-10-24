@@ -6,7 +6,7 @@ export default function DeleteAccountPage() {
       <h2>In the App (fastest)</h2>
       <p>
         Sign in to MyFit, go to <strong>Account</strong>, scroll to the <strong>Danger Zone</strong> section,
-        and select <strong>Delete Account</strong>. You'll be asked to type "DELETE" to confirm. Deletion is
+        and select <strong>Delete account</strong>. You'll be asked to type "DELETE" to confirm. Deletion is
         immediate and permanent.
       </p>
 

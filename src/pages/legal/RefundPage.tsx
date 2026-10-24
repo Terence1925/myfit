@@ -2,7 +2,7 @@ import { LegalLayout } from './LegalLayout'
 
 export default function RefundPage() {
   return (
-    <LegalLayout title="Refund Policy" updated="September 6, 2026">
+    <LegalLayout title="Refund policy" updated="September 6, 2026">
       <h2>Free Trial</h2>
       <p>
         Cancelling before a free trial ends means you are never charged. Once a trial converts into a paid

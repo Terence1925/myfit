@@ -122,14 +122,14 @@ export default function Home() {
           <h2 className="font-display text-4xl tracking-wide text-foreground">Program limit reached</h2>
           <p className="mt-3 max-w-md font-body text-muted-foreground">
             Free accounts can keep one active program at a time. Upgrade to Pro for unlimited programs, or delete
-            your current one from My Programs to generate a new one.
+            your current one from My programs to generate a new one.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button size="lg" className="gap-2" onClick={() => navigate('/pricing')}>
               <Crown className="h-4 w-4" /> Upgrade to Pro
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate('/saved')}>
-              Go to My Programs
+              Go to My programs
             </Button>
           </div>
         </motion.div>
@@ -200,7 +200,7 @@ export default function Home() {
             className="gap-1.5"
             onClick={() => (proAccess ? setMode('intake') : setMode('limit'))}
           >
-            <Plus className="h-4 w-4" /> New Program
+            <Plus className="h-4 w-4" /> New program
           </Button>
         </div>
         <ProgramView program={program} userId={profile.id} onProgramUpdate={setProgram} />
