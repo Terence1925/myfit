@@ -527,6 +527,15 @@ export const foodLog = {
     return []
   },
 
+  // The demo knows two barcodes, so the scanner can be tried without the online database.
+  async lookupBarcode(barcode: string): Promise<FoodItem | null> {
+    const demo: Record<string, FoodItem> = {
+      '4800016644801': { id: 'off-4800016644801', name: 'Piattos cheese (Jack-n-Jill)', serving: '30 g', kcal: 150, proteinG: 2, carbsG: 19, fatG: 7, amount: 30, unit: 'g', source: 'openfoodfacts' },
+      '5449000000996': { id: 'off-5449000000996', name: 'Coca-Cola Original (Coca-Cola)', serving: '330 ml', kcal: 140, proteinG: 0, carbsG: 35, fatG: 0, amount: 330, unit: 'ml', source: 'openfoodfacts' },
+    }
+    return demo[barcode.replace(/\D/g, '')] ?? null
+  },
+
   async delete(id: string, userId: string): Promise<void> {
     writeAll(
       FOOD_LOG_KEY,

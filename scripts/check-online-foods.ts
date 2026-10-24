@@ -1,6 +1,6 @@
 // Run with: npm run test:online-foods
 // Checks how the online food search reads USDA and Open Food Facts answers (sample data, no internet needed).
-import { mergeFoods, parseOff, parseUsda, tidyName } from '../supabase/functions/food-search/index'
+import { mergeFoods, normalizeBarcode, parseOff, parseOffProduct, parseUsda, parseUsdaBarcode, tidyName } from '../supabase/functions/food-search/index'
 
 const problems: string[] = []
 const check = (label: string, got: unknown, want: unknown) => {
@@ -51,9 +51,36 @@ const merged = mergeFoods([usda[0], usda[0]], [off[0], { ...usda[0], name: usda[
 check('merge lists a repeat once and keeps USDA first', [merged.length, merged[0].source], [2, 'usda'])
 check('all caps names are tidied', [tidyName('COCA COLA'), tidyName('Chicken Breast')], ['Coca cola', 'Chicken Breast'])
 
+// Barcodes
+check('barcode: digits are kept', normalizeBarcode('4800016644801'), '4800016644801')
+check('barcode: spaces and dashes are dropped', normalizeBarcode(' 4800-0166 44801 '), '4800016644801')
+check('barcode: too short is refused', normalizeBarcode('12345'), null)
+check('barcode: too long is refused', normalizeBarcode('123456789012345'), null)
+check('barcode: letters only is refused', normalizeBarcode('abcdefghij'), null)
+check('barcode: empty is refused', normalizeBarcode(undefined), null)
+
+const found = parseOffProduct({
+  code: '4800016644801',
+  status: 1,
+  product: { product_name: 'Skyflakes', brands: 'Monde', serving_quantity: 25, serving_size: '25 g', nutriments: { 'energy-kcal_100g': 440, proteins_100g: 10, carbohydrates_100g: 68, fat_100g: 14 } },
+})
+check('barcode OFF: one product, scaled to its serving', [found.length, found[0]?.id, found[0]?.name, found[0]?.serving, found[0]?.kcal], [1, 'off-4800016644801', 'Skyflakes (Monde)', '25 g', 110])
+check('barcode OFF: unknown product gives nothing', parseOffProduct({ status: 0, status_verbose: 'product not found' }).length, 0)
+check('barcode OFF: product without numbers gives nothing', parseOffProduct({ code: '1', status: 1, product: { product_name: 'No numbers', nutriments: {} } }).length, 0)
+
+const usdaCodes = {
+  foods: [
+    { fdcId: 10, description: 'COOKIES', brandOwner: 'ACME', gtinUpc: '012345678905', servingSize: 30, servingSizeUnit: 'g', foodNutrients: nutrients(500, 5, 60, 25) },
+    { fdcId: 11, description: 'A NEAR MATCH', brandOwner: 'OTHER', gtinUpc: '012345678912', servingSize: 30, servingSizeUnit: 'g', foodNutrients: nutrients(100, 1, 10, 5) },
+  ],
+}
+check('barcode USDA: only the exact code', parseUsdaBarcode(usdaCodes, '012345678905').map((f) => f.id), ['usda-10'])
+check('barcode USDA: a leading zero does not matter', parseUsdaBarcode(usdaCodes, '12345678905').map((f) => f.id), ['usda-10'])
+check('barcode USDA: no exact code gives nothing', parseUsdaBarcode(usdaCodes, '999999999999').length, 0)
+
 if (problems.length) {
   console.log('FAILED')
   for (const p of problems) console.log(' - ' + p)
   process.exit(1)
 }
-console.log('PASSED: USDA and Open Food Facts answers are read, scaled to a serving and merged correctly.')
+console.log('PASSED: USDA and Open Food Facts answers (searches and barcodes) are read, scaled to a serving and merged correctly.')

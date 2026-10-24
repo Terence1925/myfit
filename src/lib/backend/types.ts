@@ -97,6 +97,8 @@ export interface FoodLogApi {
   listRecent(userId: string, limit?: number): Promise<FoodLogEntry[]>
   add(userId: string, entry: Omit<FoodLogEntry, 'id' | 'userId' | 'createdAt'>): Promise<FoodLogEntry>
   delete(id: string, userId: string): Promise<void>
-  /** Pro: search the online food databases (USDA FoodData Central and Open Food Facts). Rejects with a readable message when it can't. */
+  /** Search the online food databases (USDA FoodData Central and Open Food Facts). Rejects with a readable message when it can't. */
   searchOnline(query: string): Promise<FoodItem[]>
+  /** The product behind a scanned barcode (free for everyone), or null when the databases do not know it. Rejects with a readable message when it can't look. */
+  lookupBarcode(barcode: string): Promise<FoodItem | null>
 }

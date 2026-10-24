@@ -7,8 +7,9 @@
 // Searches two free, worldwide food databases for the Food tab:
 //   - USDA FoodData Central: plain foods, cooked dishes and US brands
 //   - Open Food Facts: packaged foods from around the world (data under the ODbL licence, credited in the app)
-// The key never leaves this server. Only a signed-in person with Pro (or an admin) can use it.
-// Body: { query: string }. Returns { foods: [...] } in the app's food shape. If one database is down the other
+// The key never leaves this server. Searching by name is for a signed-in person with Pro (or an admin); looking up a
+// scanned barcode is free for every signed-in member.
+// Body: { query: string } or { barcode: string }. Returns { foods: [...] } in the app's food shape (a barcode gives one food, or none). If one database is down the other
 // still answers.
 
 const CORS_HEADERS = {
@@ -176,6 +177,65 @@ async function searchOff(query: string): Promise<Food[]> {
   return parseOff(await res.json())
 }
 
+// ---- Barcode ----
+
+/** Digits only, 8 to 14 long (EAN-8, UPC-A, EAN-13, ITF-14). Anything else is not a barcode. */
+export function normalizeBarcode(raw: unknown): string | null {
+  const digits = String(raw ?? '').replace(/\D/g, '')
+  return digits.length >= 8 && digits.length <= 14 ? digits : null
+}
+
+// deno-lint-ignore no-explicit-any
+export function parseOffProduct(data: any): Food[] {
+  if (data?.status !== 1 || !data.product) return []
+  return parseOff({ products: [{ code: data.code, ...data.product }] })
+}
+
+/** USDA finds a branded food by its barcode, but also returns near matches: keep only the exact one (a leading 0 does not count). */
+// deno-lint-ignore no-explicit-any
+export function parseUsdaBarcode(data: any, code: string): Food[] {
+  const bare = (v: unknown) => String(v ?? '').replace(/^0+/, '')
+  // deno-lint-ignore no-explicit-any
+  const exact = (data?.foods ?? []).filter((f: any) => bare(f.gtinUpc) === bare(code))
+  return parseUsda({ foods: exact })
+}
+
+async function barcodeOff(code: string): Promise<Food[]> {
+  const url = new URL(`https://world.openfoodfacts.org/api/v2/product/${code}.json`)
+  url.searchParams.set('fields', 'code,product_name,brands,nutriments,serving_size,serving_quantity')
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'MyFit/1.0 (https://getmyfit.vercel.app)' },
+    signal: AbortSignal.timeout(7000),
+  })
+  // An unknown barcode is answered with 404 and { status: 0 }
+  if (res.status === 404) return []
+  if (!res.ok) throw new Error(`OpenFoodFacts ${res.status}`)
+  return parseOffProduct(await res.json())
+}
+
+async function barcodeUsda(code: string): Promise<Food[]> {
+  const key = Deno.env.get('USDA_API_KEY')
+  if (!key) return []
+  const url = new URL('https://api.nal.usda.gov/fdc/v1/foods/search')
+  url.searchParams.set('query', code)
+  url.searchParams.set('pageSize', '5')
+  url.searchParams.set('dataType', 'Branded')
+  const res = await fetch(url, { headers: { 'X-Api-Key': key }, signal: AbortSignal.timeout(7000) })
+  if (!res.ok) throw new Error(`USDA ${res.status}`)
+  return parseUsdaBarcode(await res.json(), code)
+}
+
+/** The product behind a barcode: Open Food Facts first (worldwide, many Philippine products), then USDA brands. */
+async function lookupBarcode(code: string): Promise<Food[]> {
+  const [off, usda] = await Promise.allSettled([barcodeOff(code), barcodeUsda(code)])
+  if (off.status === 'rejected' && usda.status === 'rejected') {
+    throw new Error('The food databases are not responding. Please try again.')
+  }
+  const fromOff = off.status === 'fulfilled' ? off.value : []
+  if (fromOff.length > 0) return fromOff.slice(0, 1)
+  return (usda.status === 'fulfilled' ? usda.value : []).slice(0, 1)
+}
+
 // ---- merge ----
 
 /** USDA first (plain foods), then packaged foods; the same name and serving is listed once. */
@@ -230,21 +290,12 @@ if (typeof Deno !== 'undefined') {
       } = await supabaseAsCaller.auth.getUser()
       if (authError || !user) return json({ error: 'Not authenticated.' }, 401)
 
-      // Pro (active and not lapsed) or admin only
-      const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-      const [{ data: profile }, { data: roleRow }] = await Promise.all([
-        supabaseAdmin
-          .from('profiles')
-          .select('subscription_tier, subscription_status, subscription_renews_at')
-          .eq('id', user.id)
-          .maybeSingle(),
-        supabaseAdmin.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle(),
-      ])
-      const lapsed = profile?.subscription_renews_at && new Date(profile.subscription_renews_at).getTime() < Date.now()
-      const pro = profile?.subscription_tier === 'pro' && profile?.subscription_status === 'active' && !lapsed
-      if (!pro && !roleRow) return json({ error: 'Searching the full food database is a Pro feature.' }, 403)
-
       const body = await req.json().catch(() => ({}))
+      // A scanned barcode: the one product, or none
+      if (body.barcode !== undefined) {
+        const code = normalizeBarcode(body.barcode)
+        return json({ foods: code ? await lookupBarcode(code) : [] })
+      }
       const query = String(body.query ?? '').trim().slice(0, 60)
       if (query.length < 2) return json({ foods: [] })
 

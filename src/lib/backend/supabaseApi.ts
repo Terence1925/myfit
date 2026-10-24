@@ -601,6 +601,22 @@ function mapFoodLog(r: any): FoodLogEntry {
   }
 }
 
+/** Asks the food-search function (Pro) and returns its foods. A non-2xx reply carries the server's own message in its body. */
+async function callFoodSearch(body: { query: string } | { barcode: string }): Promise<FoodItem[]> {
+  const { data, error } = await sb().functions.invoke('food-search', { body })
+  if (error) {
+    let message = 'Online food search is unavailable right now.'
+    try {
+      const reply = await (error as { context?: Response }).context?.json()
+      if (reply?.error) message = String(reply.error)
+    } catch {
+      // keep the generic message
+    }
+    throw new Error(message)
+  }
+  return (data?.foods ?? []) as FoodItem[]
+}
+
 export const foodLog = {
   async listForDate(userId: string, date: string): Promise<FoodLogEntry[]> {
     const { data, error } = await sb()
@@ -674,19 +690,11 @@ export const foodLog = {
   },
 
   async searchOnline(query: string): Promise<FoodItem[]> {
-    const { data, error } = await sb().functions.invoke('food-search', { body: { query } })
-    if (error) {
-      // A non-2xx reply carries the server's own message in its body
-      let message = 'Online food search is unavailable right now.'
-      try {
-        const body = await (error as { context?: Response }).context?.json()
-        if (body?.error) message = String(body.error)
-      } catch {
-        // keep the generic message
-      }
-      throw new Error(message)
-    }
-    return (data?.foods ?? []) as FoodItem[]
+    return callFoodSearch({ query })
+  },
+
+  async lookupBarcode(barcode: string): Promise<FoodItem | null> {
+    return (await callFoodSearch({ barcode }))[0] ?? null
   },
 
   async delete(id: string, userId: string): Promise<void> {

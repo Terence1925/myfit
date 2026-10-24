@@ -8,6 +8,7 @@ import {
   Minus,
   Moon,
   Plus,
+  ScanBarcode,
   Search,
   Star,
   Sun,
@@ -23,13 +24,12 @@ import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAuth } from '@/context/AuthContext'
 import { foodLog } from '@/lib/backend/api'
-import { hasProAccess } from '@/lib/billing'
 import { searchFoods } from '@/lib/foods/filipinoFoods'
 import { isFavorite, loadFavorites, toggleFavorite } from '@/lib/foods/favorites'
 import { CATEGORY_LABELS, RECIPES, filterRecipes, recipeToFood, type Recipe, type RecipeCategory } from '@/lib/cookbook/cookbook'
 import { CookbookFilters, RecipeCard, RecipeDetail } from './CookbookParts'
+import { BarcodeScan } from './BarcodeScan'
 import { clearSearches, forgetSearch, loadRecentSearches, rememberSearch } from '@/lib/foods/recentSearches'
 import { isFilipinoPlate, PLATES } from '@/lib/foods/plates'
 import {
@@ -329,7 +329,7 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
   )
 }
 
-type Step = 'search' | 'amount' | 'custom' | 'recipe'
+type Step = 'search' | 'amount' | 'custom' | 'recipe' | 'scan'
 
 /** A number for display in a box: whole when it can be, else one decimal. */
 const shown = (n: number) => String(Math.round(n * 10) / 10)
@@ -388,8 +388,6 @@ function AddFoodDialog({
   const region = React.useMemo(loadRegion, [])
   const [units, setUnitsState] = React.useState<FoodUnits>(loadUnits)
   const [favs, setFavs] = React.useState<FoodItem[]>([])
-  const { profile, role } = useAuth()
-  const proAccess = hasProAccess(profile, role)
   const [online, setOnline] = React.useState<FoodItem[]>([])
   const [onlineLoading, setOnlineLoading] = React.useState(false)
   const [onlineError, setOnlineError] = React.useState<string | null>(null)
@@ -428,7 +426,7 @@ function AddFoodDialog({
     setOnline([])
     setOnlineError(null)
     const q = query.trim()
-    if (!proAccess || q.length < 3 || tab === 'cookbook') {
+    if (q.length < 3 || tab === 'cookbook') {
       setOnlineLoading(false)
       return
     }
@@ -446,7 +444,7 @@ function AddFoodDialog({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [query, proAccess, tab])
+  }, [query, tab])
 
   const choose = (food: FoodItem) => {
     // A search that led to a food is worth remembering
@@ -526,7 +524,8 @@ function AddFoodDialog({
     })
   }, [recent])
 
-  const heading = step === 'amount' ? 'Amount' : step === 'custom' ? 'Add your own food' : step === 'recipe' ? 'Recipe' : null
+  const heading =
+    step === 'amount' ? 'Amount' : step === 'custom' ? 'Add your own food' : step === 'recipe' ? 'Recipe' : step === 'scan' ? 'Scan barcode' : null
 
   const cookbookList = React.useMemo(() => filterRecipes(RECIPES, { category: cbCategory, tags: cbTags }), [cbCategory, cbTags])
   // Typing in the search box on the Cookbook tab searches the recipes; on every other tab it searches foods only
@@ -584,13 +583,21 @@ function AddFoodDialog({
                   placeholder={region === 'everyday' ? 'Search food, e.g. chicken, rice, egg' : 'Search food, e.g. adobo, rice, egg'}
                   className="h-12 rounded-full pl-11 pr-11"
                 />
-                {query !== '' && (
+                {query !== '' ? (
                   <button
                     aria-label="Clear search"
                     onClick={() => setQuery('')}
                     className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-5 w-5" />
+                  </button>
+                ) : (
+                  <button
+                    aria-label="Scan a barcode"
+                    onClick={() => setStep('scan')}
+                    className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+                  >
+                    <ScanBarcode className="h-5 w-5" />
                   </button>
                 )}
               </div>
@@ -733,35 +740,36 @@ function AddFoodDialog({
                   {results.length === 0 && online.length === 0 && !onlineLoading && (
                     <p className="py-3 text-sm text-muted-foreground">No match. Try another word, or add it yourself.</p>
                   )}
-                  {proAccess ? (
-                    <div className="pt-3">
-                      <div className="mb-1 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                        <span>More foods</span>
-                        <span className="normal-case tracking-normal font-semibold">
-                          <a href="https://fdc.nal.usda.gov" target="_blank" rel="noreferrer" className="hover:text-foreground">
-                            USDA
-                          </a>
-                          {' & '}
-                          <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer" className="hover:text-foreground">
-                            Open Food Facts
-                          </a>
-                        </span>
-                      </div>
-                      {onlineLoading && <p className="py-2 text-sm text-muted-foreground">Searching…</p>}
-                      {onlineError && <p className="py-2 text-sm text-muted-foreground">{onlineError}</p>}
-                      {online.length > 0 && <FoodRows foods={online} onPick={choose} />}
+                  <div className="pt-3">
+                    <div className="mb-1 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                      <span>More foods</span>
+                      <span className="normal-case tracking-normal font-semibold">
+                        <a href="https://fdc.nal.usda.gov" target="_blank" rel="noreferrer" className="hover:text-foreground">
+                          USDA
+                        </a>
+                        {' & '}
+                        <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer" className="hover:text-foreground">
+                          Open Food Facts
+                        </a>
+                      </span>
                     </div>
-                  ) : (
-                    query.trim().length >= 3 && (
-                      <p className="pt-3 text-xs text-muted-foreground">Go Pro to search thousands more foods and brands.</p>
-                    )
-                  )}
+                    {onlineLoading && <p className="py-2 text-sm text-muted-foreground">Searching…</p>}
+                    {onlineError && <p className="py-2 text-sm text-muted-foreground">{onlineError}</p>}
+                    {online.length > 0 && <FoodRows foods={online} onPick={choose} />}
+                  </div>
                 </>
               )}
+              <Button variant="outline" className="w-full gap-2" onClick={() => setStep('scan')}>
+                <ScanBarcode className="h-4 w-4" /> Scan a barcode
+              </Button>
               <Button variant="outline" className="w-full" onClick={() => setStep('custom')}>
                 Can't find it? Add your own food
               </Button>
             </>
+          )}
+
+          {step === 'scan' && (
+            <BarcodeScan onFood={choose} onAddOwn={() => setStep('custom')} />
           )}
 
           {step === 'amount' && picked && (

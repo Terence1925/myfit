@@ -35,6 +35,10 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <!-- Food barcode scanning: asks Google Play services to fetch Google's scanner screen when the app is installed,
+             so the first scan does not wait for a download. The scanner needs no camera permission. -->
+        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />
+
         <!-- Fires when a rest ends and keeps the phone vibrating until the user taps "Got it". -->
         <receiver android:name=".RestAlarmReceiver" android:exported="false" />
 

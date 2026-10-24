@@ -38,6 +38,7 @@
     "test:units": "npx tsx scripts/check-units.ts"
   },
   "dependencies": {
+    "@capacitor-mlkit/barcode-scanning": "^8.2.1",
     "@capacitor/android": "^8.5.1",
     "@capacitor/core": "^8.5.1",
     "@capacitor/filesystem": "^8.1.4",
