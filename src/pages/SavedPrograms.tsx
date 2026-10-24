@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog } from '@/components/ui/dialog'
 import { ProgramView } from '@/components/program/ProgramView'
 import { programs } from '@/lib/backend/api'
 import { goalLabelOf } from '@/lib/goalLabel'
@@ -20,6 +21,9 @@ export default function SavedPrograms() {
   const [list, setList] = React.useState<WorkoutProgram[]>([])
   const [viewing, setViewing] = React.useState<WorkoutProgram | null>(null)
   const [loaded, setLoaded] = React.useState(false)
+  // The program waiting for a yes or no before it is deleted
+  const [toDelete, setToDelete] = React.useState<WorkoutProgram | null>(null)
+  const [deleting, setDeleting] = React.useState(false)
 
   const refresh = React.useCallback(async () => {
     if (!profile) return
@@ -100,10 +104,7 @@ export default function SavedPrograms() {
                         variant="outline"
                         aria-label="Delete program"
                         className="gap-1.5 text-destructive hover:border-destructive/50 hover:text-destructive"
-                        onClick={async () => {
-                          await programs.delete(p.id, profile.id)
-                          refresh()
-                        }}
+                        onClick={() => setToDelete(p)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -115,6 +116,36 @@ export default function SavedPrograms() {
           })}
         </div>
       )}
+
+      <Dialog open={!!toDelete} onClose={() => !deleting && setToDelete(null)} title="Delete this program?" className="max-w-md">
+        <p className="font-body text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">{toDelete?.programName}</span> will be deleted, along with every workout you
+          logged on it. This cannot be undone.
+        </p>
+        <div className="mt-5 flex gap-2">
+          <Button variant="outline" className="flex-1" disabled={deleting} onClick={() => setToDelete(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            disabled={deleting}
+            onClick={async () => {
+              if (!toDelete) return
+              setDeleting(true)
+              try {
+                await programs.delete(toDelete.id, profile.id)
+                await refresh()
+              } finally {
+                setDeleting(false)
+                setToDelete(null)
+              }
+            }}
+          >
+            {deleting ? 'Deleting…' : 'Delete'}
+          </Button>
+        </div>
+      </Dialog>
     </div>
   )
 }
