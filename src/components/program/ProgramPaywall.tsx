@@ -14,6 +14,7 @@ import { storeName } from '@/lib/platform'
 import { countedDates } from '@/lib/streak'
 import { goalLabelOf } from '@/lib/goalLabel'
 import type { Equipment, FocusArea, ProgramData, WorkoutProgram } from '@/lib/types'
+import { BLOCK_WEEKS } from '@/lib/programBlock'
 
 const EQUIPMENT_LABELS: Record<Equipment, string> = {
   'full-gym': 'Full gym',
@@ -103,7 +104,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         </div>
         <p className="text-xs font-bold uppercase tracking-widest text-primary">Built just for you</p>
         <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-gradient-gold">
-          {firstName ? `${firstName}, your program is ready` : 'Your program is ready'}
+          {firstName ? `${firstName}, your ${BLOCK_WEEKS}-week program is ready` : `Your ${BLOCK_WEEKS}-week program is ready`}
         </h1>
         <p className="mt-3 font-body text-muted-foreground">
           {data.programName} — {data.tagline}
