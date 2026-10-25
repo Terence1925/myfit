@@ -87,18 +87,16 @@ const MEAL_STYLE: Record<MealType, { icon: LucideIcon; tint: string }> = {
  * Every row of the diary uses the same five columns so the numbers line up from the top summary down through each meal and
  * each food: fat, carbs, protein, % of the day's calorie goal, then calories (or the buttons) on the right.
  */
-const COLS = 'grid grid-cols-[1fr_1fr_1fr_1fr_4.5rem] items-center gap-1'
+const COLS = 'grid grid-cols-[1fr_1fr_1fr_4.5rem] items-center gap-1'
 const NUM = 'text-center tabular-nums'
 const f1 = (n: number) => (Math.round(n * 10) / 10).toFixed(1)
 
 /** One macro of the day's summary: what was eaten, its target and a slim bar. */
-function SummaryFigure({ label, eaten, target, barClass }: { label: string; eaten: number; target: number; barClass: string }) {
+function SummaryFigure({ label, eaten }: { label: string; eaten: number }) {
   return (
     <div className="min-w-0 text-center">
       <div className="text-[11px] font-semibold text-muted-foreground">{label}</div>
       <div className="font-body text-lg font-bold leading-tight tabular-nums">{f1(eaten)}</div>
-      <div className="text-[10px] text-muted-foreground">of {target} g</div>
-      <Progress value={target ? (eaten / target) * 100 : 0} barClassName={barClass} className="mx-auto mt-1 h-1 w-10" />
     </div>
   )
 }
@@ -196,18 +194,13 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         </div>
       </div>
 
-      {/* The day at a glance: fat, carbs, protein, how much of the calorie goal is used, and calories */}
+      {/* The day at a glance: fat, carbs and protein eaten so far, and calories */}
       <Card>
         <CardContent className="p-4">
-          <div className={cn(COLS, 'items-start')}>
-            <SummaryFigure label="Fat" eaten={totals.f} target={nutrition.fatG} barClass="bg-cyan-500" />
-            <SummaryFigure label="Carbs" eaten={totals.c} target={nutrition.carbsG} barClass="bg-amber-500" />
-            <SummaryFigure label="Protein" eaten={totals.p} target={nutrition.proteinG} barClass="bg-red-500" />
-            <div className="min-w-0 text-center">
-              <div className="text-[11px] font-semibold text-muted-foreground">Goal</div>
-              <div className={cn('font-body text-lg font-bold leading-tight tabular-nums', over && 'text-destructive')}>{r0((totals.kcal / target) * 100)}%</div>
-              <div className="text-[10px] text-muted-foreground">of calories</div>
-            </div>
+          <div className="grid grid-cols-[1fr_1fr_1fr_auto] items-start gap-3">
+            <SummaryFigure label="Fat" eaten={totals.f} />
+            <SummaryFigure label="Carbs" eaten={totals.c} />
+            <SummaryFigure label="Protein" eaten={totals.p} />
             <div className="min-w-0 text-right">
               <div className="text-[11px] font-semibold text-muted-foreground">Calories</div>
               <div className="font-display text-3xl leading-none tracking-wide tabular-nums">{r0(totals.kcal).toLocaleString('en-PH')}</div>
@@ -226,7 +219,6 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         const items = entries.filter((e) => e.meal === id)
         const kcal = items.reduce((s, e) => s + e.kcal, 0)
         const sum = items.reduce((t, e) => ({ p: t.p + e.proteinG, c: t.c + e.carbsG, f: t.f + e.fatG }), { p: 0, c: 0, f: 0 })
-        const pct = (k: number) => `${r0((k / target) * 100)}%`
         const { icon: Icon, tint } = MEAL_STYLE[id]
         const opened = openMeals.has(id)
         return (
@@ -261,20 +253,12 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
                   <span className={NUM}>{f1(sum.f)}</span>
                   <span className={NUM}>{f1(sum.c)}</span>
                   <span className={NUM}>{f1(sum.p)}</span>
-                  <span className={cn(NUM, 'text-muted-foreground')}>{pct(kcal)}</span>
                   <span className="flex justify-end">
                     <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', opened && 'rotate-180')} />
                   </span>
                 </button>
                 {opened && (
                   <ul className="divide-y divide-border px-4">
-                    <li className={cn(COLS, 'py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground')} aria-hidden>
-                      <span className={NUM}>Fat</span>
-                      <span className={NUM}>Carbs</span>
-                      <span className={NUM}>Protein</span>
-                      <span className={NUM}>Goal</span>
-                      <span />
-                    </li>
                     {items.map((e) => (
                       <li key={e.id} className="py-2.5">
                         <div className="flex items-start justify-between gap-3">
@@ -288,7 +272,6 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
                           <span className={NUM}>{f1(e.fatG)}</span>
                           <span className={NUM}>{f1(e.carbsG)}</span>
                           <span className={NUM}>{f1(e.proteinG)}</span>
-                          <span className={NUM}>{pct(e.kcal)}</span>
                           <span className="flex justify-end">
                             <button
                               aria-label={`Remove ${e.name}`}

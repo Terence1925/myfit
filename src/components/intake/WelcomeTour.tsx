@@ -1,26 +1,27 @@
 import * as React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronRight, Flame, PlayCircle, Sparkles, Utensils } from 'lucide-react'
+import { ChevronRight, Flame, PlayCircle, Sparkles, Utensils, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-const SLIDES = [
+const SLIDES: { icon: LucideIcon; title: string; text: string; extra?: string }[] = [
   {
     icon: Sparkles,
     title: 'A plan made for you',
     text: 'Answer a few quick questions about your goal, your equipment and your schedule. MyFit builds your weekly plan in about two minutes.',
+    extra: 'The 12-week program is just the start, for years to come.',
   },
   {
     icon: PlayCircle,
     title: 'Train with confidence',
-    text: 'Every exercise has an animation and a real-person video. Tick off your sets, and the rest timer keeps you on pace.',
+    text: 'A short video shows how to do every exercise, so you know what good form looks like. Coaching tips tell you what to aim for each set, and the rest timer keeps you on pace.',
   },
   {
     icon: Flame,
     title: 'Stay on track',
     text: 'Log your food and keep your weekly streak. Reminders help you show up.',
   },
-] as const
+]
 
 /** Three short screens shown once, before the first plan is built. */
 export function WelcomeTour({ onDone }: { onDone: () => void }) {
@@ -73,7 +74,7 @@ export function WelcomeTour({ onDone }: { onDone: () => void }) {
               {step === 2 && <Utensils className="absolute -bottom-2 -right-2 h-12 w-12 rounded-2xl bg-card p-2.5 text-primary shadow-card" />}
             </div>
             <h1 className="font-display text-5xl tracking-wide">{slide.title}</h1>
-            <p className="mt-3 max-w-sm font-body text-base text-muted-foreground">{slide.text}</p>
+            <p className="mt-3 max-w-sm font-body text-base text-muted-foreground">{slide.extra ? `${slide.text} ${slide.extra}` : slide.text}</p>
           </motion.div>
         </AnimatePresence>
       </div>
