@@ -14,7 +14,7 @@ const SLIDES: { icon: LucideIcon; title: string; text: string; extra?: string }[
   {
     icon: PlayCircle,
     title: 'Train with confidence',
-    text: 'A short video shows how to do every exercise, so you know what good form looks like. Coaching tips tell you what to aim for each set, and the rest timer keeps you on pace.',
+    text: 'Every exercise has an animation and a real-person video that show proper form. Tick off your sets, and the rest timer keeps you on pace.',
   },
   {
     icon: Flame,
