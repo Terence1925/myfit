@@ -19,7 +19,7 @@ const SLIDES: { icon: LucideIcon; title: string; text: string; extra?: string }[
   {
     icon: Flame,
     title: 'Stay on track',
-    text: 'Log your food and keep your weekly streak. Reminders help you show up.',
+    text: 'Track your calorie intake by searching a food or scanning a barcode. Keep your routine, and reminders help you show up.',
   },
 ]
 
