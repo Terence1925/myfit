@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Loader2, ShieldCheck } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/Logo'
+import { PasswordUpdated } from '@/components/auth/PasswordUpdated'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
@@ -48,7 +49,6 @@ export default function ResetPasswordPage() {
     try {
       await updatePassword(password)
       setDone(true)
-      setTimeout(() => navigate('/'), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
@@ -56,19 +56,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  if (done) {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
-            <ShieldCheck className="h-8 w-8 text-primary-foreground" />
-          </div>
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Password updated</h1>
-          <p className="mt-3 text-sm text-muted-foreground font-body">Taking you back to MyFit...</p>
-        </motion.div>
-      </div>
-    )
-  }
+  if (done) return <PasswordUpdated />
 
   if (!ready) {
     return (
@@ -79,7 +67,7 @@ export default function ResetPasswordPage() {
             This link may have expired or already been used. Request a new one from the sign-in page.
           </p>
           <Button className="mt-6" onClick={() => navigate('/auth')}>
-            Back to Sign In
+            Back to sign in
           </Button>
         </motion.div>
       </div>
@@ -137,7 +125,7 @@ export default function ResetPasswordPage() {
 
               <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                Update Password
+                Update password
               </Button>
             </form>
           </CardContent>
