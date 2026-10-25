@@ -74,7 +74,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
   }, [profile, program.id])
   const trialLine = pricesLoading
     ? `${TRIAL_DAYS} days free. Cancel any time and you pay nothing.`
-    : `${TRIAL_DAYS} days free, then ${prices.yearly} a year. Cancel any time before then and you pay nothing.`
+    : `${TRIAL_DAYS} days free, then ${prices.monthly}/month or ${prices.yearly}/year. Cancel any time before then and you pay nothing.`
 
   const chips = [
     goalLabelOf(answers),
