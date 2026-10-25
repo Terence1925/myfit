@@ -20,6 +20,8 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [done, setDone] = React.useState(false)
+  // The login token for the "Open the MyFit app" button, so the app opens already signed in
+  const [appToken, setAppToken] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (!supabase) return
@@ -48,6 +50,8 @@ export default function ResetPasswordPage() {
     setLoading(true)
     try {
       await updatePassword(password)
+      const session = supabase ? (await supabase.auth.getSession()).data.session : null
+      setAppToken(session?.refresh_token ?? null)
       setDone(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')
@@ -56,7 +60,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  if (done) return <PasswordUpdated />
+  if (done) return <PasswordUpdated refreshToken={appToken} />
 
   if (!ready) {
     return (

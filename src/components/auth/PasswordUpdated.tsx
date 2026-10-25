@@ -2,15 +2,10 @@ import { CircleCheck } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { isNativeApp } from '@/lib/platform'
-
-/** A Chrome link that opens the installed MyFit app, and falls back to this website when the app is not installed. */
-function appLink(): string {
-  const fallback = encodeURIComponent(`${window.location.origin}/`)
-  return `intent://open#Intent;scheme=myfit;package=com.myfit.app;S.browser_fallback_url=${fallback};end`
-}
+import { openAppLink } from '@/lib/appLink'
 
 /** Shown after the new password is saved. On an Android browser the person can go back to the app they came from. */
-export function PasswordUpdated() {
+export function PasswordUpdated({ refreshToken }: { refreshToken?: string | null }) {
   const onAndroidBrowser = /Android/i.test(navigator.userAgent) && !isNativeApp()
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
@@ -20,11 +15,11 @@ export function PasswordUpdated() {
         </div>
         <h1 className="font-display text-3xl tracking-wide">Password updated</h1>
         <p className="mt-3 font-body text-sm text-muted-foreground">
-          {onAndroidBrowser ? 'Sign in with your new password in the app, or keep going here in your browser.' : 'You can now sign in with your new password.'}
+          {onAndroidBrowser ? 'The app will open already signed in, or you can keep going here in your browser.' : 'You can now sign in with your new password.'}
         </p>
         <div className="mt-6 space-y-3">
           {onAndroidBrowser && (
-            <a href={appLink()} className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
+            <a href={openAppLink(refreshToken ?? null, `${window.location.origin}/`)} className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
               Open the MyFit app
             </a>
           )}
