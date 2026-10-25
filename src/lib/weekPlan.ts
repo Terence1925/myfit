@@ -98,6 +98,8 @@ function doneSets(sessions: WorkoutSession[], name: string): Done[] {
 /** The aim for an exercise this week, and a line from the coach about it. */
 export interface Suggestion {
   aim: string
+  /** True when nothing has been logged for this exercise yet: the aim is only a how-to, so the screen does not show it. */
+  firstTime?: boolean
   coach?: string
   /** The weight (lb) to lift for the work sets, when there is one. Used to work out the warm-up. */
   weight?: number
@@ -137,7 +139,8 @@ export function suggestFor(
     if (target.deload) return null
     return {
       aim: `Pick a weight that leaves about ${target.rir} reps in the tank on your last set.`,
-      coach: 'Write down every set today. Next time this line gives you an exact weight and reps to beat.',
+      firstTime: true,
+      coach: 'Write down every set today. Next time you will see an exact weight and reps to beat.',
     }
   }
 

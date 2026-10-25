@@ -116,10 +116,15 @@ export function ExerciseCard({
           )}
           {suggestion && (
             <div className="mt-2">
-              <p className="flex items-start gap-1.5 text-xs font-semibold text-primary">
-                <Target className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span>This week: {suggestion.aim}</span>
-              </p>
-              {suggestion.coach && <p className="mt-1 pl-5 text-xs leading-relaxed text-muted-foreground">{suggestion.coach}</p>}
+              {/* Nothing logged yet: the aim would only repeat the week's advice, so show just the coach line */}
+              {!suggestion.firstTime && (
+                <p className="flex items-start gap-1.5 text-xs font-semibold text-primary">
+                  <Target className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span>This week: {suggestion.aim}</span>
+                </p>
+              )}
+              {suggestion.coach && (
+                <p className={cn('text-xs leading-relaxed text-muted-foreground', suggestion.firstTime ? 'mt-0' : 'mt-1 pl-5')}>{suggestion.coach}</p>
+              )}
             </div>
           )}
           {warmup && (
