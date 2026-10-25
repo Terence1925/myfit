@@ -29,7 +29,7 @@
     --muted-foreground: 220 8% 40%;
 
     --primary: 101.5 52.2% 50%; /* #66C23D, the logo green */
-    --primary-foreground: 225 12% 8%;
+    --primary-foreground: 0 0% 100%; /* white on the green, like the app icon */
     --primary-ink: 102 60% 32%;
 
     --accent: 172 65% 30%;
@@ -71,7 +71,7 @@
     --muted-foreground: 225 6% 64%;
 
     --primary: 101.5 52.2% 50%; /* #66C23D, the logo green */
-    --primary-foreground: 225 12% 8%;
+    --primary-foreground: 225 12% 8%; /* dark text on the green in dark mode */
     --primary-ink: 102 58% 62%;
 
     --accent: 172 60% 52%;
