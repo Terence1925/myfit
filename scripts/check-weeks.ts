@@ -115,12 +115,12 @@ check('the deload week ignores a stall', aimOf(stuck, bench, weekTarget(13)), 'U
   check('test week: main lifts get the test line', /Test week/.test(coachOf(test, bench, weekTarget(12), { main: true })), true)
   check('test week: other lifts do not', /Test week/.test(coachOf(test, bench, weekTarget(12), { main: false })), false)
 
-  // After a break
+  // After a break. The sessions are built a moment after `now`, so a hair over a whole number of days keeps the count from rounding down.
   const now = new Date()
-  check('15 days away: told to get back on it', /It has been 15 days/.test(coachOf([ago(15, [[135, 8], [135, 8]])], bench, wk, { now })), true)
-  check('15 days away: the weight is not cut', aimOf([ago(15, [[135, 8], [135, 8]])], bench, wk, { now }), 'Aim for 135 lb × 9. Last time: 135 × 8.')
-  check('30 days away: restart a little lighter', aimOf([ago(30, [[135, 8], [135, 8]])], bench, wk, { now }), 'Restart at 120 lb × 6. Last time: 135 × 8.')
-  check('30 days away: the coach explains', /30 days since you trained this/.test(coachOf([ago(30, [[135, 8]])], bench, wk, { now })), true)
+  check('15 days away: told to get back on it', /It has been 15 days/.test(coachOf([ago(15.01, [[135, 8], [135, 8]])], bench, wk, { now })), true)
+  check('15 days away: the weight is not cut', aimOf([ago(15.01, [[135, 8], [135, 8]])], bench, wk, { now }), 'Aim for 135 lb × 9. Last time: 135 × 8.')
+  check('30 days away: restart a little lighter', aimOf([ago(30.01, [[135, 8], [135, 8]])], bench, wk, { now }), 'Restart at 120 lb × 6. Last time: 135 × 8.')
+  check('30 days away: the coach explains', /30 days since you trained this/.test(coachOf([ago(30.01, [[135, 8]])], bench, wk, { now })), true)
 }
 
 // Real programs: the deload week never adds sets, never drops below one, and still has every exercise

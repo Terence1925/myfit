@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
-import { ChoiceGrid, type ChoiceOption } from './ChoiceGrid'
+import { ChoiceGrid, MultiChoiceGrid, type ChoiceOption } from './ChoiceGrid'
 import { cn } from '@/lib/utils'
 import type { IntakeAnswers } from '@/lib/types'
 import { disciplineOf, isMindBody } from '@/lib/discipline'
@@ -95,78 +95,14 @@ function ChipRow<T extends string>({
   )
 }
 
-/** A short list where every choice explains itself (used where the label alone is not clear). */
-function OptionRows<T extends string>({
-  label,
-  hint,
-  options,
-  value,
-  onChange,
-}: {
-  label: string
-  hint?: string
-  options: { value: T; label: string; description: string }[]
-  value: T | undefined
-  onChange: (v: T) => void
-}) {
+/** One question inside a longer step: its own heading, so each question reads as a separate block. */
+function QuestionBlock({ title, hint, first, children }: { title: string; hint?: string; first?: boolean; children: React.ReactNode }) {
   return (
-    <div>
-      <Label className="text-sm font-semibold">{label}</Label>
-      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
-      <div className="mt-2 space-y-2" role="group" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            onClick={() => onChange(o.value)}
-            aria-pressed={value === o.value}
-            className={cn(
-              'flex min-h-[52px] w-full flex-col justify-center rounded-xl border px-4 py-2 text-left transition-colors',
-              value === o.value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/50',
-            )}
-          >
-            <span className="text-sm font-semibold text-foreground">{o.label}</span>
-            <span className="text-xs text-muted-foreground">{o.description}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/** Like ChipRow, but any number can be on at once. */
-function MultiChipRow({
-  label,
-  options,
-  values,
-  onChange,
-}: {
-  label: string
-  options: { value: string; label: string }[]
-  values: string[]
-  onChange: (v: string[]) => void
-}) {
-  const toggle = (v: string) => onChange(values.includes(v) ? values.filter((x) => x !== v) : [...values, v])
-  return (
-    <div>
-      <Label className="text-sm font-semibold">{label}</Label>
-      <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            onClick={() => toggle(o.value)}
-            aria-pressed={values.includes(o.value)}
-            className={cn(
-              'min-h-[44px] rounded-full border px-3.5 text-sm font-semibold transition-colors',
-              values.includes(o.value) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-foreground hover:border-primary/50',
-            )}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
+    <section className={first ? '' : 'border-t border-border pt-8'}>
+      <h3 className="font-body text-xl font-bold text-foreground">{title}</h3>
+      {hint && <p className="mt-1 font-body text-sm text-muted-foreground">{hint}</p>}
+      <div className="mt-4">{children}</div>
+    </section>
   )
 }
 
@@ -265,7 +201,7 @@ function StepAboutYou({ answers, update }: StepProps) {
   )
 }
 
-const ACTIVITY_OPTIONS: { value: IntakeAnswers['activityLevel']; label: string; description: string }[] = [
+const ACTIVITY_OPTIONS: ChoiceOption[] = [
   { value: 'sedentary', label: 'Sedentary', description: 'Desk or office job, mostly sitting' },
   { value: 'light', label: 'Lightly active', description: 'Light exercise 1-3 days a week' },
   { value: 'moderate', label: 'Moderately active', description: 'On your feet most of the day' },
@@ -273,52 +209,63 @@ const ACTIVITY_OPTIONS: { value: IntakeAnswers['activityLevel']; label: string; 
   { value: 'athlete', label: 'Athlete', description: 'Intense daily training' },
 ]
 
-/** Daily activity, sleep and stress together: the answers that set your recovery and your calories, on one screen. */
+const SLEEP_HOURS_OPTIONS: ChoiceOption[] = [
+  { value: '<5', label: '< 5 hours' },
+  { value: '5-6', label: '5-6 hours' },
+  { value: '6-7', label: '6-7 hours' },
+  { value: '7-8', label: '7-8 hours' },
+  { value: '8+', label: '8+ hours' },
+]
+
+const SLEEP_QUALITY_OPTIONS: ChoiceOption[] = [
+  { value: 'excellent', label: 'Excellent' },
+  { value: 'good', label: 'Good' },
+  { value: 'fair', label: 'Fair' },
+  { value: 'poor', label: 'Poor' },
+]
+
+const STRESS_OPTIONS: ChoiceOption[] = [
+  { value: 'low', label: 'Low' },
+  { value: 'moderate', label: 'Moderate' },
+  { value: 'high', label: 'High' },
+  { value: 'very-high', label: 'Very high' },
+]
+
+/** Daily activity, sleep and stress: four questions on one scrolling screen, each in its own block. */
 function StepYourWeek({ answers, update }: StepProps) {
   return (
-    <StepShell title="Your week" subtitle="Sets your calories and training load.">
-      <div className="space-y-5">
-        <OptionRows
-          label="Daily activity"
-          hint="Outside the gym, how much do you move day to day?"
-          options={ACTIVITY_OPTIONS}
-          value={answers.activityLevel}
-          onChange={(v) => update('activityLevel', v)}
-        />
-        <ChipRow
-          label="Sleep per night (hours)"
-          options={[
-            { value: '<5', label: 'Under 5' },
-            { value: '5-6', label: '5-6' },
-            { value: '6-7', label: '6-7' },
-            { value: '7-8', label: '7-8' },
-            { value: '8+', label: '8+' },
-          ]}
-          value={answers.sleepHours}
-          onChange={(v) => update('sleepHours', v as IntakeAnswers['sleepHours'])}
-        />
-        <ChipRow
-          label="How rested you feel"
-          options={[
-            { value: 'excellent', label: 'Excellent' },
-            { value: 'good', label: 'Good' },
-            { value: 'fair', label: 'Fair' },
-            { value: 'poor', label: 'Poor' },
-          ]}
-          value={answers.sleepQuality}
-          onChange={(v) => update('sleepQuality', v as IntakeAnswers['sleepQuality'])}
-        />
-        <ChipRow
-          label="Daily stress"
-          options={[
-            { value: 'low', label: 'Low' },
-            { value: 'moderate', label: 'Moderate' },
-            { value: 'high', label: 'High' },
-            { value: 'very-high', label: 'Very high' },
-          ]}
-          value={answers.stressLevel}
-          onChange={(v) => update('stressLevel', v as IntakeAnswers['stressLevel'])}
-        />
+    <StepShell title="Your week" subtitle="These set your calories and how much training suits you.">
+      <div className="space-y-8">
+        <QuestionBlock first title="Daily activity" hint="Outside the gym, how much do you move day to day?">
+          <ChoiceGrid
+            options={ACTIVITY_OPTIONS}
+            value={answers.activityLevel}
+            onChange={(v) => update('activityLevel', v as IntakeAnswers['activityLevel'])}
+            columns={1}
+          />
+        </QuestionBlock>
+        <QuestionBlock title="Sleep duration" hint="Average hours of sleep per night.">
+          <ChoiceGrid
+            options={SLEEP_HOURS_OPTIONS}
+            value={answers.sleepHours}
+            onChange={(v) => update('sleepHours', v as IntakeAnswers['sleepHours'])}
+            columns={3}
+          />
+        </QuestionBlock>
+        <QuestionBlock title="Sleep quality" hint="How rested do you generally feel?">
+          <ChoiceGrid
+            options={SLEEP_QUALITY_OPTIONS}
+            value={answers.sleepQuality}
+            onChange={(v) => update('sleepQuality', v as IntakeAnswers['sleepQuality'])}
+          />
+        </QuestionBlock>
+        <QuestionBlock title="Daily stress" hint="Your typical day-to-day stress level.">
+          <ChoiceGrid
+            options={STRESS_OPTIONS}
+            value={answers.stressLevel}
+            onChange={(v) => update('stressLevel', v as IntakeAnswers['stressLevel'])}
+          />
+        </QuestionBlock>
       </div>
     </StepShell>
   )
@@ -445,13 +392,13 @@ function Step13Focus({ answers, update }: StepProps) {
     { value: 'legs', label: 'Legs' },
     { value: 'glutes', label: 'Glutes' },
     { value: 'core', label: 'Core' },
-    { value: 'full-body', label: 'Full Body' },
+    { value: 'full-body', label: 'Full body' },
   ]
   const injuryOptions: ChoiceOption[] = [
     { value: 'none', label: 'None' },
     { value: 'knee', label: 'Knee' },
     { value: 'shoulder', label: 'Shoulder' },
-    { value: 'lower-back', label: 'Lower Back' },
+    { value: 'lower-back', label: 'Lower back' },
     { value: 'other', label: 'Other' },
   ]
   const mindBody = isMindBody(answers.equipment ?? '')
@@ -461,24 +408,28 @@ function Step13Focus({ answers, update }: StepProps) {
       subtitle={
         mindBody
           ? 'Flag any injury so we swap out poses and moves that are not right for you.'
-          : 'Muscles to emphasize, and any injuries.'
+          : 'Pick any muscles to emphasize, and flag any injuries.'
       }
     >
-      <div className="space-y-5">
+      <div className="space-y-8">
         {!mindBody && (
-          <MultiChipRow
-            label="Focus areas (select any)"
-            options={focusOptions}
-            values={answers.focusAreas ?? []}
-            onChange={(v) => update('focusAreas', v as IntakeAnswers['focusAreas'])}
-          />
+          <QuestionBlock first title="Focus areas" hint="Select any muscle groups you want to emphasize.">
+            <MultiChoiceGrid
+              options={focusOptions}
+              values={answers.focusAreas ?? []}
+              onChange={(v) => update('focusAreas', v as IntakeAnswers['focusAreas'])}
+              columns={3}
+            />
+          </QuestionBlock>
         )}
-        <ChipRow
-          label="Injuries or limitations"
-          options={injuryOptions}
-          value={answers.injuries}
-          onChange={(v) => update('injuries', v as IntakeAnswers['injuries'])}
-        />
+        <QuestionBlock first={mindBody} title="Injuries or limitations" hint="Flag anything we should work around.">
+          <ChoiceGrid
+            options={injuryOptions}
+            value={answers.injuries}
+            onChange={(v) => update('injuries', v as IntakeAnswers['injuries'])}
+            columns={3}
+          />
+        </QuestionBlock>
       </div>
     </StepShell>
   )

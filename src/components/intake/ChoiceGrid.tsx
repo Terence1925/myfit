@@ -30,6 +30,7 @@ export function ChoiceGrid<T extends string>({
           <motion.button
             key={opt.value}
             type="button"
+            aria-pressed={active}
             onClick={() => onChange(opt.value)}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -91,6 +92,7 @@ export function MultiChoiceGrid<T extends string>({
           <motion.button
             key={opt.value}
             type="button"
+            aria-pressed={active}
             onClick={() => toggle(opt.value)}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
