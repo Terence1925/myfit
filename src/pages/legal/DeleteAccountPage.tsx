@@ -7,7 +7,7 @@ export default function DeleteAccountPage() {
       <p>
         Sign in to MyFit, go to <strong>Account</strong>, scroll to the <strong>Danger Zone</strong> section,
         and select <strong>Delete account</strong>. You'll be asked to enter your password to confirm (or to type "DELETE" if you sign in with Google).
-        Deletion is immediate and permanent.
+        Deletion is immediate and permanent, and we send a confirmation email to the address on your account.
       </p>
 
       <h2>Can't Sign In?</h2>

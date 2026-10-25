@@ -13,10 +13,26 @@ import { isSupabaseConfigured } from '@/lib/backend/api'
 import { GOOGLE_CANCELLED, isGoogleSignInConfigured } from '@/lib/backend/googleAuth'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
 
 export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle, requestPasswordReset } = useAuth()
   const navigate = useNavigate()
+  // Sent here by the Delete account button: say that it worked (shown once)
+  const [accountDeleted] = React.useState(() => {
+    try {
+      return sessionStorage.getItem(ACCOUNT_DELETED_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
+  React.useEffect(() => {
+    try {
+      sessionStorage.removeItem(ACCOUNT_DELETED_KEY)
+    } catch {
+      // nothing to clear
+    }
+  }, [])
   const [mode, setMode] = React.useState<'signin' | 'signup' | 'forgot'>('signin')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -224,6 +240,16 @@ export default function AuthPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground font-body">All-in-One Workout &amp; Calorie Tracker</p>
         </div>
+
+        {accountDeleted && (
+          <div role="status" className="mb-4 rounded-lg border border-border bg-card px-4 py-3 text-sm">
+            <p className="font-semibold">Your account has been deleted.</p>
+            <p className="mt-1 text-muted-foreground">
+              Your programs, history and food log are gone for good. We are sending you a confirmation email. If you had a Google Play
+              subscription, cancel it in Google Play so you are not charged again.
+            </p>
+          </div>
+        )}
 
         <Card className="shadow-glow-lg border-primary/10">
           <CardContent className="p-6 sm:p-8">

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro } from '@/lib/billing'
+import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
 import { useStorePrices } from '@/lib/storePrices'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
@@ -133,9 +134,20 @@ export default function AccountPage() {
     setDeleting(true)
     try {
       if (askPassword) await verifyPassword(deletePassword)
+      // The app sends the person to the sign-in page the moment the account is gone, so leave a note there first
+      try {
+        sessionStorage.setItem(ACCOUNT_DELETED_KEY, '1')
+      } catch {
+        // the note is only a courtesy
+      }
       await deleteAccount()
       navigate('/auth')
     } catch (err) {
+      try {
+        sessionStorage.removeItem(ACCOUNT_DELETED_KEY)
+      } catch {
+        // nothing to undo
+      }
       setDeleteError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setDeleting(false)
@@ -409,6 +421,12 @@ export default function AccountPage() {
               </>
             ) : (
               <>
+                {pro && (
+                  <p className="rounded-lg border border-border bg-secondary/60 px-3 py-2.5 text-muted-foreground">
+                    Deleting your account does not cancel your Google Play subscription. Cancel it in Google Play first, or you will
+                    keep being charged.
+                  </p>
+                )}
                 {askPassword ? (
                   <>
                     <p className="text-muted-foreground">
