@@ -4,10 +4,10 @@
 @tailwind utilities;
 
 /*
- * Colour system: one lime accent on clean neutrals, in a light and a dark mode.
- *  --primary      the lime itself, for fills (buttons, bars, highlights). Text on it uses --primary-foreground.
- *  --primary-ink  the same lime as TEXT: bright lime on dark screens, a deep green on light screens, because
- *                 bright lime is unreadable on white. `text-primary` automatically uses this (see below).
+ * Colour system: one green accent (the logo green, #66C23D) on clean neutrals, in a light and a dark mode.
+ *  --primary      the green itself, for fills (buttons, bars, highlights). Text on it uses --primary-foreground.
+ *  --primary-ink  the same green as TEXT: a brighter green on dark screens, a deep green on light screens, because
+ *                 bright green is unreadable on white. `text-primary` automatically uses this (see below).
  * The dark mode is the `.dark` class on <html>; src/lib/theme.ts sets it (system setting by default).
  */
 @layer base {
@@ -23,14 +23,14 @@
 
     --border: 220 13% 89%;
     --input: 220 13% 86%;
-    --ring: 80 70% 38%;
+    --ring: 102 55% 38%;
 
     --muted: 220 14% 93%;
     --muted-foreground: 220 8% 40%;
 
-    --primary: 82 54% 49%;
+    --primary: 101.5 52.2% 50%; /* #66C23D, the logo green */
     --primary-foreground: 225 12% 8%;
-    --primary-ink: 82 72% 24%;
+    --primary-ink: 102 60% 32%;
 
     --accent: 172 65% 30%;
     --accent-foreground: 0 0% 100%;
@@ -65,14 +65,14 @@
 
     --border: 228 7% 24%;
     --input: 228 7% 22%;
-    --ring: 80 62% 56%;
+    --ring: 102 52% 55%;
 
     --muted: 228 7% 20%;
     --muted-foreground: 225 6% 64%;
 
-    --primary: 80 62% 56%;
+    --primary: 101.5 52.2% 50%; /* #66C23D, the logo green */
     --primary-foreground: 225 12% 8%;
-    --primary-ink: 80 87% 59%;
+    --primary-ink: 102 58% 62%;
 
     --accent: 172 60% 52%;
     --accent-foreground: 225 12% 8%;
@@ -117,7 +117,7 @@
 
   /* a faint lime glow at the top, dark mode only; light mode stays flat and clean */
   .dark body {
-    background-image: radial-gradient(ellipse 80% 45% at 50% -10%, hsl(80 87% 59% / 0.035), transparent);
+    background-image: radial-gradient(ellipse 80% 45% at 50% -10%, hsl(102 52% 55% / 0.035), transparent);
   }
 
   ::selection {
