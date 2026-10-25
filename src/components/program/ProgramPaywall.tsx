@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { BellRing, Check, CircleDollarSign, Crown, Flame, Gift, Lock, Moon, Sparkles, Utensils } from 'lucide-react'
+import { BellRing, CalendarDays, Check, CircleDollarSign, Crown, Gift, Lock, Moon, Sparkles, Utensils } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -120,8 +120,8 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { icon: Crown, label: 'Training days', value: `${data.days.length} / week` },
-          { icon: Flame, label: 'Daily target', value: `${n.calorieTarget} kcal` },
+          { icon: CalendarDays, label: 'Training days', value: `${data.days.length} / week` },
+          { icon: Utensils, label: 'Daily calories', value: `${n.calorieTarget} kcal` },
           { icon: Moon, label: 'Recovery score', value: `${n.recoveryScore} / 100 · ${n.recoveryTier}` },
         ].map(({ icon: Icon, label, value }) => (
           <Card key={label}>
