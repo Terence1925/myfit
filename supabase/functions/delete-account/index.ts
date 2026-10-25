@@ -1,7 +1,7 @@
 // Supabase Edge Function: delete-account
 // Deploy: supabase functions deploy delete-account
 // Secrets required: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY (all auto-provided)
-// Optional secrets for the "your account was deleted" email: GMAIL_USER, GMAIL_APP_PASSWORD (see below)
+// Optional secrets for the "your account was deleted" email: BREVO_API_KEY, EMAIL_FROM (see below)
 //
 // Required for Google Play compliance: an app that supports account creation must also offer
 // in-app account + data deletion. Deleting the auth.users row cascades (see the `on delete
@@ -27,8 +27,10 @@ const CORS_HEADERS = {
 const OWNER_EMAIL = 'ttagayona1985@gmail.com'
 
 // ---- The "your account was deleted" email ----
-// Sent from the MyFit Gmail address. Secrets: GMAIL_USER (the address, e.g. joinmyfit@gmail.com) and GMAIL_APP_PASSWORD (a Google
-// "app password", not the normal password). Without them the email is skipped and the deletion still goes through.
+// Sent with Brevo (brevo.com), which can send from a single verified address with no domain needed.
+// Secrets: BREVO_API_KEY, and EMAIL_FROM, the sender address verified in Brevo (for example joinmyfit@gmail.com).
+// Optional: SUPPORT_EMAIL, where replies go (default: the same as EMAIL_FROM).
+// Without the two required secrets the email is skipped and the deletion still goes through.
 // Only regular members get it: admin accounts (and the owner, who cannot delete their account here at all) never do.
 
 const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -49,21 +51,37 @@ export function buildDeletionEmail(name: string | null | undefined, email: strin
   }
 }
 
+/** The request Brevo expects (https://developers.brevo.com/reference/sendtransacemail). */
+export function buildBrevoRequest(from: string, replyTo: string, to: string, name: string | null | undefined, mail: { subject: string; text: string; html: string }) {
+  const recipient: { email: string; name?: string } = { email: to }
+  if ((name ?? '').trim()) recipient.name = (name ?? '').trim()
+  return {
+    sender: { name: 'MyFit', email: from },
+    to: [recipient],
+    replyTo: { email: replyTo },
+    subject: mail.subject,
+    textContent: mail.text,
+    htmlContent: mail.html,
+  }
+}
+
 /** Sends the email. Never throws: the account is already deleted, so a mail problem is only logged. */
 export async function sendDeletionEmail(to: string | undefined, name: string | null | undefined): Promise<void> {
   try {
-    const user = Deno.env.get('GMAIL_USER')
-    const pass = Deno.env.get('GMAIL_APP_PASSWORD')
-    if (!to || !user || !pass) {
-      console.log('Deletion email skipped: no address, or GMAIL_USER / GMAIL_APP_PASSWORD are not set.')
+    const apiKey = Deno.env.get('BREVO_API_KEY')
+    const from = Deno.env.get('EMAIL_FROM')
+    if (!to || !apiKey || !from) {
+      console.log('Deletion email skipped: no address, or BREVO_API_KEY / EMAIL_FROM are not set.')
       return
     }
-    const { default: nodemailer } = await import('npm:nodemailer@6.9.16')
-    // Port 465 on purpose: the Supabase servers do not allow the usual mail ports 25 and 587.
-    const transport = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass } })
-    const { subject, text, html } = buildDeletionEmail(name, to)
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('The email took too long to send.')), 10000))
-    await Promise.race([transport.sendMail({ from: `MyFit <${user}>`, replyTo: user, to, subject, text, html }), timeout])
+    const replyTo = Deno.env.get('SUPPORT_EMAIL') || from
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': apiKey, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify(buildBrevoRequest(from, replyTo, to, name, buildDeletionEmail(name, to))),
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!res.ok) console.error('Deletion email failed:', res.status, await res.text())
   } catch (err) {
     console.error('Deletion email failed:', err instanceof Error ? err.message : err)
   }

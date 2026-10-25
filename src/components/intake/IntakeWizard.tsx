@@ -95,6 +95,45 @@ function ChipRow<T extends string>({
   )
 }
 
+/** A short list where every choice explains itself (used where the label alone is not clear). */
+function OptionRows<T extends string>({
+  label,
+  hint,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  hint?: string
+  options: { value: T; label: string; description: string }[]
+  value: T | undefined
+  onChange: (v: T) => void
+}) {
+  return (
+    <div>
+      <Label className="text-sm font-semibold">{label}</Label>
+      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
+      <div className="mt-2 space-y-2" role="group" aria-label={label}>
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onChange(o.value)}
+            aria-pressed={value === o.value}
+            className={cn(
+              'flex min-h-[52px] w-full flex-col justify-center rounded-xl border px-4 py-2 text-left transition-colors',
+              value === o.value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/50',
+            )}
+          >
+            <span className="text-sm font-semibold text-foreground">{o.label}</span>
+            <span className="text-xs text-muted-foreground">{o.description}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /** Like ChipRow, but any number can be on at once. */
 function MultiChipRow({
   label,
@@ -227,25 +266,24 @@ function StepAboutYou({ answers, update }: StepProps) {
 }
 
 const ACTIVITY_OPTIONS: { value: IntakeAnswers['activityLevel']; label: string; description: string }[] = [
-  { value: 'sedentary', label: 'Sedentary', description: 'Sedentary: desk job, little movement' },
-  { value: 'light', label: 'Light', description: 'Light: exercise 1-3 days a week' },
-  { value: 'moderate', label: 'Moderate', description: 'Moderate: on your feet most of the day' },
-  { value: 'active', label: 'Active', description: 'Active: physical job or daily training' },
-  { value: 'athlete', label: 'Athlete', description: 'Athlete: intense daily training' },
+  { value: 'sedentary', label: 'Sedentary', description: 'Desk or office job, mostly sitting' },
+  { value: 'light', label: 'Lightly active', description: 'Light exercise 1-3 days a week' },
+  { value: 'moderate', label: 'Moderately active', description: 'On your feet most of the day' },
+  { value: 'active', label: 'Active', description: 'Physical job or daily training' },
+  { value: 'athlete', label: 'Athlete', description: 'Intense daily training' },
 ]
 
 /** Daily activity, sleep and stress together: the answers that set your recovery and your calories, on one screen. */
 function StepYourWeek({ answers, update }: StepProps) {
-  const activity = ACTIVITY_OPTIONS.find((o) => o.value === answers.activityLevel)
   return (
     <StepShell title="Your week" subtitle="Sets your calories and training load.">
       <div className="space-y-5">
-        <ChipRow
+        <OptionRows
           label="Daily activity"
+          hint="Outside the gym, how much do you move day to day?"
           options={ACTIVITY_OPTIONS}
           value={answers.activityLevel}
           onChange={(v) => update('activityLevel', v)}
-          caption={activity?.description}
         />
         <ChipRow
           label="Sleep per night (hours)"
@@ -345,7 +383,7 @@ function Step10Days({ answers, update }: StepProps) {
           ? style
             ? `${style.label} is usually done ${style.recommended}. How many days can you commit to?`
             : 'How many days a week would you like to practice?'
-          : 'How many days per week can you commit to training?'
+          : 'How many days a week can you train? (1-2 days is not enough to train every muscle properly, and 7 leaves no rest day)'
       }
     >
       <ChoiceGrid

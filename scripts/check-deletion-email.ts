@@ -1,6 +1,6 @@
 // Run with: npm run test:deletion-email
 // Checks the "your account was deleted" email (sample data, nothing is sent).
-import { buildDeletionEmail } from '../supabase/functions/delete-account/index'
+import { buildBrevoRequest, buildDeletionEmail } from '../supabase/functions/delete-account/index'
 
 const problems: string[] = []
 const check = (label: string, got: unknown, want: unknown) => {
@@ -24,6 +24,13 @@ check('blank name falls back to "there"', buildDeletionEmail('   ', 'a@b.co').te
 const nasty = buildDeletionEmail('<b>Al</b> & "co"', 'x@y.zz')
 check('a name cannot add html', nasty.html.includes('<b>Al</b>'), false)
 check('and is shown as text', nasty.html.includes('&lt;b&gt;Al&lt;/b&gt; &amp; &quot;co&quot;'), true)
+
+const req = buildBrevoRequest('help@example.com', 'help@example.com', 'alex@example.com', 'Alex', mail)
+check('request goes to the member only', req.to, [{ email: 'alex@example.com', name: 'Alex' }])
+check('request is from the MyFit sender', req.sender, { name: 'MyFit', email: 'help@example.com' })
+check('replies go to support', req.replyTo, { email: 'help@example.com' })
+check('request carries the subject and both versions of the text', [req.subject, req.textContent === mail.text, req.htmlContent === mail.html], [mail.subject, true, true])
+check('no name leaves the name out', buildBrevoRequest('a@b.co', 'a@b.co', 'x@y.zz', undefined, mail).to, [{ email: 'x@y.zz' }])
 
 if (problems.length) {
   console.log('FAILED')
