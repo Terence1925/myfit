@@ -13,9 +13,13 @@ export function WeekTargetCard({ target }: { target: WeekTarget }) {
           <Icon className="h-4 w-4" />
           {target.deload ? 'Deload week' : `Week ${target.week} of ${BLOCK_WEEKS} · ${target.title}`}
         </div>
-        {!target.deload && <div className="text-xs font-semibold text-muted-foreground">{target.rir} reps left</div>}
       </div>
       <p className="mt-2 font-body text-sm leading-relaxed text-foreground/90">{target.advice}</p>
+      {!target.deload && (
+        <p className="mt-2 font-body text-sm leading-relaxed text-foreground/90">
+          Log your workout to progress.
+        </p>
+      )}
     </div>
   )
 }

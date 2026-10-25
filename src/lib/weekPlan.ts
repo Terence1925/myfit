@@ -30,20 +30,20 @@ export function weekTarget(week: number): WeekTarget {
       phase: 'test',
       title: 'Test week',
       rir: '0-1',
-      advice: 'Test week. On your main lifts, work up to your best sets for the target reps with 0 to 1 reps left. Keep the other exercises comfortable. A deload week follows.',
+      advice: 'Test week. On your main lifts, work up to your best sets for the target reps, stopping just 0 to 1 reps before you cannot do more. Keep the other exercises comfortable. A deload week follows.',
       deload: false,
     }
   }
   if (w <= 2) {
-    return { week: w, phase: 'base', title: 'Base', rir: '3', advice: 'Find your starting weights. Stop each set with about 3 reps left. Clean, smooth reps matter more than heavy ones right now.', deload: false }
+    return { week: w, phase: 'base', title: 'Base', rir: '3', advice: 'Find your starting weights. Stop each set 1-3 reps before you cannot do more. Clean, smooth reps matter more than heavy ones right now.', deload: false }
   }
   if (w <= 4) {
-    return { week: w, phase: 'base', title: 'Base', rir: '3', advice: 'Add a little weight, or one more rep, than last time. It is fine to stay at the same weight until a set feels easy. Keep about 3 reps left.', deload: false }
+    return { week: w, phase: 'base', title: 'Base', rir: '3', advice: 'Add a little weight, or one more rep, than last time. It is fine to stay at the same weight until a set feels easy. Stop each set 1-3 reps before you cannot do more.', deload: false }
   }
   if (w <= 8) {
-    return { week: w, phase: 'build', title: 'Build', rir: '2', advice: 'Add weight or reps when you can. If you cannot, repeat the same weight and chase one more rep. Stop each set with about 2 reps left.', deload: false }
+    return { week: w, phase: 'build', title: 'Build', rir: '2', advice: 'Add weight or reps when you can. If you cannot, repeat the same weight and chase one more rep. Stop each set about 2 reps before you cannot do more.', deload: false }
   }
-  return { week: w, phase: 'push', title: 'Push', rir: '1-2', advice: 'The hardest stretch of the block. Stop each set with 1 to 2 reps left and keep your form clean.', deload: false }
+  return { week: w, phase: 'push', title: 'Push', rir: '1-2', advice: 'The hardest stretch of the block. Stop each set 1 to 2 reps before you cannot do more, and keep your form clean.', deload: false }
 }
 
 /** The day as it is trained this week: in the deload week about half the sets, and the effort note matches the week. */
