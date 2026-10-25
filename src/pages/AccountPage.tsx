@@ -24,7 +24,7 @@ const ANDROID_PACKAGE_ID = 'com.myfit.app'
 const OWNER_EMAIL = 'ttagayona1985@gmail.com'
 
 export default function AccountPage() {
-  const { profile, refreshProfile, role, deleteAccount, updatePassword, signOut } = useAuth()
+  const { profile, refreshProfile, role, deleteAccount, updatePassword, signOut, usesPassword, verifyPassword } = useAuth()
   const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -32,6 +32,9 @@ export default function AccountPage() {
   const { choice: themeChoice, setChoice: setThemeChoice } = useTheme()
   const [confirmingDelete, setConfirmingDelete] = React.useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = React.useState('')
+  const [deletePassword, setDeletePassword] = React.useState('')
+  // Accounts that only use Google have no password to type: they confirm by typing DELETE instead
+  const [askPassword, setAskPassword] = React.useState(true)
   const [deleting, setDeleting] = React.useState(false)
   const [deleteError, setDeleteError] = React.useState<string | null>(null)
   const [changingPassword, setChangingPassword] = React.useState(false)
@@ -114,10 +117,22 @@ export default function AccountPage() {
     }
   }
 
+  React.useEffect(() => {
+    if (!confirmingDelete) return
+    let cancelled = false
+    usesPassword()
+      .then((uses) => !cancelled && setAskPassword(uses))
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [confirmingDelete, usesPassword])
+
   const handleDeleteAccount = async () => {
     setDeleteError(null)
     setDeleting(true)
     try {
+      if (askPassword) await verifyPassword(deletePassword)
       await deleteAccount()
       navigate('/auth')
     } catch (err) {
@@ -373,7 +388,7 @@ export default function AccountPage() {
         <Card className="border-destructive/30">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-destructive">
-              <AlertTriangle className="h-5 w-5" /> Danger Zone
+              <AlertTriangle className="h-5 w-5" /> Danger zone
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm font-body">
@@ -394,16 +409,36 @@ export default function AccountPage() {
               </>
             ) : (
               <>
-                <p className="text-muted-foreground">
-                  Type <span className="font-bold text-foreground">DELETE</span> to confirm. This immediately and
-                  permanently erases your account — there is no recovery.
-                </p>
-                <Input
-                  value={deleteConfirmText}
-                  onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  placeholder="DELETE"
-                  className="max-w-xs"
-                />
+                {askPassword ? (
+                  <>
+                    <p className="text-muted-foreground">
+                      Enter your MyFit password to confirm. This immediately and permanently erases your account — there is
+                      no recovery.
+                    </p>
+                    <Input
+                      type="password"
+                      autoComplete="current-password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      placeholder="Your password"
+                      aria-label="Your password"
+                      className="max-w-xs"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground">
+                      Type <span className="font-bold text-foreground">DELETE</span> to confirm. This immediately and
+                      permanently erases your account — there is no recovery.
+                    </p>
+                    <Input
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="DELETE"
+                      className="max-w-xs"
+                    />
+                  </>
+                )}
                 {deleteError && (
                   <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
                     {deleteError}
@@ -414,11 +449,11 @@ export default function AccountPage() {
                     variant="destructive"
                     size="sm"
                     className="gap-1.5"
-                    disabled={deleteConfirmText !== 'DELETE' || deleting}
+                    disabled={(askPassword ? deletePassword === '' : deleteConfirmText !== 'DELETE') || deleting}
                     onClick={handleDeleteAccount}
                   >
                     {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    Permanently Delete
+                    Permanently delete
                   </Button>
                   <Button
                     variant="outline"
@@ -426,6 +461,7 @@ export default function AccountPage() {
                     onClick={() => {
                       setConfirmingDelete(false)
                       setDeleteConfirmText('')
+                      setDeletePassword('')
                       setDeleteError(null)
                     }}
                   >

@@ -214,6 +214,21 @@ export const auth = {
     if (data?.error) throw new Error(data.error)
   },
 
+  async usesPassword(): Promise<boolean> {
+    const { data } = await sb().auth.getUser()
+    const providers = (data.user?.app_metadata?.providers ?? []) as string[]
+    return providers.includes('email')
+  },
+
+  async verifyPassword(password: string): Promise<void> {
+    const { data } = await sb().auth.getUser()
+    const email = data.user?.email
+    if (!email) throw new Error('Not signed in.')
+    // Signing in again with the same email proves the person knows the password (it keeps them signed in)
+    const { error } = await sb().auth.signInWithPassword({ email, password })
+    if (error) throw new Error('That password is not right.')
+  },
+
   async deleteAccount(): Promise<void> {
     const { error } = await sb().functions.invoke('delete-account', { body: {} })
     if (error) throw new Error(error.message)

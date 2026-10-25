@@ -171,6 +171,17 @@ export const auth = {
     logActivity(session.userId, 'deleted_member', { email: target.email, name: target.displayName })
   },
 
+  async usesPassword(): Promise<boolean> {
+    return true
+  },
+
+  async verifyPassword(password: string): Promise<void> {
+    const session = readOne<{ userId: string }>(SESSION_KEY)
+    if (!session) throw new Error('Not signed in.')
+    const user = readAll<StoredUser>(USERS_KEY).find((u) => u.id === session.userId)
+    if (!user || user.password !== password) throw new Error('That password is not right.')
+  },
+
   async deleteAccount(): Promise<void> {
     const session = readOne<{ userId: string }>(SESSION_KEY)
     if (!session) throw new Error('Not signed in.')

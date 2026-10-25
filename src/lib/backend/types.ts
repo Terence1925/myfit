@@ -27,6 +27,10 @@ export interface AuthApi {
   requestPasswordReset(email: string): Promise<void>
   updatePassword(newPassword: string): Promise<void>
   deleteAccount(): Promise<void>
+  /** True when this account signs in with a password (false for an account that only uses Google). */
+  usesPassword(): Promise<boolean>
+  /** Checks the account's current password. Rejects when it is wrong. */
+  verifyPassword(password: string): Promise<void>
   /** Admin only: permanently deletes another member and all of their data. */
   deleteMember(userId: string): Promise<void>
 }
