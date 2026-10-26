@@ -2,12 +2,12 @@ import { LegalLayout } from './LegalLayout'
 
 export default function DeleteAccountPage() {
   return (
-    <LegalLayout title="Delete Your Account" updated="September 20, 2026">
+    <LegalLayout title="Delete Your Account" updated="October 26, 2026">
       <h2>In the App (fastest)</h2>
       <p>
-        Sign in to MyFit, go to <strong>Account</strong>, scroll to the <strong>Danger Zone</strong> section,
+        Sign in to MyFit, go to <strong>Account</strong>, scroll to the <strong>Danger zone</strong> section,
         and select <strong>Delete account</strong>. You'll be asked to enter your password to confirm (or to type "DELETE" if you sign in with Google).
-        Deletion is immediate and permanent, and we send a confirmation email to the address on your account.
+        Deletion is immediate and permanent, and we send a confirmation email to the address on your account. Deleting your account does not cancel your Google Play or Apple subscription. Cancel it first in Google Play or your Apple ID settings to stop future charges.
       </p>
 
       <h2>Can't Sign In?</h2>

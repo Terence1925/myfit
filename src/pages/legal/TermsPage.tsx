@@ -2,10 +2,9 @@ import { LegalLayout } from './LegalLayout'
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms of Service" updated="September 6, 2026">
+    <LegalLayout title="Terms of Service" updated="October 26, 2026">
       <p>
-        These Terms of Service ("Terms") govern your use of MyFit (the "Service"), operated from the
-        Philippines. By creating an account or using the Service, you agree to these Terms.
+        These Terms of Service ("Terms") govern your use of MyFit (the "Service"), operated by Terence Tagayona from the Philippines. By creating an account or using the Service, you agree to these Terms.
       </p>
 
       <h2>1. Eligibility</h2>
@@ -32,7 +31,7 @@ export default function TermsPage() {
       <h2>4. Subscriptions &amp; Billing</h2>
       <ul>
         <li>
-          You can build your personalized program for free, but viewing and using it requires a Pro
+          Day 1 of your program and the food log are free. The rest of your program requires a Pro
           subscription.
         </li>
         <li>
@@ -47,7 +46,7 @@ export default function TermsPage() {
           Google Play or Apple ID subscription settings; you keep access until the end of the period you already paid
           for. A Pro subscription also applies when you sign in to MyFit on the web.
         </li>
-        <li>The price you pay is the one Google Play or the App Store shows you before you subscribe, in your local currency (in the Philippines: ₱199 a month or ₱1,790 a year). Prices may change with prior notice for future billing periods.</li>
+        <li>The price you pay is the one Google Play or the App Store shows you before you subscribe, in your local currency Prices may change with prior notice for future billing periods.</li>
         <li>Refunds are handled under our <a href="/refund-policy">Refund policy</a>.</li>
       </ul>
 
@@ -77,7 +76,7 @@ export default function TermsPage() {
       </p>
 
       <h2>9. Governing Law</h2>
-      <p>These Terms are governed by the laws of the Republic of the Philippines.</p>
+      <p>These Terms are governed by the laws of the Republic of the Philippines. This does not remove any rights you have under the consumer and data protection laws of the country where you live.</p>
 
       <h2>10. Changes to These Terms</h2>
       <p>We may update these Terms from time to time. Continued use of the Service after changes take effect constitutes acceptance.</p>

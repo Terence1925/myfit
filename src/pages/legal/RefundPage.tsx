@@ -2,10 +2,11 @@ import { LegalLayout } from './LegalLayout'
 
 export default function RefundPage() {
   return (
-    <LegalLayout title="Refund policy" updated="September 6, 2026">
+    <LegalLayout title="Refund policy" updated="October 26, 2026">
+      <p>MyFit is operated by Terence Tagayona. Subscriptions are bought through Google Play or the Apple App Store, which process all payments and refunds.</p>
       <h2>Free Trial</h2>
       <p>
-        Cancelling before a free trial ends means you are never charged. Once a trial converts into a paid
+        Cancelling in Google Play or the Apple App Store before a free trial ends means you are never charged. Once a trial converts into a paid
         subscription, the rules below apply.
       </p>
 
@@ -27,16 +28,12 @@ export default function RefundPage() {
       <h2>How to Request a Refund</h2>
       <p>
         You can request a refund directly from Google Play (play.google.com → Order history) or from Apple
-        (reportaproblem.apple.com). If something
-        went wrong with a purchase, email joinmyfit@gmail.com with your account email and the reason,
-        and we'll look into it and respond within 2 business days. Approved refunds are returned to your
-        original payment method.
+        (reportaproblem.apple.com). If something went wrong with a purchase, email joinmyfit@gmail.com with your account email and the reason. We will help you send the request to Google Play or Apple, and reply within 2 business days. Google Play or Apple then returns any approved refund to your original payment method.
       </p>
 
       <h2>Exceptions</h2>
       <p>
-        Nothing in this policy limits any refund right you have under the Philippine Consumer Act or other
-        applicable law.
+        Nothing in this policy limits any refund or withdrawal right you have under consumer law in your country. Where the law gives you a right to withdraw from a purchase within a set period (for example 14 days in the EU and UK), that right applies. Google Play and Apple handle those refunds.
       </p>
     </LegalLayout>
   )
