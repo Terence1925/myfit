@@ -47,7 +47,7 @@ function Step5Experience({ answers, update }: StepProps) {
     { value: '5+', label: 'Elite', description: '5+ years training' },
   ]
   return (
-    <StepShell title="Training experience" subtitle="How long have you been training with intent?">
+    <StepShell title="Training experience" subtitle="Used to set your starting level and how many sets you do.">
       <ChoiceGrid
         options={options}
         value={answers.experience}
@@ -236,7 +236,7 @@ function StepYourWeek({ answers, update }: StepProps) {
   return (
     <StepShell title="Your week" subtitle="These set your calories and how much training suits you.">
       <div className="space-y-8">
-        <QuestionBlock first title="Daily activity" hint="Outside the gym, how much do you move day to day?">
+        <QuestionBlock first title="Daily activity" hint="Outside the gym, how much do you move day to day? If you are between two levels, choose the lower one.">
           <ChoiceGrid
             options={ACTIVITY_OPTIONS}
             value={answers.activityLevel}
@@ -350,7 +350,7 @@ function Step11Goal({ answers, update }: StepProps) {
     { value: 'body-recomposition', label: 'Body Recomposition', description: 'Lose fat, build muscle', dot: 'bg-goal-recomp' },
   ]
   return (
-    <StepShell title="Primary goal" subtitle="What's the main outcome you're training for?">
+    <StepShell title="Primary goal" subtitle="Used to set your calorie target and how we build your plan.">
       <ChoiceGrid
         options={options.map(({ dot, ...o }) => ({
           ...o,

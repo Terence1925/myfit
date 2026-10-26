@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <LegalLayout title="Privacy Policy" updated="October 26, 2026">
       <p>
-        MyFit ("we") respects your privacy. The controller of your personal data is Terence Tagayona, who operates MyFit from the Philippines. This policy explains what data we collect, why, and the
+        MyFit ("we") respects your privacy. The controller of your personal data is Terence Tagayona, who operates MyFit. This policy explains what data we collect, why, and the
         rights you have over it under the Philippines' Data Privacy Act of 2012 (RA 10173), and under the data protection law where you live (for example the GDPR in the EU and UK).
       </p>
 

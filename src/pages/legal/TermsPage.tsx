@@ -4,7 +4,7 @@ export default function TermsPage() {
   return (
     <LegalLayout title="Terms of Service" updated="October 26, 2026">
       <p>
-        These Terms of Service ("Terms") govern your use of MyFit (the "Service"), operated by Terence Tagayona from the Philippines. By creating an account or using the Service, you agree to these Terms.
+        These Terms of Service ("Terms") govern your use of MyFit (the "Service"), operated by Terence Tagayona. By creating an account or using the Service, you agree to these Terms.
       </p>
 
       <h2>1. Eligibility</h2>
