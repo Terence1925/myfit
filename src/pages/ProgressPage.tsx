@@ -205,7 +205,10 @@ export default function ProgressPage() {
             </motion.div>
           ))}
           {entries.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-6">No entries logged yet.</p>
+            <div className="py-6 text-center">
+              <p className="text-sm font-semibold">Log your first weight above to start your chart.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Weigh yourself once a week, at the same time of day, for the clearest trend.</p>
+            </div>
           )}
         </CardContent>
       </Card>
