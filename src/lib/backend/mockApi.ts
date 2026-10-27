@@ -154,6 +154,10 @@ export const auth = {
     throw new Error('DEMO_MODE_NOT_SUPPORTED')
   },
 
+  async sendWelcomeEmail(): Promise<void> {
+    // The demo sends no email.
+  },
+
   async updatePassword(): Promise<void> {
     throw new Error('DEMO_MODE_NOT_SUPPORTED')
   },

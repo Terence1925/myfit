@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/Logo'
 import { Wordmark } from '@/components/ui/Wordmark'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/context/AuthContext'
@@ -460,9 +461,8 @@ export default function AuthPage() {
               </div>
               <div>
                 <Label htmlFor="password">Password</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

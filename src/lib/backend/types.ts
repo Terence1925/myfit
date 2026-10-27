@@ -29,6 +29,8 @@ export interface AuthApi {
   requestSignInCode(email: string): Promise<void>
   /** Signs in with the 6-digit code from that email. */
   verifyEmailCode(email: string, code: string): Promise<Profile>
+  /** Emails the welcome message to the signed-in member, once, for new accounts. */
+  sendWelcomeEmail(): Promise<void>
   updatePassword(newPassword: string): Promise<void>
   deleteAccount(): Promise<void>
   /** True when this account signs in with a password (false for an account that only uses Google). */

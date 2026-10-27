@@ -212,6 +212,11 @@ export const auth = {
     return profile
   },
 
+  async sendWelcomeEmail(): Promise<void> {
+    const { error } = await sb().functions.invoke('welcome-email', { body: {} })
+    if (error) throw new Error(error.message)
+  },
+
   async updatePassword(newPassword: string): Promise<void> {
     const { error } = await sb().auth.updateUser({ password: newPassword })
     if (error) throw new Error(error.message)

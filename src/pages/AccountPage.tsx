@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { useAuth } from '@/context/AuthContext'
 import { isSupabaseConfigured, profiles } from '@/lib/backend/api'
 import { hasProAccess, isOnTrial, isPro } from '@/lib/billing'
@@ -351,16 +352,14 @@ export default function AccountPage() {
                 </Button>
               ) : (
                 <form onSubmit={handleChangePassword} className="space-y-3 max-w-xs">
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="New password"
                     minLength={6}
                     required
                   />
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
@@ -433,8 +432,7 @@ export default function AccountPage() {
                       Enter your MyFit password to confirm. This immediately and permanently erases your account — there is
                       no recovery.
                     </p>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       autoComplete="current-password"
                       value={deletePassword}
                       onChange={(e) => setDeletePassword(e.target.value)}

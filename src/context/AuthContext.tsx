@@ -80,17 +80,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = React.useCallback(async (email: string, password: string, displayName: string) => {
     const p = await auth.signUp(email, password, displayName)
+    void auth.sendWelcomeEmail().catch(() => undefined)
     setProfile(p)
   }, [])
 
   const signIn = React.useCallback(async (email: string, password: string) => {
     const p = await auth.signIn(email, password)
+    void auth.sendWelcomeEmail().catch(() => undefined)
     setProfile(p)
   }, [])
 
   const signInWithGoogle = React.useCallback(async () => {
     // In a browser this leaves the page for Google (no profile yet); on the phone it returns the profile.
     const p = await auth.signInWithGoogle()
+    void auth.sendWelcomeEmail().catch(() => undefined)
     if (p) setProfile(p)
   }, [])
 
@@ -109,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyEmailCode = React.useCallback(async (email: string, code: string) => {
     const p = await auth.verifyEmailCode(email, code)
+    void auth.sendWelcomeEmail().catch(() => undefined)
     setProfile(p)
   }, [])
 
