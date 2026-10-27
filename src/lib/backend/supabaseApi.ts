@@ -193,6 +193,25 @@ export const auth = {
     if (error) throw new Error(error.message)
   },
 
+  async requestSignInCode(email: string): Promise<void> {
+    // The link goes to the website, as the reset link does, because a phone can't open the website from inside the app.
+    const baseUrl = isNativeApp() ? WEB_APP_URL : window.location.origin
+    const { error } = await sb().auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${baseUrl}/`, shouldCreateUser: false },
+    })
+    if (error) throw new Error(error.message)
+  },
+
+  async verifyEmailCode(email: string, code: string): Promise<Profile> {
+    const { data, error } = await sb().auth.verifyOtp({ email, token: code, type: 'email' })
+    if (error) throw new Error('That code is not right, or it has expired. Check it, or send a new link.')
+    if (!data.user) throw new Error('Could not sign you in. Please try again.')
+    const profile = await profiles.get(data.user.id)
+    if (!profile) throw new Error('Profile not found.')
+    return profile
+  },
+
   async updatePassword(newPassword: string): Promise<void> {
     const { error } = await sb().auth.updateUser({ password: newPassword })
     if (error) throw new Error(error.message)

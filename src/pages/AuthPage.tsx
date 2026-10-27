@@ -16,7 +16,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
 
 export default function AuthPage() {
-  const { signIn, signUp, signInWithGoogle, requestPasswordReset } = useAuth()
+  const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode } = useAuth()
   const navigate = useNavigate()
   // Sent here by the Delete account button: say that it worked (shown once)
   const [accountDeleted] = React.useState(() => {
@@ -33,7 +33,7 @@ export default function AuthPage() {
       // nothing to clear
     }
   }, [])
-  const [mode, setMode] = React.useState<'signin' | 'signup' | 'forgot'>('signin')
+  const [mode, setMode] = React.useState<'signin' | 'signup' | 'forgot' | 'link'>('signin')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [displayName, setDisplayName] = React.useState('')
@@ -42,6 +42,8 @@ export default function AuthPage() {
   const [checkEmail, setCheckEmail] = React.useState(false)
   const [resetSent, setResetSent] = React.useState(false)
   const [googleLoading, setGoogleLoading] = React.useState(false)
+  const [linkSent, setLinkSent] = React.useState(false)
+  const [code, setCode] = React.useState('')
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,6 +58,38 @@ export default function AuthPage() {
       } else {
         setError(err instanceof Error ? err.message : 'Something went wrong.')
       }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLinkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      await requestSignInCode(email)
+      setLinkSent(true)
+    } catch (err) {
+      if (err instanceof Error && err.message === 'DEMO_MODE_NOT_SUPPORTED') {
+        setError('Email sign-in needs the real backend and isn’t available in this demo. Use the demo admin login below.')
+      } else {
+        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      await verifyEmailCode(email, code.trim())
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setLoading(false)
     }
@@ -152,6 +186,106 @@ export default function AuthPage() {
           >
             Back to Sign In
           </Button>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (mode === 'link') {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md"
+        >
+          <div className="mb-8 flex flex-col items-center text-center">
+            <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
+            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">{linkSent ? 'Check your email' : 'Sign in with email'}</h1>
+            <p className="mt-1 text-sm text-muted-foreground font-body">
+              {linkSent ? (
+                <>
+                  We sent a sign-in link to <span className="text-foreground">{email}</span>. Tap the button in the email, or type the 6-digit code below.
+                </>
+              ) : (
+                'We will email you a link. No password needed.'
+              )}
+            </p>
+          </div>
+
+          <Card className="shadow-glow-lg border-primary/10">
+            <CardContent className="p-6 sm:p-8">
+              {linkSent ? (
+                <form onSubmit={handleCodeSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="signInCode">6-digit code</Label>
+                    <Input
+                      id="signInCode"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      required
+                      className="mt-1.5 text-center text-lg tracking-widest"
+                      placeholder="123456"
+                    />
+                  </div>
+                  {error && (
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">{error}</div>
+                  )}
+                  <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Sign in
+                  </Button>
+                  <button
+                    type="button"
+                    className="w-full text-center text-xs text-muted-foreground underline underline-offset-2"
+                    onClick={() => {
+                      setLinkSent(false)
+                      setCode('')
+                      setError(null)
+                    }}
+                  >
+                    Send a new link
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleLinkSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="linkEmail">Email</Label>
+                    <Input
+                      id="linkEmail"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="mt-1.5"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  {error && (
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">{error}</div>
+                  )}
+                  <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Email me a sign-in link
+                  </Button>
+                </form>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null)
+                  setLinkSent(false)
+                  setMode('signin')
+                }}
+                className="mt-5 w-full text-center text-sm text-muted-foreground hover:text-foreground"
+              >
+                Back to sign in
+              </button>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     )
@@ -361,6 +495,19 @@ export default function AuthPage() {
                 {mode === 'signin' ? 'Sign In' : 'Create Account'}
               </Button>
             </form>
+
+            {mode === 'signin' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null)
+                  setMode('link')
+                }}
+                className="mt-4 w-full text-center text-sm font-semibold text-primary hover:underline"
+              >
+                Email me a sign-in link instead
+              </button>
+            )}
 
             {!isSupabaseConfigured && (
               <p className="mt-5 text-center text-xs text-muted-foreground">

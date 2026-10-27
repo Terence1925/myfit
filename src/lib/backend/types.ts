@@ -25,6 +25,10 @@ export interface AuthApi {
   signOut(): Promise<void>
   currentSession(): Promise<Profile | null>
   requestPasswordReset(email: string): Promise<void>
+  /** Emails a one-tap sign-in link and a 6-digit code to the address. */
+  requestSignInCode(email: string): Promise<void>
+  /** Signs in with the 6-digit code from that email. */
+  verifyEmailCode(email: string, code: string): Promise<Profile>
   updatePassword(newPassword: string): Promise<void>
   deleteAccount(): Promise<void>
   /** True when this account signs in with a password (false for an account that only uses Google). */

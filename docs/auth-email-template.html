@@ -1,0 +1,39 @@
+<!--
+  Paste this into Supabase: Authentication > Email Templates > Magic Link.
+  Subject line to use: Your MyFit sign-in link
+  Supabase fills in {{ .ConfirmationURL }} (the sign-in button) and {{ .Token }} (the 6-digit code).
+-->
+<!doctype html>
+<html>
+  <body style="margin:0;padding:24px;background:#f3f4f7;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;padding:32px">
+            <tr>
+              <td align="center">
+                <p style="margin:0 0 20px;font-size:22px;font-weight:700;letter-spacing:.02em">MyFit</p>
+                <h1 style="margin:0 0 10px;font-size:22px">Sign in to MyFit</h1>
+                <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#4b5563">
+                  Tap the button below to sign in. The link works once and expires in 10 minutes.
+                </p>
+                <a href="{{ .ConfirmationURL }}"
+                   style="display:inline-block;background:#66C23D;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 28px;border-radius:12px">
+                  Sign in to MyFit
+                </a>
+                <p style="margin:28px 0 8px;font-size:14px;color:#4b5563">
+                  Button not working? Open MyFit and type this code instead:
+                </p>
+                <p style="margin:0 0 24px;font-size:28px;font-weight:700;letter-spacing:.2em">{{ .Token }}</p>
+                <p style="margin:0;font-size:13px;line-height:1.5;color:#6b7280">
+                  Only tap the link on your own device. Do not share it with anyone. If you did not ask to sign in, you can ignore this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:16px 0 0;font-size:12px;color:#6b7280">Questions? Reply to this email or write to joinmyfit@gmail.com</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

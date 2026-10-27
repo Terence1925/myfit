@@ -146,6 +146,14 @@ export const auth = {
     throw new Error('DEMO_MODE_NOT_SUPPORTED')
   },
 
+  async requestSignInCode(): Promise<void> {
+    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  },
+
+  async verifyEmailCode(): Promise<Profile> {
+    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  },
+
   async updatePassword(): Promise<void> {
     throw new Error('DEMO_MODE_NOT_SUPPORTED')
   },
