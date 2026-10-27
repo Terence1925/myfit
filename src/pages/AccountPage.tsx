@@ -323,7 +323,7 @@ export default function AccountPage() {
           </CardContent>
         </Card>
 
-        {nativePlatform() === 'android' && <RestAlarmCheck />}
+        {nativePlatform() === 'android' && isOwner && <RestAlarmCheck />}
 
         {isSupabaseConfigured && (
           <Card>
