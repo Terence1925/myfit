@@ -62,6 +62,18 @@ export default function AccountPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Before the early return below, so the same hooks run on every render (the profile goes away when an account is deleted)
+  React.useEffect(() => {
+    if (!confirmingDelete) return
+    let cancelled = false
+    usesPassword()
+      .then((uses) => !cancelled && setAskPassword(uses))
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [confirmingDelete, usesPassword])
+
   if (!profile) return null
   const pro = isPro(profile)
   const isAdmin = role === 'admin'
@@ -118,17 +130,6 @@ export default function AccountPage() {
       setPasswordSaving(false)
     }
   }
-
-  React.useEffect(() => {
-    if (!confirmingDelete) return
-    let cancelled = false
-    usesPassword()
-      .then((uses) => !cancelled && setAskPassword(uses))
-      .catch(() => undefined)
-    return () => {
-      cancelled = true
-    }
-  }, [confirmingDelete, usesPassword])
 
   const handleDeleteAccount = async () => {
     setDeleteError(null)

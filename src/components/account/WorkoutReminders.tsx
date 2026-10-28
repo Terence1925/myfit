@@ -64,6 +64,7 @@ export function WorkoutReminders({ userId }: { userId: string }) {
           <button
             type="button"
             role="switch"
+            aria-label="Workout reminders"
             aria-checked={settings.enabled}
             disabled={busy || !native}
             onClick={() => void apply(!settings.enabled)}

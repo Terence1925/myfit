@@ -462,7 +462,7 @@ function buildTemplateDays(
             ? `On the last set go close to failure but stop with 1-2 reps left, ${tier.targetRIR}.`
             : ex.compound
               ? `Target ${tier.targetRIR}. Focus on controlled tempo and full range of motion.`
-              : `Isolation work — squeeze at peak contraction, ${tier.targetRIR}.`,
+              : `Squeeze the muscle hard at the top of each rep, ${tier.targetRIR}.`,
         format: 'strength' as const,
         ...(slot.eachSide ? { eachSide: true } : {}),
       }
@@ -515,7 +515,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
       rest: isCompound ? scheme.rest : '60-75 sec',
       notes: isCompound
         ? `Target ${tier.targetRIR}. Focus on controlled tempo and full range of motion.`
-        : `Isolation work — squeeze at peak contraction, ${tier.targetRIR}.`,
+        : `Squeeze the muscle hard at the top of each rep, ${tier.targetRIR}.`,
       format: 'strength',
     }
   }
@@ -793,7 +793,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     ...(blockInfo ? { trainingBlock: { number: blockInfo.number, name: blockInfo.name, summary: blockInfo.summary } } : {}),
     overview: `This program is built around ${goalLabel.toLowerCase()} as the primary objective, using ${equipmentLabel} equipment across ${answers.trainingDays} training days per week. Volume and intensity are calibrated to your ${answers.experience === '0-1' ? 'beginner' : answers.experience} experience level and your current recovery score of ${nutrition.recoveryScore}/100.`,
     personalizationNotes,
-    weeklyVolume: `${days.reduce((sum, d) => sum + d.exercises.reduce((s, e) => s + e.sets, 0), 0)} total working sets/week across ${answers.trainingDays} sessions`,
+    weeklyVolume: `${days.reduce((sum, d) => sum + d.exercises.reduce((s, e) => s + e.sets, 0), 0)} sets a week across ${answers.trainingDays} sessions`,
     progressionStrategy: isHomeProgram
       ? homeProgressionText(homeLevelFor(answers.experience))
       : answers.experience === '5+'
@@ -806,12 +806,12 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     warmup: [
       '5 minutes light cardio (bike, row, or brisk walk) to raise core temperature',
       'Dynamic mobility for the joints trained that day (leg swings, arm circles, hip openers)',
-      '1-2 light warm-up sets of the first compound lift before working weight',
+      'Do 1-2 light warm-up sets of your first big lift before you add working weight',
     ],
     cooldown: [
       '5 minutes static stretching for the muscle groups trained',
       'Deep breathing / brief walk to bring heart rate down',
-      'Log session RPE and how you felt for tomorrow\'s auto-regulation',
+      'Note how hard the session felt and how your body feels, so you can adjust tomorrow',
     ],
     days,
   }

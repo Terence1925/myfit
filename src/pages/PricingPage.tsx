@@ -258,14 +258,14 @@ export default function PricingPage() {
                         : "This code isn't available for this plan."}
                     </p>
                   )}
-                  <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                  <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
                     {isYearly ? (pricesLoading ? 'Billed yearly' : `Just ${prices.yearlyPerMonth}/mo`) : 'Billed monthly, cancel anytime'}
                     {isYearly && !pricesLoading && prices.savingsAmount && (
                       <Badge variant="success" className="py-0 px-1.5">
                         {prices.savingsAmount}
                       </Badge>
                     )}
-                  </p>
+                  </div>
                   {error && loadingPeriod === null && (
                     <p className="mt-2 text-sm text-destructive">{error}</p>
                   )}

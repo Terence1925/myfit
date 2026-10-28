@@ -23,7 +23,7 @@ export function programToText(program: WorkoutProgram, clientName?: string): str
   if (p.tagline) out.push(p.tagline)
   out.push('')
   if (p.overview) out.push(p.overview, '')
-  if (p.weeklyVolume) out.push(`Weekly volume: ${p.weeklyVolume}`)
+  if (p.weeklyVolume) out.push(`Sets per week: ${p.weeklyVolume}`)
   if (p.progressionStrategy) out.push(`Progression: ${p.progressionStrategy}`)
   out.push('')
   if (p.warmup.length) out.push('WARM-UP', ...p.warmup.map((w) => `- ${w}`), '')

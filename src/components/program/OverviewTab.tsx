@@ -49,7 +49,7 @@ export function OverviewTab({
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
-            <CardTitle className="text-lg">Weekly volume</CardTitle>
+            <CardTitle className="text-lg">Sets per week</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground font-body">{program.weeklyVolume}</CardContent>
         </Card>
