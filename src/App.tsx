@@ -96,7 +96,7 @@ function AppShell() {
   }, [loading, profile])
 
   return (
-    // On phones the bottom bar (3.5rem plus the safe area) must not cover the end of a page; the rest timer sits above it
+    // On phones the floating bottom bar (about 4rem plus the safe area) must not cover the end of a page; the rest timer sits above it
     <div className={profile ? (rest ? 'min-h-screen pb-56 sm:pb-40' : 'min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:pb-0') : 'min-h-screen'}>
       <GlowBackground />
       {profile && <NavBar />}

@@ -23,8 +23,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card sm:hidden print:hidden"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="fixed inset-x-3 bottom-[calc(0.5rem+env(safe-area-inset-bottom))] z-40 rounded-full border border-border bg-card/95 shadow-lg backdrop-blur sm:hidden print:hidden"
     >
       <ul className="flex h-14 items-stretch">
         {items.map(({ to, label, icon: Icon, end }) => (
@@ -37,12 +36,12 @@ export function BottomNav() {
               className={({ isActive }) =>
                 cn(
                   'flex h-full items-center justify-center transition-colors',
-                  isActive ? 'text-foreground' : 'text-muted-foreground/70 active:text-foreground',
+                  isActive ? 'text-primary' : 'text-muted-foreground/70 active:text-foreground',
                 )
               }
             >
               {({ isActive }) => (
-                <span className={cn('flex h-8 w-14 items-center justify-center rounded-full transition-colors', isActive && 'bg-foreground/10')}>
+                <span className={cn('flex h-10 w-12 items-center justify-center rounded-full transition-colors', isActive && 'bg-primary/15')}>
                   <Icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
                 </span>
               )}

@@ -295,7 +295,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
       </Card>
 
       {/* Always in reach, so the button doesn't sit three screens down on a phone (and above the bottom tab bar there). */}
-      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:bottom-0">
+      <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:bottom-0">
         <div className="mx-auto max-w-3xl">
           <Button size="lg" className="w-full gap-2" onClick={() => navigate('/pricing')}>
             <Crown className="h-4 w-4" /> Start {TRIAL_DAYS}-day free trial
