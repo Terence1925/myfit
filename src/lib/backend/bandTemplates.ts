@@ -105,7 +105,7 @@ export const BAND_TEMPLATES: Record<string, TemplateProgram> = {
   },
 
   'intermediate-4': {
-    label: 'Upper/Lower, power and hypertrophy',
+    label: 'Upper/Lower, power and muscle building',
     days: [
       {
         name: 'Upper Power',
@@ -116,11 +116,11 @@ export const BAND_TEMPLATES: Record<string, TemplateProgram> = {
         exercises: ['Squat 4x12', 'Deadlift 4x12', 'Split Squat 4x12', 'Hip Thrust 4x15', 'Calf Raise 5x20'],
       },
       {
-        name: 'Upper Hypertrophy',
+        name: 'Upper Muscle',
         exercises: ['Incline Press 4x12', 'Single Arm Row 4x12', 'Arnold Press 4x12', 'Pull Apart 4x15', 'Hammer Curl 3x15', 'Extension 3x15'],
       },
       {
-        name: 'Lower Hypertrophy',
+        name: 'Lower Muscle',
         exercises: ['Squat 4x15', 'Romanian Deadlift 4x15', 'Walking Lunge 4x12', 'Leg Curl 4x15', 'Glute Bridge 4x20'],
       },
     ],

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
 import { ExerciseHistoryDialog } from './ExerciseHistoryDialog'
+import { plainEffort } from '@/lib/effortWords'
 import { lastSessionHint } from '@/lib/progressiveOverload'
 import type { Suggestion } from '@/lib/weekPlan'
 import type { WarmupPlan } from '@/lib/warmup'
@@ -112,7 +113,7 @@ export function ExerciseCard({
             {!mindBody && <Badge variant="outline">{exercise.rest} rest</Badge>}
           </div>
           {exercise.notes && (
-            <p className="mt-2 text-sm text-muted-foreground font-body">{exercise.notes}</p>
+            <p className="mt-2 text-sm text-muted-foreground font-body">{plainEffort(exercise.notes)}</p>
           )}
           {suggestion && (
             <div className="mt-2">

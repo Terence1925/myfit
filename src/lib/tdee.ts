@@ -88,7 +88,7 @@ export function getRecoveryTier(score: number, style: RecoveryStyle = 'strength'
       score,
       volumeAdjustment: mindBody
         ? 'About 25% fewer poses per session, with gentler poses and more restorative holds. Skip anything that feels forced.'
-        : 'Cut training volume by 25%. Prioritize compound lifts, drop isolation work.',
+        : 'Do about 25% fewer sets. Keep the big lifts like squats and presses, and skip the single-muscle extras like curls.',
       extraRest: true,
       targetRIR: mindBody
         ? 'a gentle, easy effort. You should be able to breathe slowly and talk comfortably'
@@ -101,7 +101,7 @@ export function getRecoveryTier(score: number, style: RecoveryStyle = 'strength'
       score,
       volumeAdjustment: mindBody
         ? 'About 10 to 15% fewer poses per session. Keep the effort comfortable and the breathing steady.'
-        : 'Cut training volume by 10-15%. Keep intensity, trim total sets.',
+        : 'Do about 10 to 15% fewer sets. Keep the weights challenging and trim the extra sets.',
       extraRest: true,
       targetRIR: mindBody ? 'a comfortable effort with steady breathing' : '2-3 RIR',
     }
@@ -112,7 +112,7 @@ export function getRecoveryTier(score: number, style: RecoveryStyle = 'strength'
       score,
       volumeAdjustment: mindBody
         ? 'The standard program. Progress as planned.'
-        : 'Standard programmed volume. Progress as planned.',
+        : 'The standard number of sets. Progress as planned.',
       extraRest: false,
       targetRIR: mindBody ? 'a moderate effort: challenging, but smooth and controlled' : '1-2 RIR',
     }
@@ -122,7 +122,7 @@ export function getRecoveryTier(score: number, style: RecoveryStyle = 'strength'
     score,
     volumeAdjustment: mindBody
       ? 'Room for a few extra poses per session and slightly longer holds.'
-      : 'Cleared for +10-15% extra volume and higher training density.',
+      : 'You can handle about 10 to 15% more sets than the standard plan.',
     extraRest: false,
     targetRIR: mindBody ? 'a strong effort, always controlled and never rushed' : '0-1 RIR on top sets',
   }

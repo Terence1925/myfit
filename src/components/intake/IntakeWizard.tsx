@@ -110,7 +110,7 @@ function QuestionBlock({ title, hint, first, children }: { title: string; hint?:
 function StepAboutYou({ answers, update }: StepProps) {
   const unit = answers.weightUnit ?? 'lbs'
   return (
-    <StepShell title="About you" subtitle="Used to work out your calorie and macro targets.">
+    <StepShell title="About you" subtitle="Used to work out your daily calorie, protein, carb and fat targets.">
       <div className="space-y-5">
         <ChipRow
           label="Sex"
@@ -344,10 +344,10 @@ function Step10Days({ answers, update }: StepProps) {
 
 function Step11Goal({ answers, update }: StepProps) {
   const options: (ChoiceOption & { dot: string })[] = [
-    { value: 'lose-weight', label: 'Lose Weight', description: 'Fat loss, calorie deficit', dot: 'bg-goal-lose' },
-    { value: 'build-muscle', label: 'Build Muscle', description: 'Hypertrophy, calorie surplus', dot: 'bg-goal-muscle' },
-    { value: 'strength-power', label: 'Strength & Power', description: 'Max strength, low reps', dot: 'bg-goal-strength' },
-    { value: 'body-recomposition', label: 'Body Recomposition', description: 'Lose fat, build muscle', dot: 'bg-goal-recomp' },
+    { value: 'lose-weight', label: 'Lose Weight', description: 'Lose fat, eat a little less', dot: 'bg-goal-lose' },
+    { value: 'build-muscle', label: 'Build Muscle', description: 'Gain muscle, eat a little more', dot: 'bg-goal-muscle' },
+    { value: 'strength-power', label: 'Strength & Power', description: 'Get stronger with heavier weights', dot: 'bg-goal-strength' },
+    { value: 'body-recomposition', label: 'Body Recomposition', description: 'Lose fat and build muscle together', dot: 'bg-goal-recomp' },
   ]
   return (
     <StepShell title="Primary goal" subtitle="Used to set your calorie target and how we build your plan.">
@@ -524,7 +524,7 @@ export function IntakeWizard({
         <div>
           <h2 className="font-display text-3xl tracking-wide text-gradient-gold">Building your program</h2>
           <p className="mt-2 font-body text-muted-foreground max-w-sm">
-            Calculating your TDEE, recovery score, and building a periodized training split tailored to your answers...
+            Working out your calorie target and recovery score, and building a training plan to match your answers...
           </p>
         </div>
       </div>

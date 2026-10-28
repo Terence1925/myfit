@@ -105,7 +105,7 @@ export const DUMBBELL_TEMPLATES: Record<string, TemplateProgram> = {
   },
 
   'intermediate-4': {
-    label: 'Upper/Lower, power and hypertrophy',
+    label: 'Upper/Lower, power and muscle building',
     days: [
       {
         name: 'Upper Power',
@@ -116,11 +116,11 @@ export const DUMBBELL_TEMPLATES: Record<string, TemplateProgram> = {
         exercises: ['Goblet Squat 4x8', 'Dumbbell Romanian Deadlift 4x8', 'Walking Lunge 4x10', 'Calf Raise 5x15'],
       },
       {
-        name: 'Upper Hypertrophy',
+        name: 'Upper Muscle',
         exercises: ['Incline Press 4x10', 'Chest Supported Row 4x10', 'Arnold Press 4x12', 'Rear Delt Fly 4x15', 'Hammer Curl 3x12', 'Extension 3x12'],
       },
       {
-        name: 'Lower Hypertrophy',
+        name: 'Lower Muscle',
         exercises: ['Bulgarian Split Squat 4x10', 'Step Up 4x10', 'Romanian Deadlift 4x12', 'Calf Raise 5x20'],
       },
     ],

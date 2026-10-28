@@ -1,6 +1,7 @@
 // Week-by-week targets inside a 12-week block (see programBlock.ts): how hard each week should feel, what to aim for on
 // each exercise from what the person logged last time, and the lighter deload week. Everything is worked out from the
 // program's start date and the saved workouts, so there is nothing extra to store.
+import { plainEffort } from './effortWords'
 import { BLOCK_WEEKS, DELOAD_ADVICE, TOTAL_WEEKS } from './programBlock'
 import { estimated1RM } from './progressiveOverload'
 import type { Exercise, ProgramDay, SetLog, WorkoutSession } from './types'
@@ -56,7 +57,7 @@ export function dayForWeek(day: ProgramDay, target: WeekTarget): ProgramDay {
       return {
         ...e,
         sets: target.deload ? Math.max(1, Math.round(e.sets / 2)) : e.sets,
-        notes: e.notes ? e.notes.replace(/\b\d(?:[-+]\d)?\+? RIR\b/, `${target.rir} RIR`) : e.notes,
+        notes: e.notes ? plainEffort(e.notes.replace(/\b\d(?:[-+]\d)?\+? RIR\b/, `${target.rir} RIR`)) : e.notes,
       }
     }),
   }

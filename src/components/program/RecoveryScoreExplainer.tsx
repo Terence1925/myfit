@@ -229,10 +229,10 @@ export function RecoveryLearnMore({ currentTier, mindBody = false }: { currentTi
               week. More sets means more work for your body to recover from.
             </li>
             <li>
-              <span className="font-semibold text-foreground">RIR (reps in reserve):</span> how many more reps you
-              could still do when you stop a set. "3 RIR" means you stop with 3 reps left in the tank, so it feels
-              challenging but not all-out. Newer lifters should keep a few reps in reserve to learn good form and
-              avoid injury.
+              <span className="font-semibold text-foreground">Effort per set:</span> how many more reps you could
+              still do when you stop a set. "Stop 3 reps before you cannot do more" means you finish with 3 reps left,
+              so it feels challenging but not all-out. Newer lifters should stop a few reps early to learn good form
+              and avoid injury.
             </li>
             <li>
               <span className="font-semibold text-foreground">Rest day:</span> a day with no lifting. This is when

@@ -713,9 +713,9 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
           : 'Push/Pull/Legs, twice through the week')
 
   const goalReasoning: Record<IntakeAnswers['goal'], string> = {
-    'lose-weight': `Your goal is Lose Weight, so compound lifts sit at ${scheme.compoundReps} reps with shorter ${scheme.rest} rest — that keeps training density high and calories burned per session up, while the rep range still protects the muscle you already have.`,
-    'build-muscle': `Your goal is Build Muscle, so compound lifts are programmed at ${scheme.compoundReps} reps with ${scheme.rest} rest — the rep and rest ranges most associated with hypertrophy (muscle growth) rather than pure strength or endurance.`,
-    'strength-power': `Your goal is Strength & Power, so compound lifts use a heavier ${scheme.compoundReps} rep range with a longer ${scheme.rest} rest — enough recovery between sets to lift closer to your max each time.`,
+    'lose-weight': `Your goal is Lose Weight, so the big lifts sit at ${scheme.compoundReps} reps with shorter ${scheme.rest} rest. That keeps workouts brisk and calories burned per session up, while the rep range still protects the muscle you already have.`,
+    'build-muscle': `Your goal is Build Muscle, so the big lifts are programmed at ${scheme.compoundReps} reps with ${scheme.rest} rest. These rep and rest ranges are the ones most linked to muscle growth, rather than pure strength or endurance.`,
+    'strength-power': `Your goal is Strength & Power, so the big lifts use a heavier ${scheme.compoundReps} rep range with a longer ${scheme.rest} rest. That gives you enough recovery between sets to lift closer to your max each time.`,
     'body-recomposition': `Your goal is Body Recomposition, so reps sit at a middle-ground ${scheme.compoundReps} with ${scheme.rest} rest — intense enough to build or hold onto muscle while your nutrition targets (Nutrition tab) handle the fat-loss side.`,
   }
 
@@ -723,13 +723,13 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     answers.experience === '0-1'
       ? `You're early in structured training (0-1 years), so each muscle group gets fewer total exercises — more focus per movement while your technique and movement patterns build up.`
       : answers.experience === '5+'
-        ? `You have 5+ years of training experience, so compound lifts carry an extra working set (${scheme.compoundSets} sets) to match the higher volume your training age can recover from.`
-        : `You have ${answers.experience} years of training experience, so volume is set for steady, sustainable progress without overreaching.`
+        ? `You have 5+ years of training experience, so the big lifts carry an extra set (${scheme.compoundSets} sets), because you can recover from more work than a newer lifter.`
+        : `You have ${answers.experience} years of training experience, so the amount of work is set for steady progress without wearing you out.`
 
   // A reference program sets its own sets and reps, so the goal shapes rest and effort instead of the rep range
   const levelName = templated ? templated.key.split('-')[0] : ''
   const templateGoalReasoning: Record<IntakeAnswers['goal'], string> = {
-    'lose-weight': `Your goal is Lose Weight, so rest is kept short (${scheme.rest} on the heavy lifts, 60-75 sec on the rest). That keeps training density high and calories burned per session up, while the lifting protects the muscle you already have.`,
+    'lose-weight': `Your goal is Lose Weight, so rest is kept short (${scheme.rest} on the heavy lifts, 60-75 sec on the rest). That keeps workouts brisk and calories burned per session up, while the lifting protects the muscle you already have.`,
     'build-muscle': `Your goal is Build Muscle, so the sets and reps follow a proven ${levelName} muscle-building layout, with ${scheme.rest} rest on the heavy lifts so you can push hard on every set.`,
     'strength-power': `Your goal is Strength & Power, so the heavy lifts get a long ${scheme.rest} rest. That is enough recovery to lift close to your best on every set.`,
     'body-recomposition': `Your goal is Body Recomposition, so the layout builds or holds muscle with ${scheme.rest} rest on the heavy lifts, while your nutrition targets (Nutrition tab) handle the fat-loss side.`,
@@ -797,10 +797,10 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     progressionStrategy: isHomeProgram
       ? homeProgressionText(homeLevelFor(answers.experience))
       : answers.experience === '5+'
-        ? 'Undulating periodization: alternate heavier/lower-rep weeks with volume weeks every 3-4 weeks, tracking RPE/RIR per set.'
+        ? 'Heavier, lower-rep weeks alternate with lighter, higher-rep weeks every 3-4 weeks. Note how hard each set felt.'
         : answers.experience === '0-1'
-          ? 'Linear progression: add weight or reps every session on compound lifts once all sets hit the top of the rep range.'
-          : 'Double progression: increase reps within the target range first, then increase load and reset to the bottom of the range.',
+          ? 'Add weight or reps every session on the big lifts once every set reaches the top of the rep range.'
+          : 'Add reps within the target range first. When every set reaches the top of the range, add weight and start from the bottom of the range again.',
     nutritionTips,
     recoveryAdvice,
     warmup: [

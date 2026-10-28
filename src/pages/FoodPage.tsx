@@ -61,7 +61,7 @@ export default function FoodPage() {
           <CardContent className="space-y-3 p-6 text-center">
             <div className="font-display text-2xl tracking-wide">Set your daily targets first</div>
             <p className="font-body text-sm text-muted-foreground">
-              Answer a few quick questions and we'll work out your calories and macros, so your food log has a goal to
+              Answer a few quick questions and we'll work out your calories, protein, carbs and fat, so your food log has a goal to
               track against.
             </p>
             <Button onClick={() => navigate('/')}>Get started</Button>

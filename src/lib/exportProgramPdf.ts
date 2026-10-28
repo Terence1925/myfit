@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
+import { plainEffort } from '@/lib/effortWords'
 import { goalLabelOf } from '@/lib/goalLabel'
 import type { WorkoutProgram } from '@/lib/types'
 
@@ -95,7 +96,7 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
         indent: 8,
         gap: 0,
       })
-      if (ex.notes) text(ex.notes, { size: 8.5, color: 110, indent: 20, gap: 4 })
+      if (ex.notes) text(plainEffort(ex.notes), { size: 8.5, color: 110, indent: 20, gap: 4 })
     }
   }
 
@@ -103,7 +104,7 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
   bullets(p.cooldown)
 
   heading('Calorie Blueprint')
-  text(`BMR: ${n.bmr} kcal    TDEE: ${n.tdee} kcal    Calorie target: ${n.calorieTarget} kcal`)
+  text(`At rest: ${n.bmr} kcal    Maintenance: ${n.tdee} kcal    Calorie target: ${n.calorieTarget} kcal`)
   text(`Protein: ${n.proteinG}g    Carbs: ${n.carbsG}g    Fat: ${n.fatG}g`)
   bullets(p.nutritionTips)
 

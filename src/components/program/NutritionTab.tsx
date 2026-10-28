@@ -77,8 +77,8 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
       <div>
         <h3 className="font-display text-2xl tracking-wide mb-4">Calorie blueprint</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon={<Flame className="h-4 w-4" />} label="BMR" value={`${nutrition.bmr}`} sub="kcal at rest" />
-          <StatCard icon={<TrendingUp className="h-4 w-4" />} label="TDEE" value={`${nutrition.tdee}`} sub="kcal maintenance" />
+          <StatCard icon={<Flame className="h-4 w-4" />} label="At rest" value={`${nutrition.bmr}`} sub="kcal your body burns" />
+          <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Maintenance" value={`${nutrition.tdee}`} sub="kcal to keep your weight" />
           <StatCard
             icon={<Flame className="h-4 w-4" />}
             label="Target"
@@ -96,7 +96,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Macro split</CardTitle>
+          <CardTitle className="text-lg">Protein, carbs and fat</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <MacroBar
@@ -128,14 +128,14 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">The formula</CardTitle>
+          <CardTitle className="text-lg">How we work this out</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm font-body text-muted-foreground">
-          <p>BMR (Mifflin-St Jeor) = 10 × weight(kg) + 6.25 × height(cm) − 5 × age (+5 male / −161 female)</p>
-          <p>TDEE = BMR × activity factor</p>
-          <p>Calorie target = TDEE adjusted for your goal and recovery capacity</p>
-          <p>Macros = 40% carbs &middot; 30% protein &middot; 30% fat of your calories</p>
-          <p>Protein stays between 1.6 and 2.4g per kg of body weight; carbs and fat adjust to fit</p>
+          <p>At rest: the calories your body burns just staying alive, worked out from your weight, height, age and sex.</p>
+          <p>Maintenance: your at-rest calories plus what you burn moving around. Eat this much and your weight stays the same.</p>
+          <p>Your calorie target is your maintenance, adjusted for your goal and how well you recover.</p>
+          <p>Your calories split into 40% carbs, 30% protein and 30% fat.</p>
+          <p>Protein stays between 1.6 and 2.4 g per kg of body weight; carbs and fat adjust to fit.</p>
         </CardContent>
       </Card>
 

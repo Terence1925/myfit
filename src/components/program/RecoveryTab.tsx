@@ -1,6 +1,7 @@
 import { BatteryMedium, CalendarCheck, Dumbbell, Zap } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { effortSentence } from '@/lib/effortWords'
 import { getRecoveryTier } from '@/lib/tdee'
 import { isMindBody } from '@/lib/discipline'
 import { RecoveryLearnMore, RecoveryScale, ScoreBreakdown, tierMeaning } from './RecoveryScoreExplainer'
@@ -26,7 +27,7 @@ export function RecoveryTab({
   const tier = getRecoveryTier(recoveryScore, mindBody ? 'mind-body' : 'strength')
 
   const impact = [
-    { icon: Dumbbell, label: mindBody ? 'Session length' : 'Training volume', text: tier.volumeAdjustment },
+    { icon: Dumbbell, label: mindBody ? 'Session length' : 'Sets per session', text: tier.volumeAdjustment },
     {
       icon: CalendarCheck,
       label: 'Rest days',
@@ -34,7 +35,7 @@ export function RecoveryTab({
         ? 'An extra recovery day was added to your weekly split.'
         : 'Full training frequency was preserved — no extra rest days required.',
     },
-    { icon: Zap, label: mindBody ? 'Effort level' : 'Effort per set', text: `Aim for ${tier.targetRIR}.` },
+    { icon: Zap, label: mindBody ? 'Effort level' : 'Effort per set', text: effortSentence(tier.targetRIR) },
   ]
 
   return (

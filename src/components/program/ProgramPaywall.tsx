@@ -286,7 +286,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         <CardContent className="flex items-center justify-between gap-3 p-4">
           <div>
             <div className="font-body text-sm font-bold">Track your food, free</div>
-            <div className="text-xs text-muted-foreground">Log meals against your daily calories and macros.</div>
+            <div className="text-xs text-muted-foreground">Log meals against your daily calories, protein, carbs and fat.</div>
           </div>
           <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => navigate('/food')}>
             <Utensils className="h-4 w-4" /> Open

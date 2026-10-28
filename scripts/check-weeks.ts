@@ -2,6 +2,7 @@
 // Checks the week-by-week targets: effort per week, half the sets in the deload week, and the weight to aim for.
 import { calculateNutrition } from '../src/lib/tdee'
 import { generateProgram } from '../src/lib/backend/programGenerator'
+import { effortSentence, plainEffort } from '../src/lib/effortWords'
 import { LOAD_STEP, dayForWeek, suggestFor, weekTarget } from '../src/lib/weekPlan'
 import type { Exercise, IntakeAnswers, WorkoutSession } from '../src/lib/types'
 
@@ -30,9 +31,24 @@ const ex = (name: string, sets: number, reps: string, notes = 'Target 1-2 RIR. F
 const day = { day: 1, name: 'Upper', focus: 'chest', duration: '45 min', exercises: [ex('Barbell Bench Press', 4, '6-10'), ex('Dumbbell Curl', 3, '10-12'), ex('Lat Pulldown', 2, '8-12'), ex('Plank', 3, '30 sec')] }
 const deload = dayForWeek(day, weekTarget(13))
 check('deload halves the sets', deload.exercises.map((e) => e.sets), [2, 2, 1, 2])
-check('deload note says 4+ RIR', deload.exercises[0].notes, 'Target 4+ RIR. Focus on controlled tempo.')
-check('week 5 keeps the sets and sets 2 RIR', [dayForWeek(day, weekTarget(5)).exercises.map((e) => e.sets), dayForWeek(day, weekTarget(5)).exercises[0].notes], [[4, 3, 2, 3], 'Target 2 RIR. Focus on controlled tempo.'])
+check('deload note says stop 4 or more reps early', deload.exercises[0].notes, 'Stop each set 4 or more reps before you cannot do more. Focus on controlled tempo.')
+check('week 5 keeps the sets and says stop about 2 reps early', [dayForWeek(day, weekTarget(5)).exercises.map((e) => e.sets), dayForWeek(day, weekTarget(5)).exercises[0].notes], [[4, 3, 2, 3], 'Stop each set about 2 reps before you cannot do more. Focus on controlled tempo.'])
 check('the original day is not changed', day.exercises[0].sets, 4)
+
+// Effort notes read in plain words, whichever way the program wrote them (no "RIR" is ever shown)
+check('a range', plainEffort('Target 1-2 RIR. Focus on controlled tempo and full range of motion.'), 'Stop each set 1 to 2 reps before you cannot do more. Focus on controlled tempo and full range of motion.')
+check('one rep', plainEffort('Target 1 RIR.'), 'Stop each set about 1 rep before you cannot do more.')
+check('an isolation note', plainEffort('Isolation work — squeeze at peak contraction, 2-3 RIR.'), 'Isolation work — squeeze at peak contraction, stop each set 2 to 3 reps before you cannot do more.')
+check('a home note with a bracket', plainEffort('Controlled tempo and full range of motion, 3+ RIR (leave 3+ reps in the tank every set).'), 'Controlled tempo and full range of motion, stop each set 3 or more reps before you cannot do more.')
+check('the last-set note is not said twice', plainEffort('On the last set go close to failure but stop with 1-2 reps left, 2 RIR.'), 'On the last set go close to failure but stop with 1-2 reps left.')
+check('a note without a marker is unchanged', plainEffort('Hold with a neutral spine and braced core.'), 'Hold with a neutral spine and braced core.')
+check('the effort line: strength', effortSentence('2-3 RIR'), 'Stop each set 2 to 3 reps before you cannot do more.')
+check('the effort line: top sets', effortSentence('0-1 RIR on top sets'), 'Stop each set 0 to 1 reps before you cannot do more.')
+check('the effort line: yoga', effortSentence('a gentle, easy effort'), 'Aim for a gentle, easy effort.')
+for (const w of [1, 5, 9, 12, 13]) {
+  const shown = dayForWeek(day, weekTarget(w)).exercises.map((e) => e.notes).join(' ')
+  check(`week ${w} shows no RIR`, /RIR/.test(shown), false)
+}
 
 // The weight to aim for
 const session = (daysAgo: number, name: string, sets: [number, number][]): WorkoutSession => ({

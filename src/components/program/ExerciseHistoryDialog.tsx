@@ -58,7 +58,7 @@ export function ExerciseHistoryDialog({
                     {fmtNumber(toUnit(h.topWeight, unit))} × {h.topReps}
                   </span>
                   <Badge variant="outline" className="shrink-0">
-                    ~{fmtNumber(toUnit(h.estimated1RM, unit))} {unitLabel(unit)} 1RM
+                    ~{fmtNumber(toUnit(h.estimated1RM, unit))} {unitLabel(unit)} est. max
                   </Badge>
                 </div>
               ))}

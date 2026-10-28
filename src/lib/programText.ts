@@ -1,3 +1,4 @@
+import { plainEffort } from '@/lib/effortWords'
 import { goalLabelOf } from '@/lib/goalLabel'
 import type { Exercise, WorkoutProgram } from '@/lib/types'
 
@@ -9,7 +10,7 @@ function exerciseLine(ex: Exercise, i: number): string {
   const detail = mindBody
     ? `${reps}${side}${ex.format === 'pilates' && ex.sets > 1 ? `, ${ex.sets} rounds` : ''}`
     : `${ex.sets} sets x ${reps}${side}, rest ${ex.rest}`
-  return `${i + 1}. ${ex.name}: ${detail}${ex.notes ? `\n   ${ex.notes}` : ''}`
+  return `${i + 1}. ${ex.name}: ${detail}${ex.notes ? `\n   ${plainEffort(ex.notes)}` : ''}`
 }
 
 /** The whole program as plain text, to paste into an email or message. */
