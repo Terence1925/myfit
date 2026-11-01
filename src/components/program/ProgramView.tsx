@@ -1,17 +1,17 @@
-import { useNavigate } from 'react-router-dom'
+import * as React from 'react'
 import { BlockBanner, BlockChip } from './BlockTimeline'
 import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus } from '@/lib/programBlock'
 import { TodayCard } from './TodayCard'
-import { saveView } from '@/lib/workoutLog'
+import { TodayWorkout } from './TodayWorkout'
 import type { WorkoutProgram } from '@/lib/types'
 
 /**
- * The Home screen for a member's current program: today's card, and which week of the 12 they are on. The program's
- * tabs (Overview, Weekly plan, Nutrition, Recovery) are on their own page, opened from My programs.
+ * The Home screen for a member's current program: today's card, and which week of the 12 they are on. Start workout
+ * scrolls down to that day's exercises, one page each. The program's tabs are on their own page, opened from My programs.
  */
 export function ProgramView({ program, userId }: { program: WorkoutProgram; userId: string }) {
-  const navigate = useNavigate()
   const block = blockStatus(program.createdAt)
+  const [startedDay, setStartedDay] = React.useState<number | null>(null)
 
   return (
     <div className="space-y-8">
@@ -20,13 +20,14 @@ export function ProgramView({ program, userId }: { program: WorkoutProgram; user
         program={program}
         userId={userId}
         onStart={(day) => {
-          // Logging a workout is in the Weekly plan, so open the program page there, on this day
-          saveView(program.id, 'weekly', day)
-          navigate(`/saved/${program.id}`)
+          setStartedDay(day)
+          // once the workout is on the page, glide down to it
+          setTimeout(() => document.getElementById('today-workout')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
         }}
       />
-      {/* Which week of the 12: the last thing on the page, 12px under the card */}
-      <BlockChip status={block} className="!mt-3" />
+      {startedDay !== null && <TodayWorkout key={startedDay} program={program} userId={userId} dayNumber={startedDay} />}
+      {/* Which week of the 12: always the last thing on the page (12px under the card until a workout opens) */}
+      <BlockChip status={block} className={startedDay === null ? '!mt-3' : '!mt-4'} />
     </div>
   )
 }
