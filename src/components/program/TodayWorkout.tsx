@@ -79,15 +79,20 @@ export function TodayWorkout({
   // The section is only as tall as the page you are on, so a short exercise does not leave a gap below it
   const [height, setHeight] = React.useState<number | undefined>(undefined)
   const pageCount = day?.exercises.length ?? 0
+  // Also re-attached after a swap, which replaces the page being watched
+  const pagesKey = day?.exercises.map((e) => e.name).join('|')
   React.useEffect(() => {
     const slide = scroller.current?.children[page] as HTMLElement | undefined
     if (!slide) return
-    const update = () => setHeight(slide.offsetHeight)
+    const update = () => {
+      // A page that has just been swapped out is gone: ignore its last (zero) size
+      if (slide.isConnected) setHeight(slide.offsetHeight)
+    }
     update()
     const watcher = new ResizeObserver(update)
     watcher.observe(slide)
     return () => watcher.disconnect()
-  }, [page, pageCount])
+  }, [page, pageCount, pagesKey])
 
   if (!day) return null
   const count = day.exercises.length
