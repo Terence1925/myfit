@@ -10,6 +10,7 @@ import AuthPage from '@/pages/AuthPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import Home from '@/pages/Home'
 import SavedPrograms from '@/pages/SavedPrograms'
+import ProgramPage from '@/pages/ProgramPage'
 import AdminPage from '@/pages/AdminPage'
 import PricingPage from '@/pages/PricingPage'
 import AccountPage from '@/pages/AccountPage'
@@ -54,6 +55,10 @@ function AppShell() {
   useAppLinkSignIn()
   // Android Back: one page back, and out of the app from the first screen
   useAndroidBack()
+  // A page opens at the top, not wherever the last page was scrolled to
+  React.useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   // Re-check the trial on every app open so the "trial ends tomorrow" reminder always reflects reality
   // (e.g. it disappears if the user cancelled in Google Play).
@@ -121,6 +126,14 @@ function AppShell() {
           element={
             <RequirePro>
               <SavedPrograms />
+            </RequirePro>
+          }
+        />
+        <Route
+          path="/saved/:programId"
+          element={
+            <RequirePro>
+              <ProgramPage />
             </RequirePro>
           }
         />

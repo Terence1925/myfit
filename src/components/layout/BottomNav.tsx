@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 /**
  * The tab bar at the bottom of the screen on phones (the same links are in the top bar on bigger screens).
- * Icons only, thin and quiet; the page you are on gets a soft rounded shape behind its icon. Each one is named for screen readers.
+ * Icons only, regular black (white in dark mode); the page you are on turns green with a soft rounded shape behind its icon. Each one is named for screen readers.
  */
 export function BottomNav() {
   const { profile, role } = useAuth()
@@ -36,13 +36,13 @@ export function BottomNav() {
               className={({ isActive }) =>
                 cn(
                   'flex h-full items-center justify-center transition-colors',
-                  isActive ? 'text-primary' : 'text-muted-foreground/70 active:text-foreground',
+                  isActive ? 'text-primary' : 'text-black dark:text-white',
                 )
               }
             >
               {({ isActive }) => (
                 <span className={cn('flex h-10 w-12 items-center justify-center rounded-full transition-colors', isActive && 'bg-primary/15')}>
-                  <Icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
+                  <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
                 </span>
               )}
             </NavLink>

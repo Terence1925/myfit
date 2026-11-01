@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Crown, Lock, Plus } from 'lucide-react'
+import { Crown, Lock } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { IntakeWizard } from '@/components/intake/IntakeWizard'
 import { WelcomeTour } from '@/components/intake/WelcomeTour'
@@ -9,7 +9,7 @@ import { markTourSeen, tourSeen } from '@/lib/tour'
 import { ProgramView } from '@/components/program/ProgramView'
 import { ProgramPaywall } from '@/components/program/ProgramPaywall'
 import { ProgramComplete } from '@/components/program/ProgramComplete'
-import { BLOCK_WEEKS, blockStatus } from '@/lib/programBlock'
+import { blockStatus } from '@/lib/programBlock'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { programs } from '@/lib/backend/api'
@@ -29,7 +29,6 @@ export default function Home() {
   const [submitting, setSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [tourOpen, setTourOpen] = React.useState(true)
-  const [lookingBack, setLookingBack] = React.useState(false)
   const [attempt, setAttempt] = React.useState(0)
   // "New program" on My programs links here with ?new=1: open the questions instead of the current program
   const startNewRef = React.useRef(searchParams.get('new') === '1')
@@ -169,23 +168,8 @@ export default function Home() {
     if (roleLoading) return null
     // After the 12 weeks and the deload week: a summary, a way to the next program, and a view-only look back.
     if (blockStatus(program.createdAt).complete) {
-      if (!lookingBack) {
-        return (
-          <ProgramComplete program={program} userId={profile.id} onGenerate={() => setMode('intake')} onView={() => setLookingBack(true)} />
-        )
-      }
       return (
-        <div className="container py-8 sm:py-12">
-          <div className="mb-4 flex flex-wrap justify-between gap-2">
-            <Button variant="outline" size="sm" onClick={() => setLookingBack(false)}>
-              Back
-            </Button>
-            <Button size="sm" className="gap-1.5" onClick={() => setMode('intake')}>
-              <Plus className="h-4 w-4" /> Generate your next {BLOCK_WEEKS} weeks
-            </Button>
-          </div>
-          <ProgramView program={program} userId={profile.id} onProgramUpdate={setProgram} readOnly />
-        </div>
+        <ProgramComplete program={program} userId={profile.id} onGenerate={() => setMode('intake')} onView={() => navigate(`/saved/${program.id}`)} />
       )
     }
     // Everyone can build their program (that's the hook); using it needs a subscription.
@@ -200,7 +184,7 @@ export default function Home() {
     return (
       <div className="container py-8 sm:py-12">
         {tour}
-        <ProgramView program={program} userId={profile.id} onProgramUpdate={setProgram} />
+        <ProgramView program={program} userId={profile.id} />
       </div>
     )
   }

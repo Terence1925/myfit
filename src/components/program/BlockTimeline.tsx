@@ -69,9 +69,9 @@ export function BlockBanner({ status, note }: { status: BlockStatus; note: strin
 }
 
 /** A one-line "Week 5 of 12" chip row shown above the program tabs. */
-export function BlockChip({ status }: { status: BlockStatus }) {
+export function BlockChip({ status, className }: { status: BlockStatus; className?: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card/60 px-4 py-3">
+    <div className={cn('flex items-center gap-3 rounded-xl border border-border bg-card/60 px-4 py-3', className)}>
       <div className="min-w-0 flex-1">
         <div className="mb-1.5 flex items-center justify-between text-xs">
           <span className="font-bold uppercase tracking-widest text-muted-foreground">{status.complete ? 'Program complete' : status.label}</span>

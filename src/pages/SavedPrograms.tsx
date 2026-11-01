@@ -1,14 +1,13 @@
 import * as React from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
-import { Trash2, Eye, X, CalendarClock, Crown, FileDown, Loader2, Lock, Plus } from 'lucide-react'
+import { Trash2, Eye, CalendarClock, Crown, FileDown, Loader2, Lock, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
-import { ProgramView } from '@/components/program/ProgramView'
 import { programs } from '@/lib/backend/api'
 import { canExportPdf, hasProAccess } from '@/lib/billing'
 import { exportProgramPdf } from '@/lib/exportProgramPdf'
@@ -23,7 +22,6 @@ export default function SavedPrograms() {
   const { profile, role } = useAuth()
   const navigate = useNavigate()
   const [list, setList] = React.useState<WorkoutProgram[]>([])
-  const [viewing, setViewing] = React.useState<WorkoutProgram | null>(null)
   const [loaded, setLoaded] = React.useState(false)
   // The program waiting for a yes or no before it is deleted
   const [toDelete, setToDelete] = React.useState<WorkoutProgram | null>(null)
@@ -66,17 +64,6 @@ export default function SavedPrograms() {
   }, [refresh])
 
   if (!profile) return null
-
-  if (viewing) {
-    return (
-      <div className="container py-8 sm:py-12">
-        <Button variant="ghost" size="sm" className="mb-4 gap-1.5" onClick={() => setViewing(null)}>
-          <X className="h-4 w-4" /> Close
-        </Button>
-        <ProgramView program={viewing} userId={profile.id} onProgramUpdate={setViewing} />
-      </div>
-    )
-  }
 
   if (!loaded) {
     return (
@@ -135,7 +122,7 @@ export default function SavedPrograms() {
                       <Badge variant="cyan">Recovery {p.recoveryScore}/100</Badge>
                     </div>
                     <div className="mt-auto flex gap-2 pt-3">
-                      <Button size="sm" variant={isPrevious ? 'outline' : 'default'} className="flex-1 gap-1.5" onClick={() => setViewing(p)}>
+                      <Button size="sm" variant={isPrevious ? 'outline' : 'default'} className="flex-1 gap-1.5" onClick={() => navigate(`/saved/${p.id}`)}>
                         <Eye className="h-3.5 w-3.5" /> View
                       </Button>
                       <Button

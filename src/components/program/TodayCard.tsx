@@ -3,7 +3,8 @@ import { motion } from 'framer-motion'
 import { CalendarCheck, Check, Dumbbell, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProgressRing } from '@/components/ui/progress-ring'
-import { ReminderRow } from './ReminderRow'
+import { BlockChip } from './BlockTimeline'
+import { blockStatus } from '@/lib/programBlock'
 import { useAuth } from '@/context/AuthContext'
 import { sessions } from '@/lib/backend/api'
 import { allDoneMessage, greeting } from '@/lib/encouragement'
@@ -113,7 +114,8 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           </div>
         )}
 
-        <ReminderRow userId={userId} />
+        {/* Which week of the 12, with the same 12px gap as the blocks above it */}
+        <BlockChip status={blockStatus(program.createdAt)} className="mt-3 bg-background/50" />
       </div>
     </motion.div>
   )
