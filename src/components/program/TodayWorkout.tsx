@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ExerciseCard } from './ExerciseCard'
-import { sessions } from '@/lib/backend/api'
+import { programs, sessions } from '@/lib/backend/api'
 import { blockStatus } from '@/lib/programBlock'
 import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
 import { warmupFor } from '@/lib/warmup'
@@ -19,7 +19,17 @@ import type { ExerciseLog, WorkoutProgram, WorkoutSession } from '@/lib/types'
  * where you are. Only the chosen day is shown, never the whole program. Sets are logged here (saved as you type,
  * with the rest timer), and Save session adds the workout to the week.
  */
-export function TodayWorkout({ program, userId, dayNumber }: { program: WorkoutProgram; userId: string; dayNumber: number }) {
+export function TodayWorkout({
+  program,
+  userId,
+  dayNumber,
+  onProgramUpdate,
+}: {
+  program: WorkoutProgram
+  userId: string
+  dayNumber: number
+  onProgramUpdate: (p: WorkoutProgram) => void
+}) {
   const [unit] = useWeightUnit()
   const planned = program.programData.days.find((d) => d.day === dayNumber)
   const block = blockStatus(program.createdAt)
@@ -29,6 +39,23 @@ export function TodayWorkout({ program, userId, dayNumber }: { program: WorkoutP
   const [log, setLog] = React.useState<ExerciseLog[]>(() => (day ? reconcileLog(day.exercises, loadDraft(program.id, day.day)) : []))
   const [todays, setTodays] = React.useState<WorkoutSession[]>([])
   const [justSaved, setJustSaved] = React.useState(false)
+  const [swappingIndex, setSwappingIndex] = React.useState<number | null>(null)
+
+  // After a swap, keep what was already typed for the other exercises
+  const signature = day?.exercises.map((e) => `${e.name}:${e.sets}`).join('|')
+  const firstSignature = React.useRef(signature)
+  React.useEffect(() => {
+    // Only after a swap: opening Home must not leave an empty draft behind
+    if (!day || firstSignature.current === signature) return
+    firstSignature.current = signature
+    setLog((prev) => {
+      const next = reconcileLog(day.exercises, prev)
+      saveDraft(program.id, day.day, next)
+      return next
+    })
+    // Keyed on the exercise list on purpose, not on the day object
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature])
   const [page, setPage] = React.useState(0)
   const scroller = React.useRef<HTMLDivElement>(null)
 
@@ -65,6 +92,22 @@ export function TodayWorkout({ program, userId, dayNumber }: { program: WorkoutP
   if (!day) return null
   const count = day.exercises.length
   const suggestions = day.exercises.map((ex, i) => suggestFor(userSessions, ex, target, { main: i < 2, unit }))
+
+  const handleSwap = async (exerciseIndex: number, exerciseName: string) => {
+    if (!planned) return
+    setSwappingIndex(exerciseIndex)
+    try {
+      const swap = await programs.alternate(userId, exerciseName, planned.focus, program.answers, planned.exercises.map((e) => e.name))
+      const updatedDays = program.programData.days.map((d) =>
+        d.day === dayNumber ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) } : d,
+      )
+      const updatedProgramData = { ...program.programData, days: updatedDays }
+      onProgramUpdate({ ...program, programData: updatedProgramData })
+      await programs.update(program.id, updatedProgramData)
+    } finally {
+      setSwappingIndex(null)
+    }
+  }
 
   const startRest = (exerciseIndex: number, setIndex: number) => {
     const ex = day.exercises[exerciseIndex]
@@ -141,9 +184,8 @@ export function TodayWorkout({ program, userId, dayNumber }: { program: WorkoutP
             <ExerciseCard
               exercise={ex}
               index={i}
-              swapping={false}
-              onSwap={() => undefined}
-              readOnly
+              swapping={swappingIndex === i}
+              onSwap={() => handleSwap(i, ex.name)}
               logging
               setLogs={log[i]?.sets}
               onSetChange={(setIndex, field, value) => updateSet(i, setIndex, field, value)}

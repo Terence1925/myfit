@@ -184,7 +184,7 @@ export default function Home() {
     return (
       <div className="container pb-4 pt-8 sm:pb-6 sm:pt-12">
         {tour}
-        <ProgramView program={program} userId={profile.id} />
+        <ProgramView program={program} userId={profile.id} onProgramUpdate={setProgram} />
       </div>
     )
   }

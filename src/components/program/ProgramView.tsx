@@ -9,7 +9,7 @@ import type { WorkoutProgram } from '@/lib/types'
  * The Home screen for a member's current program: today's card, and which week of the 12 they are on. Start workout
  * scrolls down to that day's exercises, one page each. The program's tabs are on their own page, opened from My programs.
  */
-export function ProgramView({ program, userId }: { program: WorkoutProgram; userId: string }) {
+export function ProgramView({ program, userId, onProgramUpdate }: { program: WorkoutProgram; userId: string; onProgramUpdate: (p: WorkoutProgram) => void }) {
   const block = blockStatus(program.createdAt)
   const [startedDay, setStartedDay] = React.useState<number | null>(null)
 
@@ -25,7 +25,7 @@ export function ProgramView({ program, userId }: { program: WorkoutProgram; user
           setTimeout(() => document.getElementById('today-workout')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
         }}
       />
-      {startedDay !== null && <TodayWorkout key={startedDay} program={program} userId={userId} dayNumber={startedDay} />}
+      {startedDay !== null && <TodayWorkout key={startedDay} program={program} userId={userId} dayNumber={startedDay} onProgramUpdate={onProgramUpdate} />}
       {/* Which week of the 12: always the last thing on the page (12px under the card until a workout opens) */}
       <BlockChip status={block} className={startedDay === null ? '!mt-3' : '!mt-4'} />
     </div>

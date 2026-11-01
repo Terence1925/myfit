@@ -25,7 +25,6 @@ export default function ProgressPage() {
   const [date, setDate] = React.useState(() => new Date().toISOString().slice(0, 10))
   const [weight, setWeight] = React.useState('')
   const [bodyFat, setBodyFat] = React.useState('')
-  const [notes, setNotes] = React.useState('')
 
   const refresh = React.useCallback(async () => {
     if (!profile) return
@@ -67,11 +66,9 @@ export default function ProgressPage() {
       date: new Date(date).toISOString(),
       weightKg: Math.round(weightKg * 10) / 10,
       bodyFatPercent: bodyFat ? Number(bodyFat) : undefined,
-      notes: notes || undefined,
     })
     setWeight('')
     setBodyFat('')
-    setNotes('')
     refresh()
   }
 
@@ -158,16 +155,6 @@ export default function ProgressPage() {
             <Button type="submit" className="gap-1.5">
               <Plus className="h-4 w-4" /> Log entry
             </Button>
-            <div className="col-span-2 sm:col-span-4">
-              <Label htmlFor="notes">Notes (optional)</Label>
-              <Input
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="mt-1.5"
-                placeholder="Feeling strong, slept well..."
-              />
-            </div>
           </form>
         </CardContent>
       </Card>
@@ -188,7 +175,6 @@ export default function ProgressPage() {
               <div>
                 <span className="font-semibold">{displayValue(e.weightKg).toFixed(1)} {unit}</span>
                 {e.bodyFatPercent && <span className="text-muted-foreground ml-2">{e.bodyFatPercent}% BF</span>}
-                {e.notes && <p className="text-xs text-muted-foreground mt-0.5">{e.notes}</p>}
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <span className="text-xs text-muted-foreground">{new Date(e.date).toLocaleDateString()}</span>
