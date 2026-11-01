@@ -1,7 +1,7 @@
 {
-  "name": "MyFit: All-in-One Workout & Calorie Tracker",
+  "name": "MyFit: 12-Week Workout Plan",
   "short_name": "MyFit",
-  "description": "Personalized workout programs and nutrition targets built around you.",
+  "description": "A 12-week workout plan that fits your gear, plus a free calorie log with a barcode scanner.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
