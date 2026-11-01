@@ -184,7 +184,8 @@ function AppShell() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       </motion.div>
-      <Footer />
+      {/* The legal links live in Account once someone is signed in; the footer is for the sign-in page and the website */}
+      {!profile && <Footer />}
       {profile && <RestTimerHost />}
       {profile && <BottomNav />}
     </div>

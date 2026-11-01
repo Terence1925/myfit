@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { AlertTriangle, Check, ChevronRight, Crown, KeyRound, Loader2, Lock, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -396,6 +396,28 @@ export default function AccountPage() {
             </CardContent>
           </Card>
         )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">About and legal</CardTitle>
+          </CardHeader>
+          <CardContent className="font-body text-sm">
+            <ul className="divide-y divide-border">
+              {[
+                ['Terms of Service', '/terms'],
+                ['Privacy Policy', '/privacy'],
+                ['Refund policy', '/refund-policy'],
+              ].map(([label, to]) => (
+                <li key={to}>
+                  <Link to={to} className="flex min-h-[44px] items-center justify-between py-3 transition-colors hover:text-primary">
+                    {label}
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
 
         <Card className="border-destructive/30">
           <CardHeader>

@@ -182,7 +182,7 @@ export default function Home() {
       )
     }
     return (
-      <div className="container py-8 sm:py-12">
+      <div className="container pb-4 pt-8 sm:pb-6 sm:pt-12">
         {tour}
         <ProgramView program={program} userId={profile.id} />
       </div>

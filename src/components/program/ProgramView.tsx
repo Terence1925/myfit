@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { BlockBanner } from './BlockTimeline'
+import { BlockBanner, BlockChip } from './BlockTimeline'
 import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus } from '@/lib/programBlock'
 import { TodayCard } from './TodayCard'
 import { saveView } from '@/lib/workoutLog'
@@ -25,6 +25,8 @@ export function ProgramView({ program, userId }: { program: WorkoutProgram; user
           navigate(`/saved/${program.id}`)
         }}
       />
+      {/* Which week of the 12: the last thing on the page, 12px under the card */}
+      <BlockChip status={block} className="!mt-3" />
     </div>
   )
 }

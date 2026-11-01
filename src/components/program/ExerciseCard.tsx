@@ -93,13 +93,16 @@ export function ExerciseCard({
       transition={{ duration: 0.4, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
       className="group relative rounded-xl border border-border bg-card p-4 sm:p-5"
     >
-      <div className="flex items-start gap-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-foreground">
-          {index + 1}
+      <div>
+        {/* The number and the name share the first line; everything below starts at the same left edge as the number */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-foreground">
+            {index + 1}
+          </div>
+          <h4 className="min-w-0 flex-1 font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
         </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
-          <div className="mt-2 flex flex-wrap gap-2">
+        <div className="min-w-0">
+          <div className="mt-3 flex flex-wrap gap-2">
             {!mindBody && <Badge variant="default">{exercise.sets} sets</Badge>}
             {/* Timed moves (Plank, yoga poses) store a time like "30-45 sec" in `reps`, and a few
                 Pilates moves a count like "100 pumps" — appending "reps" to those reads wrong, so
@@ -113,7 +116,7 @@ export function ExerciseCard({
             {!mindBody && <Badge variant="outline">{exercise.rest} rest</Badge>}
           </div>
           {exercise.notes && (
-            <p className="mt-2 text-sm text-muted-foreground font-body">{plainEffort(exercise.notes)}</p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-body">{plainEffort(exercise.notes)}</p>
           )}
           {suggestion && (
             <div className="mt-2">
@@ -199,7 +202,10 @@ export function ExerciseCard({
             </button>
             )}
           </div>
+        </div>
+      </div>
 
+      {/* The set boxes use the whole width of the card, so the space on the left and right is equal */}
           {logging && mindBody && setLogs?.[0] && onSetChange && (
             <button
               type="button"
@@ -253,8 +259,6 @@ export function ExerciseCard({
               ))}
             </div>
           )}
-        </div>
-      </div>
 
       <ExerciseDemoDialog exerciseName={exercise.name} open={demoOpen} onClose={() => setDemoOpen(false)} />
       {hasProgressAccess && (
