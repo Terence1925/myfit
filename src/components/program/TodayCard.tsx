@@ -83,7 +83,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           <ProgressRing value={Math.min(streak.doneThisWeek, days.length)} goal={days.length} label={ring.title} />
           <div className="min-w-0">
             <div className="font-body text-sm font-bold">{ring.title}</div>
-            <div className="mt-0.5 font-body text-xs text-muted-foreground">{ring.note}</div>
+            {ring.note && <div className="mt-0.5 font-body text-xs text-muted-foreground">{ring.note}</div>}
           </div>
         </div>
 

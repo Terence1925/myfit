@@ -25,6 +25,7 @@ import { syncTrialReminder } from '@/lib/trialReminder'
 import { stopRestTimer, useRestTimer } from '@/lib/restTimerStore'
 import { syncWorkoutReminders } from '@/lib/workoutReminder'
 import { clearWidget, syncWidget } from '@/lib/widgetSync'
+import { useAndroidBack } from '@/lib/useAndroidBack'
 import { useAppLinkSignIn } from '@/lib/useAppLinkSignIn'
 import { RestTimerHost } from '@/components/program/RestTimerBar'
 import NotFound from '@/pages/NotFound'
@@ -51,6 +52,8 @@ function AppShell() {
   const location = useLocation()
   // Opened from the password-reset page: sign in with the link's token
   useAppLinkSignIn()
+  // Android Back: one page back, and out of the app from the first screen
+  useAndroidBack()
 
   // Re-check the trial on every app open so the "trial ends tomorrow" reminder always reflects reality
   // (e.g. it disappears if the user cancelled in Google Play).

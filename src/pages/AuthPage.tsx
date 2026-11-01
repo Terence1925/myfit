@@ -88,7 +88,7 @@ export default function AuthPage() {
     setLoading(true)
     try {
       await verifyEmailCode(email, code.trim())
-      navigate('/')
+      navigate('/', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
@@ -101,7 +101,7 @@ export default function AuthPage() {
     setGoogleLoading(true)
     try {
       await signInWithGoogle()
-      navigate('/')
+      navigate('/', { replace: true })
     } catch (err) {
       // Closing the Google picker is not an error.
       if (!(err instanceof Error && err.message === GOOGLE_CANCELLED)) {
@@ -122,7 +122,7 @@ export default function AuthPage() {
       } else {
         await signIn(email, password)
       }
-      navigate('/')
+      navigate('/', { replace: true })
     } catch (err) {
       if (err instanceof Error && err.message === 'EMAIL_CONFIRMATION_REQUIRED') {
         setCheckEmail(true)
@@ -361,7 +361,7 @@ export default function AuthPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4">
-      <ThemeToggle className="absolute right-4 top-4" />
+      <ThemeToggle className="absolute right-4 top-safe" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

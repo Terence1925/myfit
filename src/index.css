@@ -153,6 +153,10 @@
   .pt-safe {
     padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
   }
+  /* The same for something placed at the top of the screen: 1rem below the status bar. */
+  .top-safe {
+    top: calc(1rem + max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)));
+  }
 
   /* Big headings keep the normal text colour; green is kept for actions and small labels. */
   .text-gradient-gold {

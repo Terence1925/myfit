@@ -53,7 +53,7 @@ export function nextWorkoutDay(saved: SavedWorkout[], programId: string, dayNumb
   return dayNumbers.find((n) => !done.has(n)) ?? null
 }
 
-/** The two lines next to the weekly progress ring. */
+/** The lines next to the weekly progress ring. The second line only appears once the streak is secured. */
 export function ringText(done: number, needed: number, planned: number): { title: string; note: string } {
   const title = `${done} of ${planned} workout${planned === 1 ? '' : 's'} this week`
   if (done >= planned) return { title, note: 'All workouts done this week.' }
@@ -61,6 +61,5 @@ export function ringText(done: number, needed: number, planned: number): { title
     const left = planned - done
     return { title, note: `Streak secured this week. ${left} more for a perfect week.` }
   }
-  const left = needed - done
-  return { title, note: `${left} more workout${left === 1 ? '' : 's'} keeps your streak going.` }
+  return { title, note: '' }
 }

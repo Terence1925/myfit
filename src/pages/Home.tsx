@@ -31,6 +31,8 @@ export default function Home() {
   const [tourOpen, setTourOpen] = React.useState(true)
   const [lookingBack, setLookingBack] = React.useState(false)
   const [attempt, setAttempt] = React.useState(0)
+  // "New program" on My programs links here with ?new=1: open the questions instead of the current program
+  const startNewRef = React.useRef(searchParams.get('new') === '1')
 
   // Keyed on the user's id, not the whole profile object: the profile is re-fetched whenever the app
   // resumes or the session refreshes, and reloading the program each time would hand every screen below a
@@ -46,7 +48,7 @@ export default function Home() {
         if (existing.length > 0) {
           adoptWeightUnit(existing[0].answers?.weightUnit)
           setProgram(existing[0])
-          setMode('program')
+          setMode(startNewRef.current ? 'intake' : 'program')
         } else {
           setMode('intake')
         }
@@ -59,6 +61,11 @@ export default function Home() {
       cancelled = true
     }
   }, [profileId, attempt])
+
+  // The link only needs to open the questions once, so refreshing or coming back does not open them again
+  React.useEffect(() => {
+    if (mode === 'intake' && searchParams.get('new') === '1') setSearchParams({}, { replace: true })
+  }, [mode, searchParams, setSearchParams])
 
   if (!profile) return null
 
@@ -193,16 +200,6 @@ export default function Home() {
     return (
       <div className="container py-8 sm:py-12">
         {tour}
-        <div className="mb-4 flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            onClick={() => (proAccess ? setMode('intake') : setMode('limit'))}
-          >
-            <Plus className="h-4 w-4" /> New program
-          </Button>
-        </div>
         <ProgramView program={program} userId={profile.id} onProgramUpdate={setProgram} />
       </div>
     )
