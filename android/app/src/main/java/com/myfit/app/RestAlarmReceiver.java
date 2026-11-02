@@ -27,12 +27,16 @@ public class RestAlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "RestAlarm";
     static final String EXTRA_TITLE = "title";
     static final String EXTRA_BODY = "body";
+    static final String EXTRA_SOUND = "sound";
     static final String ACTION_DISMISS = "com.myfit.app.REST_DISMISS";
 
-    // Channel settings (sound, vibration) can't be changed after a channel exists, so a new sound means
-    // a new channel id. Older ids are removed in ensureChannel().
-    static final String CHANNEL_ID = "rest-timer-alarm-v2";
-    private static final String[] OLD_CHANNEL_IDS = new String[] { "rest-timer-alarm", "rest-timer" };
+    // Channel settings (sound, vibration) can't be changed after a channel exists, so each alarm sound gets its
+    // own channel (one per choice in the app). Older ids are removed in ensureChannel().
+    private static final String CHANNEL_PREFIX = "rest-timer-alarm-v3-";
+    private static final String[] OLD_CHANNEL_IDS = new String[] { "rest-timer-alarm", "rest-timer", "rest-timer-alarm-v2" };
+    static final String DEFAULT_SOUND = "chime";
+    private static final String[] SOUNDS = new String[] { "chime", "beeps", "bell" };
+    private static final String[] SOUND_NAMES = new String[] { "Chime", "Beeps", "Bell" };
     private static final int NOTIFICATION_ID = 4102;
     private static final long[] VIBRATION_PATTERN = new long[] { 0, 700, 400, 700, 400 };
 
@@ -56,10 +60,11 @@ public class RestAlarmReceiver extends BroadcastReceiver {
         String body = intent.getStringExtra(EXTRA_BODY);
         if (title == null) title = "Rest over";
         if (body == null) body = "";
+        String sound = cleanSound(intent.getStringExtra(EXTRA_SOUND));
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager == null) return;
-        ensureChannel(manager);
+        ensureChannel(manager, context, sound);
 
         Intent open = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
         PendingIntent openPending = PendingIntent.getActivity(
@@ -77,7 +82,7 @@ public class RestAlarmReceiver extends BroadcastReceiver {
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId(sound))
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title)
             .setContentText(body)
@@ -92,7 +97,7 @@ public class RestAlarmReceiver extends BroadcastReceiver {
 
         // Android 7 to 7.1 have no channels, so the sound is set on the notification itself.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            builder.setSound(alarmSound(), AudioManager.STREAM_ALARM);
+            builder.setSound(soundUri(context, sound), AudioManager.STREAM_ALARM);
         }
 
         Notification notification = builder.build();
@@ -117,22 +122,39 @@ public class RestAlarmReceiver extends BroadcastReceiver {
         return false;
     }
 
-    private static Uri alarmSound() {
-        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if (sound == null) sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        return sound;
+    /** Only the sounds the app offers; anything else (or nothing) is the default. */
+    static String cleanSound(String sound) {
+        if (sound != null) {
+            for (String known : SOUNDS) {
+                if (known.equals(sound)) return sound;
+            }
+        }
+        return DEFAULT_SOUND;
     }
 
-    static void ensureChannel(NotificationManager manager) {
+    static String channelId(String sound) {
+        return CHANNEL_PREFIX + sound;
+    }
+
+    /** The bundled sound file (res/raw/rest_<name>.wav). */
+    private static Uri soundUri(Context context, String sound) {
+        int id = context.getResources().getIdentifier("rest_" + sound, "raw", context.getPackageName());
+        if (id != 0) return Uri.parse("android.resource://" + context.getPackageName() + "/" + id);
+        Uri fallback = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (fallback == null) fallback = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        return fallback;
+    }
+
+    static void ensureChannel(NotificationManager manager, Context context, String sound) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         for (String oldId : OLD_CHANNEL_IDS) {
             manager.deleteNotificationChannel(oldId);
         }
-        NotificationChannel channel = new NotificationChannel(
-            CHANNEL_ID,
-            "Rest timer alarm",
-            NotificationManager.IMPORTANCE_HIGH
-        );
+        String name = "Rest timer alarm";
+        for (int i = 0; i < SOUNDS.length; i++) {
+            if (SOUNDS[i].equals(sound)) name = "Rest timer alarm (" + SOUND_NAMES[i] + ")";
+        }
+        NotificationChannel channel = new NotificationChannel(channelId(sound), name, NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("Rings and vibrates when your rest is over, until you tap Got it");
         channel.enableVibration(true);
         channel.setVibrationPattern(VIBRATION_PATTERN);
@@ -141,7 +163,7 @@ public class RestAlarmReceiver extends BroadcastReceiver {
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();
-        channel.setSound(alarmSound(), attributes);
+        channel.setSound(soundUri(context, sound), attributes);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         manager.createNotificationChannel(channel);
     }

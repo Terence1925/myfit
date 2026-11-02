@@ -99,6 +99,7 @@ public class RestAlarmPlugin extends Plugin {
             }
             String title = call.getString("title", "Rest over");
             String body = call.getString("body", "");
+            String sound = RestAlarmReceiver.cleanSound(call.getString("sound", RestAlarmReceiver.DEFAULT_SOUND));
 
             Context context = getContext();
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -117,6 +118,7 @@ public class RestAlarmPlugin extends Plugin {
             Intent triggerIntent = new Intent(context, RestAlarmReceiver.class);
             triggerIntent.putExtra(RestAlarmReceiver.EXTRA_TITLE, title);
             triggerIntent.putExtra(RestAlarmReceiver.EXTRA_BODY, body);
+            triggerIntent.putExtra(RestAlarmReceiver.EXTRA_SOUND, sound);
             PendingIntent trigger = PendingIntent.getBroadcast(
                 context,
                 REQUEST_TRIGGER,
@@ -156,9 +158,10 @@ public class RestAlarmPlugin extends Plugin {
             NotificationManager notifications = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notifications != null) {
                 result.put("notificationsEnabled", notifications.areNotificationsEnabled());
-                RestAlarmReceiver.ensureChannel(notifications);
+                String sound = RestAlarmReceiver.cleanSound(call.getString("sound", RestAlarmReceiver.DEFAULT_SOUND));
+                RestAlarmReceiver.ensureChannel(notifications, context, sound);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    NotificationChannel channel = notifications.getNotificationChannel(RestAlarmReceiver.CHANNEL_ID);
+                    NotificationChannel channel = notifications.getNotificationChannel(RestAlarmReceiver.channelId(sound));
                     if (channel != null) {
                         result.put("channelImportance", channel.getImportance());
                         result.put("channelVibrates", channel.shouldVibrate());

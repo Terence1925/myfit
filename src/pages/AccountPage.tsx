@@ -14,6 +14,7 @@ import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
 import { useStorePrices } from '@/lib/storePrices'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
+import { RestSoundPicker } from '@/components/account/RestSoundPicker'
 import { WorkoutReminders } from '@/components/account/WorkoutReminders'
 import { WeightUnitToggle } from '@/components/shared/WeightUnitToggle'
 import { useTheme, type ThemeChoice } from '@/lib/theme'
@@ -325,6 +326,7 @@ export default function AccountPage() {
           </CardContent>
         </Card>
 
+        {nativePlatform() === 'android' && <RestSoundPicker />}
         {nativePlatform() === 'android' && isOwner && <RestAlarmCheck />}
 
         {isSupabaseConfigured && (

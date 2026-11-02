@@ -1,15 +1,16 @@
 import { registerPlugin } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { isNativeApp, nativePlatform } from './platform'
+import { getRestSound } from './restSound'
 
 // Our own small Android plugin (android/app/src/main/java/com/myfit/app/RestAlarmPlugin.java).
 interface RestAlarmPlugin {
-  start(options: { endsAt: number; title: string; body: string }): Promise<void>
+  start(options: { endsAt: number; title: string; body: string; sound: string }): Promise<void>
   stop(): Promise<void>
   isRinging(): Promise<{ ringing: boolean }>
   canExact(): Promise<{ allowed: boolean }>
   openExactSettings(): Promise<void>
-  diagnose(): Promise<{
+  diagnose(options: { sound: string }): Promise<{
     canScheduleExact?: boolean
     sdk?: number
     notificationsEnabled?: boolean
@@ -36,7 +37,7 @@ export const NATIVE_ALARM_ENABLED = true
 const usesNativeAlarm = () => NATIVE_ALARM_ENABLED && nativePlatform() === 'android'
 
 const FALLBACK_NOTIFICATION_ID = 4102
-const FALLBACK_CHANNEL_ID = 'rest-timer'
+const FALLBACK_CHANNEL_PREFIX = 'rest-timer-'
 
 /**
  * Turns a program rest string into seconds. Programs store ranges like "45-60 sec" or "2-3 min";
@@ -89,7 +90,7 @@ export async function scheduleRestAlert(endsAt: number, title: string, body: str
       }
     }
 
-    await RestAlarm.start({ endsAt, title, body })
+    await RestAlarm.start({ endsAt, title, body, sound: getRestSound() })
     return OK
   } catch (err) {
     console.warn('Rest alarm could not be set', err)
@@ -119,10 +120,13 @@ async function scheduleFallbackAlert(endsAt: number, title: string, body: string
       return 'Notifications are turned off for MyFit, so the phone alert cannot show. Turn them on in Settings > Apps > MyFit > Notifications.'
     }
     await LocalNotifications.cancel({ notifications: [{ id: FALLBACK_NOTIFICATION_ID }] })
-    // Notification channels are an Android idea; iPhone has none.
+    // Notification channels are an Android idea; iPhone has none. Each sound has its own channel (the sound is fixed per channel).
+    const sound = getRestSound()
+    const channelId = FALLBACK_CHANNEL_PREFIX + sound
     if (nativePlatform() === 'android') {
       await LocalNotifications.createChannel({
-        id: FALLBACK_CHANNEL_ID,
+        id: channelId,
+        sound: `rest_${sound}.wav`,
         name: 'Rest timer',
         description: 'Vibrates when your rest between sets is over',
         importance: 4,
@@ -133,7 +137,7 @@ async function scheduleFallbackAlert(endsAt: number, title: string, body: string
       notifications: [
         {
           id: FALLBACK_NOTIFICATION_ID,
-          channelId: FALLBACK_CHANNEL_ID,
+          channelId,
           title,
           body,
           // Never ask for exact alarms: the plugin would otherwise open Android's "Alarms & reminders" screen.
@@ -201,7 +205,7 @@ export async function runRestAlarmCheck(report: (lines: CheckLine[]) => void): P
   }
 
   try {
-    const info = await RestAlarm.diagnose()
+    const info = await RestAlarm.diagnose({ sound: getRestSound() })
     add(true, 'The app can reach the phone alarm code.')
     add(info.notificationsEnabled === true, info.notificationsEnabled ? 'Notifications are allowed for MyFit.' : 'Notifications are OFF for MyFit. Turn them on in Settings > Apps > MyFit > Notifications.')
     if (info.channelImportance !== undefined) {
@@ -239,7 +243,7 @@ export async function runRestAlarmCheck(report: (lines: CheckLine[]) => void): P
   }
 
   try {
-    await RestAlarm.start({ endsAt: Date.now() + 10_000, title: 'Rest over (test)', body: 'If you can hear and feel this, the alert works.' })
+    await RestAlarm.start({ endsAt: Date.now() + 10_000, title: 'Rest over (test)', body: 'If you can hear and feel this, the alert works.', sound: getRestSound() })
     add(true, 'A test alert was set for 10 seconds from now. Keep the screen on or lock the phone, and wait.')
   } catch (err) {
     add(false, `Setting the test alert FAILED: ${errorText(err)}`)
