@@ -113,6 +113,8 @@ export interface Profile {
   id: string
   displayName: string
   email: string
+  /** A small square photo (a data URL). */
+  avatarUrl?: string
   sex?: Sex
   age?: number
   weightKg?: number

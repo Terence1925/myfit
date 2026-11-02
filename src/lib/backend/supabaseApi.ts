@@ -44,6 +44,7 @@ function mapProfile(row: Record<string, unknown>): Profile {
     id: row.id as string,
     displayName: row.display_name as string,
     email: row.email as string,
+    avatarUrl: (row.avatar_url as string | null) ?? undefined,
     sex: row.sex as Profile['sex'],
     age: row.age as number | undefined,
     weightKg: row.weight_kg as number | undefined,
@@ -271,6 +272,17 @@ export const profiles = {
     const { data, error } = await sb()
       .from('profiles')
       .update({ display_name: displayName, updated_at: new Date().toISOString() })
+      .eq('id', userId)
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapProfile(data)
+  },
+
+  async updateAvatar(userId: string, avatarUrl: string | null): Promise<Profile> {
+    const { data, error } = await sb()
+      .from('profiles')
+      .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
       .eq('id', userId)
       .select()
       .single()

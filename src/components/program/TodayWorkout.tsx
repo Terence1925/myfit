@@ -226,7 +226,7 @@ export function TodayWorkout({
 
       {/* Instagram-style dots under the pages: the current one is coloured, and the dots shrink the further away they are.
           They stay just above the bottom bar while the workout is on screen. */}
-      <div className="sticky bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-30 mt-4 flex justify-center">
+      <div className="sticky bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-30 mt-4 flex justify-center">
         <div className="flex items-center gap-1.5 rounded-full bg-background/85 px-3 py-2 shadow-sm backdrop-blur" role="tablist" aria-label="Exercises">
           {day.exercises.map((ex, i) => {
             const distance = Math.abs(i - page)

@@ -83,8 +83,8 @@ export default function ProgressPage() {
 
   return (
     <div className="container py-8 sm:py-12 space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-display text-4xl tracking-wide">Progress</h1>
+      <div className="flex flex-wrap items-center justify-end gap-4">
+        <h1 className="sr-only">Progress</h1>
         <div className="inline-flex rounded-lg border border-border p-1">
           {(['lbs', 'kg'] as const).map((u) => (
             <button

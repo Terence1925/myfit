@@ -105,7 +105,7 @@ function AppShell() {
 
   return (
     // On phones the floating bottom bar (about 4rem plus the safe area) must not cover the end of a page; the rest timer sits above it
-    <div className={profile ? (rest ? 'min-h-screen pb-56 sm:pb-40' : 'min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom))] sm:pb-0') : 'min-h-screen'}>
+    <div className={profile ? (rest ? 'min-h-screen pb-56 sm:pb-40' : 'min-h-screen pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0') : 'min-h-screen'}>
       <GlowBackground />
       {profile && <NavBar />}
       {/* Each page fades in instead of snapping in (opacity only: a transform would break the pages' fixed bars) */}

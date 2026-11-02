@@ -15,6 +15,7 @@ import { useStorePrices } from '@/lib/storePrices'
 import { nativePlatform, storeName } from '@/lib/platform'
 import { RestAlarmCheck } from '@/components/account/RestAlarmCheck'
 import { RestSoundPicker } from '@/components/account/RestSoundPicker'
+import { ProfilePhoto } from '@/components/account/ProfilePhoto'
 import { WorkoutReminders } from '@/components/account/WorkoutReminders'
 import { WeightUnitToggle } from '@/components/shared/WeightUnitToggle'
 import { useTheme, type ThemeChoice } from '@/lib/theme'
@@ -159,7 +160,7 @@ export default function AccountPage() {
 
   return (
     <div className="container py-8 sm:py-12 max-w-2xl">
-      <h1 className="font-display text-4xl tracking-wide mb-8">Account</h1>
+      <h1 className="sr-only">Account</h1>
 
       {syncing && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
@@ -173,6 +174,7 @@ export default function AccountPage() {
             <CardTitle className="text-lg">Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm font-body">
+            <ProfilePhoto profile={profile} onChanged={refreshProfile} />
             {editingName ? (
               <div className="space-y-2">
                 <label className="text-muted-foreground" htmlFor="display-name">Name</label>

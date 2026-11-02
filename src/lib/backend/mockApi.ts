@@ -224,6 +224,15 @@ export const profiles = {
     return all[idx]
   },
 
+  async updateAvatar(userId: string, avatarUrl: string | null): Promise<Profile> {
+    const all = readAll<Profile>(PROFILES_KEY)
+    const idx = all.findIndex((p) => p.id === userId)
+    if (idx === -1) throw new Error('Profile not found.')
+    all[idx] = { ...all[idx], avatarUrl: avatarUrl ?? undefined }
+    writeAll(PROFILES_KEY, all)
+    return all[idx]
+  },
+
   async saveIntake(userId: string, answers: IntakeAnswers, nutrition: NutritionPlan): Promise<Profile> {
     const all = readAll<Profile>(PROFILES_KEY)
     const idx = all.findIndex((p) => p.id === userId)

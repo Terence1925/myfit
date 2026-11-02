@@ -50,7 +50,7 @@ export default function FoodPage() {
       <motion.h1
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 font-display text-4xl tracking-wide"
+        className="sr-only"
       >
         Food log
       </motion.h1>

@@ -45,6 +45,8 @@ export interface ProfilesApi {
   get(userId: string): Promise<Profile | null>
   saveIntake(userId: string, answers: IntakeAnswers, nutrition: NutritionPlan): Promise<Profile>
   updateDisplayName(userId: string, displayName: string): Promise<Profile>
+  /** Sets the profile picture (a small image data URL), or removes it with null. */
+  updateAvatar(userId: string, avatarUrl: string | null): Promise<Profile>
   listAll(): Promise<Profile[]>
 }
 
