@@ -9,7 +9,7 @@ export function Avatar({ url, className }: { url?: string; className?: string })
   const id = React.useId().replace(/:/g, '')
   if (url) return <img src={url} alt="" className={cn('shrink-0 rounded-full object-cover', className)} />
   return (
-    <span aria-hidden="true" className={cn('flex shrink-0 overflow-hidden rounded-full bg-card text-foreground', className)}>
+    <span aria-hidden="true" className={cn('flex shrink-0 overflow-hidden rounded-full bg-card text-muted-foreground', className)}>
       <svg viewBox="0 0 96 96" className="h-full w-full" fill="currentColor" data-blank-avatar>
         <defs>
           <clipPath id={`clip${id}`}>
