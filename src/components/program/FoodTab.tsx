@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CalendarPicker } from '@/components/ui/calendar-picker'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -100,6 +101,7 @@ function SummaryFigure({ label, eaten }: { label: string; eaten: number }) {
 
 export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userId: string }) {
   const [date, setDate] = React.useState(() => dayKey(new Date()))
+  const [pickingDay, setPickingDay] = React.useState(false)
   const [entries, setEntries] = React.useState<FoodLogEntry[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -173,18 +175,15 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         </Button>
         <div className="font-display text-xl tracking-wide">{dayLabel(date)}</div>
         <div className="flex items-center">
-          {/* A calendar button: the real date picker sits invisibly on top, so the phone's own picker opens */}
-          <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-foreground hover:bg-secondary" aria-label="Pick a day">
+          <button
+            type="button"
+            onClick={() => setPickingDay(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-secondary"
+            aria-label="Pick a day"
+          >
             <CalendarDays className="h-5 w-5" />
-            <input
-              type="date"
-              value={date}
-              max={today}
-              onChange={(e) => e.target.value && e.target.value <= today && setDate(e.target.value)}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label="Pick a day"
-            />
-          </label>
+          </button>
+          <CalendarPicker open={pickingDay} onClose={() => setPickingDay(false)} value={date} max={today} onChange={setDate} />
           <Button variant="ghost" size="sm" aria-label="Next day" disabled={date >= today} onClick={() => setDate((d) => shiftDay(d, 1))}>
             <ChevronRight className="h-5 w-5" />
           </Button>

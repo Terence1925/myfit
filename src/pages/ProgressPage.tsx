@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
-import { Trash2, TrendingDown, TrendingUp, Plus } from 'lucide-react'
+import { CalendarDays, Trash2, TrendingDown, TrendingUp, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { ProGate } from '@/components/shared/ProGate'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CalendarPicker, toDayKey } from '@/components/ui/calendar-picker'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { WeightChart } from '@/components/progress/WeightChart'
@@ -22,7 +23,8 @@ export default function ProgressPage() {
   const [unit, setUnit] = useWeightUnit()
   const [entries, setEntries] = React.useState<BodyMetricEntry[]>([])
   const [loaded, setLoaded] = React.useState(false)
-  const [date, setDate] = React.useState(() => new Date().toISOString().slice(0, 10))
+  const [date, setDate] = React.useState(() => toDayKey(new Date()))
+  const [pickingDay, setPickingDay] = React.useState(false)
   const [weight, setWeight] = React.useState('')
   const [bodyFat, setBodyFat] = React.useState('')
 
@@ -125,7 +127,16 @@ export default function ProgressPage() {
           <form onSubmit={handleSubmit} className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end">
             <div className="col-span-2 sm:col-span-1">
               <Label htmlFor="date">Date</Label>
-              <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1.5" />
+              <button
+                id="date"
+                type="button"
+                onClick={() => setPickingDay(true)}
+                className="mt-1.5 flex h-11 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-left text-base sm:h-10 sm:text-sm"
+              >
+                <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <CalendarPicker open={pickingDay} onClose={() => setPickingDay(false)} value={date} max={toDayKey(new Date())} onChange={setDate} />
             </div>
             <div>
               <Label htmlFor="weight">Weight ({unit})</Label>
