@@ -22,7 +22,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { foodLog } from '@/lib/backend/api'
 import { searchFoods } from '@/lib/foods/filipinoFoods'
@@ -31,12 +30,10 @@ import { CATEGORY_LABELS, RECIPES, filterRecipes, recipeToFood, type Recipe, typ
 import { CookbookFilters, RecipeCard, RecipeDetail } from './CookbookParts'
 import { BarcodeScan } from './BarcodeScan'
 import { clearSearches, forgetSearch, loadRecentSearches, rememberSearch } from '@/lib/foods/recentSearches'
-import { isFilipinoPlate, PLATES } from '@/lib/foods/plates'
 import {
   fromBase,
   loadRegion,
   loadUnits,
-  matchesRegion,
   regionFirst,
   saveUnits,
   toBase,
@@ -96,7 +93,7 @@ function SummaryFigure({ label, eaten }: { label: string; eaten: number }) {
   return (
     <div className="min-w-0 text-center">
       <div className="text-[11px] font-semibold text-muted-foreground">{label}</div>
-      <div className="font-body text-lg font-bold leading-tight tabular-nums">{f1(eaten)}</div>
+      <div className="font-body text-sm font-bold leading-tight tabular-nums">{f1(eaten)}</div>
     </div>
   )
 }
@@ -203,13 +200,12 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
             <SummaryFigure label="Protein" eaten={totals.p} />
             <div className="min-w-0 text-right">
               <div className="text-[11px] font-semibold text-muted-foreground">Calories</div>
-              <div className="font-display text-3xl leading-none tracking-wide tabular-nums">{r0(totals.kcal).toLocaleString('en-PH')}</div>
+              <div className="font-display text-sm leading-none tracking-wide tabular-nums">{r0(totals.kcal).toLocaleString('en-PH')}</div>
               <div className={cn('text-[10px]', over ? 'text-destructive' : 'text-muted-foreground')}>
                 {Math.abs(r0(left)).toLocaleString('en-PH')} {over ? 'over' : 'left'}
               </div>
             </div>
           </div>
-          <Progress value={(totals.kcal / target) * 100} barClassName={over ? 'bg-destructive' : undefined} className="mt-3 h-2" />
         </CardContent>
       </Card>
 
@@ -227,19 +223,19 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
               <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', tint)}>
                 <Icon className="h-5 w-5" />
               </span>
-              <div className="min-w-0 flex-1 font-body text-lg font-bold">{label}</div>
+              <div className="min-w-0 flex-1 font-body text-sm font-bold">{label}</div>
               {items.length > 0 && (
                 <div className="text-right">
-                  <div className="font-display text-2xl leading-none tracking-wide tabular-nums">{r0(kcal).toLocaleString('en-PH')}</div>
+                  <div className="font-display text-sm leading-none tracking-wide tabular-nums">{r0(kcal).toLocaleString('en-PH')}</div>
                   <div className="text-[11px] text-muted-foreground">Calories</div>
                 </div>
               )}
               <button
                 aria-label={`Add food to ${label}`}
                 onClick={() => setAddMeal(id)}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform active:scale-95"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform active:scale-95"
               >
-                <Plus className="h-6 w-6" />
+                <Plus className="h-5 w-5" />
               </button>
             </div>
             {items.length > 0 && (
@@ -263,10 +259,10 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
                       <li key={e.id} className="py-2.5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <div className="truncate text-sm font-bold">{e.name}</div>
+                            <div className="truncate text-sm font-normal">{e.name}</div>
                             <div className="text-xs font-semibold text-primary">{e.servings === 1 ? e.serving : `${e.servings} × ${e.serving}`}</div>
                           </div>
-                          <div className="shrink-0 text-base font-bold tabular-nums">{r0(e.kcal)}</div>
+                          <div className="shrink-0 text-sm font-bold tabular-nums">{r0(e.kcal)}</div>
                         </div>
                         <div className={cn(COLS, 'mt-1 text-sm text-muted-foreground')}>
                           <span className={NUM}>{f1(e.fatG)}</span>
@@ -316,7 +312,7 @@ type Step = 'search' | 'amount' | 'custom' | 'recipe' | 'scan'
 
 /** A number for display in a box: whole when it can be, else one decimal. */
 const shown = (n: number) => String(Math.round(n * 10) / 10)
-type BrowseTab = 'cookbook' | 'food' | 'meals' | 'recent' | 'saved'
+type BrowseTab = 'cookbook' | 'food' | 'recent' | 'saved'
 
 /** A tappable list of foods with their calories. */
 function FoodRows({ foods, onPick }: { foods: FoodItem[]; onPick: (f: FoodItem) => void }) {
@@ -402,7 +398,6 @@ function AddFoodDialog({
 
   const results = React.useMemo(() => regionFirst(searchFoods(query, 60), region).slice(0, 25), [query, region])
 
-  const plates = React.useMemo(() => PLATES.filter((p) => matchesRegion(isFilipinoPlate(p), region)), [region])
 
   // Pro: also search the big online database, shortly after the person stops typing
   React.useEffect(() => {
@@ -588,7 +583,7 @@ function AddFoodDialog({
               {query.trim() === '' && (
                 <>
                   <div className="-mx-4 flex overflow-x-auto border-b border-border px-4" role="tablist">
-                    {([['cookbook', 'Cookbook'], ['food', 'Food'], ['meals', 'Meals'], ['recent', 'Recent'], ['saved', 'Saved']] as const).map(([id, label]) => (
+                    {([['cookbook', 'Cookbook'], ['food', 'Food'], ['recent', 'Recent'], ['saved', 'Saved']] as const).map(([id, label]) => (
                       <button
                         key={id}
                         role="tab"
@@ -667,13 +662,6 @@ function AddFoodDialog({
                         <p className="py-4 text-sm text-muted-foreground">Type a food above to search. Your searches will show up here.</p>
                       )}
                     </>
-                  )}
-
-                  {tab === 'meals' && (
-                    <div>
-                      <p className="mb-1 text-xs text-muted-foreground">A whole plate in one tap. You can change the servings next.</p>
-                      <FoodRows foods={plates} onPick={choose} />
-                    </div>
                   )}
 
                   {tab === 'recent' &&
