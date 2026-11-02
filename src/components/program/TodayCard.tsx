@@ -79,10 +79,10 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           ))}
         </div>
 
-        <div className="mt-3 flex items-center gap-4 rounded-2xl bg-secondary/40 px-4 py-3">
+        <div className="mt-3 flex items-center gap-3 rounded-2xl bg-secondary/40 px-3.5 py-3">
           <ProgressRing value={Math.min(streak.doneThisWeek, days.length)} goal={days.length} label={ring.title} />
           <div className="min-w-0">
-            <div className="font-body text-sm font-bold">{ring.title}</div>
+            <div className="whitespace-nowrap font-body text-[13px] font-bold">{ring.title}</div>
             {ring.note && <div className="mt-0.5 font-body text-xs text-muted-foreground">{ring.note}</div>}
           </div>
         </div>
