@@ -193,7 +193,7 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
       {/* The day at a glance: fat, carbs and protein eaten so far, and calories */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-[1fr_1fr_1fr_auto] items-start gap-3">
+          <div className={cn(COLS, 'items-start')}>
             <SummaryFigure label="Fat" eaten={totals.f} />
             <SummaryFigure label="Carbs" eaten={totals.c} />
             <SummaryFigure label="Protein" eaten={totals.p} />
@@ -287,8 +287,9 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         )
       })}
 
-      <p className="text-center text-xs text-muted-foreground">
-        Food numbers are approximate; real servings vary. Use them as a guide, not a lab result.
+      <p className="text-left text-xs leading-relaxed text-muted-foreground">
+        Food numbers are approximate; real servings vary. Use them as a guide, not a lab result. Fat helps regulate your hormones.
+        Carbs are your main fuel: they power your workouts and your day, and help your muscles recover. Protein builds and repairs your muscles after training, and helps you stay full.
       </p>
 
       <AddFoodDialog
