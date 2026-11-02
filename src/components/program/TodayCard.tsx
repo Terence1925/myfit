@@ -50,6 +50,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
     >
       <div className="relative">
         <h2 className="font-display text-3xl tracking-wide sm:text-4xl">{greeting(firstName, now)}</h2>
+        <p className="mt-1 font-body text-sm font-bold text-primary">{program.programData.programName}</p>
         <p className="mt-0.5 font-body text-sm text-muted-foreground">{now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
 
         <div className="mt-5 flex items-center justify-between gap-1.5" aria-label="This week">

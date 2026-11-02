@@ -11,11 +11,11 @@ const check = (label: string, got: unknown, want: unknown) => {
 check('thousands separator', formatLbs(12400), '12,400')
 
 // ring text
-check('ring: none done', ringText(0, 3, 4), { title: '0 of 4 workouts this week', note: '' })
+check('ring: none done', ringText(0, 3, 4), { title: '0 of 4 workout days this week', note: '' })
 check('ring: one to go for the streak', ringText(2, 3, 4).note, '')
 check('ring: streak secured', ringText(3, 3, 4).note, 'Streak secured this week. 1 more for a perfect week.')
 check('ring: perfect', ringText(4, 3, 4).note, 'All workouts done this week.')
-check('ring: one planned day', ringText(0, 1, 1).title, '0 of 1 workout this week')
+check('ring: one planned day', ringText(0, 1, 1).title, '0 of 1 workout day this week')
 
 if (problems.length) {
   console.log('FAILED')
