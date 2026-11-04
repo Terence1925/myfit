@@ -158,6 +158,8 @@ export interface Exercise {
   format?: ExerciseFormat
   /** Do this on both sides, one after the other. */
   eachSide?: boolean
+  /** The person typed this exercise in themselves (no demo or video for it). */
+  custom?: boolean
 }
 
 export interface ProgramDay {

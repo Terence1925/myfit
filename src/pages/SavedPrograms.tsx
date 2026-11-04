@@ -95,7 +95,8 @@ export default function SavedPrograms() {
           {list.map((p, i) => {
             const remaining = daysRemaining(p.expiresAt)
             const expired = remaining <= 0
-            const badgeVariant = expired ? 'danger' : remaining >= 14 ? 'default' : 'warning'
+            // A program that has run its 13 weeks is finished, not a problem: a calm "Completed" instead of a red warning
+            const badgeVariant = expired ? 'success' : remaining >= 14 ? 'default' : 'warning'
             // With more than one program, the newest (the one the Home screen trains from) is marked Current
             const isCurrent = list.length > 1 && i === 0
             const isPrevious = list.length > 1 && i > 0
@@ -113,7 +114,7 @@ export default function SavedPrograms() {
                       <h3 className="font-body text-lg font-bold text-foreground">{p.programName}</h3>
                       <Badge variant={badgeVariant} className="shrink-0 gap-1">
                         <CalendarClock className="h-3 w-3" />
-                        {expired ? 'Expired' : `${remaining}d left`}
+                        {expired ? 'Completed' : `${remaining}d left`}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{p.programData.tagline}</p>

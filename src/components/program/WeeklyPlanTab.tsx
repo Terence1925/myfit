@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseCard } from './ExerciseCard'
 import { WeekTargetCard } from './WeekTargetCard'
+import { CustomExerciseDialog } from './CustomExerciseDialog'
 import { blockStatus } from '@/lib/programBlock'
 import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
 import { warmupFor } from '@/lib/warmup'
@@ -16,7 +17,7 @@ import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
 import { buildLog, clearDraft, loadDraft, reconcileLog, saveDraft } from '@/lib/workoutLog'
 import { dayProgress, historyRows } from '@/lib/streak'
-import type { ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
+import type { Exercise, ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
 
 export function WeeklyPlanTab({
   program,
@@ -25,6 +26,7 @@ export function WeeklyPlanTab({
   activeDay,
   onActiveDayChange,
   onSwapExercise,
+  onCustomExercise,
   hasProgressAccess,
   readOnly,
   startedAt,
@@ -39,10 +41,13 @@ export function WeeklyPlanTab({
   activeDay: number
   onActiveDayChange: (day: number) => void
   onSwapExercise: (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => Promise<void>
+  /** Puts an exercise the person typed in at this position of the day. */
+  onCustomExercise?: (dayNumber: number, exerciseIndex: number, exercise: Exercise) => Promise<void>
   hasProgressAccess: boolean
 }) {
   const [unit] = useWeightUnit()
   const [swappingKey, setSwappingKey] = React.useState<string | null>(null)
+  const [customIndex, setCustomIndex] = React.useState<number | null>(null)
   const [loggingMode, setLoggingMode] = React.useState(false)
   const loggingRef = React.useRef(false)
   loggingRef.current = loggingMode
@@ -303,6 +308,7 @@ export function WeeklyPlanTab({
               index={i}
               swapping={swappingKey === `${day.day}-${i}`}
               onSwap={() => handleSwap(i, ex.name)}
+              onCustomize={onCustomExercise ? () => setCustomIndex(i) : undefined}
               logging={loggingMode}
               setLogs={log[i]?.sets}
               onSetChange={(setIndex, field, value) => updateSet(i, setIndex, field, value)}
@@ -314,6 +320,15 @@ export function WeeklyPlanTab({
             />
           ))}
         </div>
+
+        <CustomExerciseDialog
+          open={customIndex !== null}
+          onClose={() => setCustomIndex(null)}
+          current={customIndex !== null ? day.exercises[customIndex] ?? null : null}
+          onSave={async (exercise) => {
+            if (customIndex !== null && onCustomExercise) await onCustomExercise(day.day, customIndex, exercise)
+          }}
+        />
 
         {history.length > 0 && (
           <div className="mt-8">

@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { ExerciseCard } from './ExerciseCard'
 import { WeekTargetCard } from './WeekTargetCard'
+import { CustomExerciseDialog } from './CustomExerciseDialog'
+import { withExercise } from '@/lib/programEdit'
 import { programs, sessions } from '@/lib/backend/api'
 import { blockStatus } from '@/lib/programBlock'
 import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
@@ -13,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle2, Save } from 'lucide-react'
 import { useWeightUnit } from '@/lib/weightUnit'
 import { cn } from '@/lib/utils'
-import type { ExerciseLog, WorkoutProgram, WorkoutSession } from '@/lib/types'
+import type { Exercise, ExerciseLog, WorkoutProgram, WorkoutSession } from '@/lib/types'
 
 /**
  * Today's workout on the Home screen, one exercise per page. Swipe sideways like an Instagram post; the dots show
@@ -41,6 +43,7 @@ export function TodayWorkout({
   const [todays, setTodays] = React.useState<WorkoutSession[]>([])
   const [justSaved, setJustSaved] = React.useState(false)
   const [swappingIndex, setSwappingIndex] = React.useState<number | null>(null)
+  const [customIndex, setCustomIndex] = React.useState<number | null>(null)
 
   // After a swap, keep what was already typed for the other exercises
   const signature = day?.exercises.map((e) => `${e.name}:${e.sets}`).join('|')
@@ -113,6 +116,14 @@ export function TodayWorkout({
     } finally {
       setSwappingIndex(null)
     }
+  }
+
+  // The person's own exercise, typed in, takes the place of this one
+  const saveCustom = async (exercise: Exercise) => {
+    if (customIndex === null) return
+    const updatedProgramData = withExercise(program.programData, dayNumber, customIndex, exercise)
+    onProgramUpdate({ ...program, programData: updatedProgramData })
+    await programs.update(program.id, updatedProgramData)
   }
 
   const startRest = (exerciseIndex: number, setIndex: number) => {
@@ -196,6 +207,7 @@ export function TodayWorkout({
               index={i}
               swapping={swappingIndex === i}
               onSwap={() => handleSwap(i, ex.name)}
+              onCustomize={() => setCustomIndex(i)}
               logging
               setLogs={log[i]?.sets}
               onSetChange={(setIndex, field, value) => updateSet(i, setIndex, field, value)}
@@ -251,6 +263,12 @@ export function TodayWorkout({
           })}
         </div>
       </div>
+      <CustomExerciseDialog
+        open={customIndex !== null}
+        onClose={() => setCustomIndex(null)}
+        current={customIndex !== null ? day.exercises[customIndex] ?? null : null}
+        onSave={saveCustom}
+      />
     </section>
   )
 }

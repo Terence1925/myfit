@@ -7,9 +7,10 @@ import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
 import { loadView, saveView } from '@/lib/workoutLog'
 import { programs } from '@/lib/backend/api'
+import { withExercise } from '@/lib/programEdit'
 import { hasProAccess } from '@/lib/billing'
 import { useAuth } from '@/context/AuthContext'
-import type { WorkoutProgram } from '@/lib/types'
+import type { Exercise, WorkoutProgram } from '@/lib/types'
 
 /** The four tabs of a program (Overview, Weekly plan, Nutrition, Recovery). They live on their own page, opened from My programs. */
 export function ProgramTabs({
@@ -42,6 +43,12 @@ export function ProgramTabs({
         : d,
     )
     const updatedProgramData = { ...program.programData, days: updatedDays }
+    onProgramUpdate({ ...program, programData: updatedProgramData })
+    await programs.update(program.id, updatedProgramData)
+  }
+
+  const handleCustom = async (dayNumber: number, exerciseIndex: number, exercise: Exercise) => {
+    const updatedProgramData = withExercise(program.programData, dayNumber, exerciseIndex, exercise)
     onProgramUpdate({ ...program, programData: updatedProgramData })
     await programs.update(program.id, updatedProgramData)
   }
@@ -87,6 +94,7 @@ export function ProgramTabs({
             activeDay={activeDay}
             onActiveDayChange={setActiveDay}
             onSwapExercise={handleSwap}
+            onCustomExercise={handleCustom}
             hasProgressAccess={proAccess}
             readOnly={readOnly}
             startedAt={program.createdAt}

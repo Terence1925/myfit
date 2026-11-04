@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { Check, ChevronDown, Crown, Flame, Loader2, PlayCircle, RefreshCw, Target, TrendingUp } from 'lucide-react'
+import { Check, ChevronDown, Crown, Flame, Loader2, PlayCircle, Plus, RefreshCw, Target, TrendingUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
@@ -43,6 +43,7 @@ export function ExerciseCard({
   exercise,
   index,
   onSwap,
+  onCustomize,
   swapping,
   logging,
   setLogs,
@@ -62,6 +63,8 @@ export function ExerciseCard({
   /** Warm-up sets for a heavy opening lift (shown, not logged). */
   warmup?: WarmupPlan | null
   onSwap: () => void
+  /** Opens the form to type in an exercise of their own in its place. Left out: no button. */
+  onCustomize?: () => void
   swapping: boolean
   logging?: boolean
   setLogs?: SetLog[]
@@ -185,13 +188,24 @@ export function ExerciseCard({
                 Swap
               </button>
             )}
-            <button
-              onClick={() => setDemoOpen(true)}
-              className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
-            >
-              <PlayCircle className="h-3.5 w-3.5" />
-              Demo
-            </button>
+            {!readOnly && onCustomize && (
+              <button
+                onClick={onCustomize}
+                className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {exercise.custom ? 'Edit' : 'Custom'}
+              </button>
+            )}
+            {!exercise.custom && (
+              <button
+                onClick={() => setDemoOpen(true)}
+                className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
+              >
+                <PlayCircle className="h-3.5 w-3.5" />
+                Demo
+              </button>
+            )}
             {!mindBody && (
             <button
               onClick={handleHistoryClick}
