@@ -74,6 +74,11 @@ export const TRAINING_BLOCKS: TrainingBlock[] = [
   { number: 4, name: 'Peak', summary: 'Your heaviest block: low reps on the main lifts, short and sharp accessories.', mainReps: '3-5', accessoryReps: '6-8', mainRest: '2-3 min' },
 ]
 
+/** The block that comes after block number `current` (1 to 4; after Peak it starts again at Foundation). */
+export function nextTrainingBlock(current: number): TrainingBlock {
+  return TRAINING_BLOCKS[((Math.round(current) % TRAINING_BLOCKS.length) + TRAINING_BLOCKS.length) % TRAINING_BLOCKS.length]
+}
+
 /** Which block the next program is, given how many 12-week programs the person has already finished. */
 export function trainingBlockFor(finishedPrograms: number): TrainingBlock {
   return TRAINING_BLOCKS[Math.max(0, finishedPrograms) % TRAINING_BLOCKS.length]

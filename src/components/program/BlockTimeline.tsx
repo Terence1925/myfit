@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Check, Moon, Trophy } from 'lucide-react'
-import { BLOCK_NOTE, BLOCK_WEEKS, TOTAL_WEEKS, blockStatus, type BlockStatus } from '@/lib/programBlock'
+import { BLOCK_NOTE, BLOCK_WEEKS, TOTAL_WEEKS, TRAINING_BLOCKS, blockStatus, type BlockStatus } from '@/lib/programBlock'
 import { cn } from '@/lib/utils'
 
 /** Thirteen small bars: 12 weeks of training, then the deload week. The current week is marked. */
@@ -47,13 +47,50 @@ export function BlockOverviewCard({ createdAt, block }: { createdAt: string; blo
   )
 }
 
+/** The whole year at a glance: the four 12-week blocks in order, with the one the person is in marked. */
+export function YearRoadmapCard({ current }: { current: number }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="text-xs font-bold uppercase tracking-widest text-primary">Your year</div>
+      <p className="mt-2 font-body text-sm text-muted-foreground">
+        A year is four 12-week programs. Each one is different, so your training keeps moving forward instead of repeating.
+      </p>
+      <ol className="mt-4 space-y-3">
+        {TRAINING_BLOCKS.map((b) => {
+          const done = b.number < current
+          const here = b.number === current
+          return (
+            <li key={b.number} className="flex items-start gap-3" aria-current={here ? 'step' : undefined}>
+              <span
+                className={cn(
+                  'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                  here ? 'bg-primary text-primary-foreground' : done ? 'bg-primary/15 text-primary' : 'border border-border text-muted-foreground',
+                )}
+              >
+                {done ? <Check className="h-4 w-4" /> : b.number}
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 font-body text-sm font-bold">
+                  {b.name}
+                  {here && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">You are here</span>}
+                </div>
+                <div className="font-body text-xs leading-relaxed text-muted-foreground">{b.summary}</div>
+              </div>
+            </li>
+          )
+        })}
+      </ol>
+    </div>
+  )
+}
+
 const PHASE_STYLE = {
   final: { icon: Trophy, title: 'Final week', className: 'border-primary/40 bg-primary/10' },
   deload: { icon: Moon, title: 'Deload week', className: 'border-accent/40 bg-accent/10' },
 } as const
 
 /** A short banner on the program during the final week and the deload week. Nothing during weeks 1-11. */
-export function BlockBanner({ status, note }: { status: BlockStatus; note: string }) {
+export function BlockBanner({ status, note, next }: { status: BlockStatus; note: string; next?: { number: number; name: string } }) {
   if (status.phase !== 'final' && status.phase !== 'deload') return null
   const { icon: Icon, title, className } = PHASE_STYLE[status.phase]
   return (
@@ -62,6 +99,7 @@ export function BlockBanner({ status, note }: { status: BlockStatus; note: strin
       <div>
         <div className="font-display text-xl tracking-wide">{title}</div>
         <p className="mt-0.5 font-body text-sm text-foreground/90">{note}</p>
+        {next && <p className="mt-1 font-body text-sm font-semibold text-primary">Next up: Block {next.number}, {next.name}.</p>}
         <p className="mt-1 text-xs text-muted-foreground">{status.daysLeft} {status.daysLeft === 1 ? 'day' : 'days'} left in this program.</p>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { sessions } from '@/lib/backend/api'
 import { formatLbs } from '@/lib/lifted'
 import { toUnit, unitLabel, useWeightUnit } from '@/lib/weightUnit'
-import { BLOCK_WEEKS, COMPLETE_NOTE, blockStatus } from '@/lib/programBlock'
+import { BLOCK_WEEKS, COMPLETE_NOTE, blockStatus, nextTrainingBlock } from '@/lib/programBlock'
 import { countedDates } from '@/lib/streak'
 import type { WorkoutProgram, WorkoutSession } from '@/lib/types'
 import { BlockBars } from './BlockTimeline'
@@ -35,6 +35,7 @@ export function ProgramComplete({
   }, [userId, program.id])
 
   const [unit] = useWeightUnit()
+  const nextBlock = program.programData.trainingBlock ? nextTrainingBlock(program.programData.trainingBlock.number) : null
   const list = saved ?? []
   const workouts = countedDates(list).length
   let sets = 0
@@ -81,9 +82,17 @@ export function ProgramComplete({
         </div>
       </div>
 
+      {nextBlock && (
+        <div className="mt-4 rounded-2xl border border-primary/40 bg-primary/10 p-5">
+          <div className="text-xs font-bold uppercase tracking-widest text-primary">Up next · Block {nextBlock.number} of 4</div>
+          <div className="mt-1 font-display text-2xl tracking-wide">{nextBlock.name}</div>
+          <p className="mt-1 font-body text-sm text-foreground/90">{nextBlock.summary} It will feel different from this one, on purpose.</p>
+        </div>
+      )}
+
       <div className="mt-6 space-y-3">
         <Button size="lg" className="w-full gap-2" onClick={onGenerate}>
-          <Plus className="h-5 w-5" /> Generate your next {BLOCK_WEEKS} weeks
+          <Plus className="h-5 w-5" /> {nextBlock ? `Generate Block ${nextBlock.number}: ${nextBlock.name}` : `Generate your next ${BLOCK_WEEKS} weeks`}
         </Button>
         <Button size="lg" variant="outline" className="w-full gap-2" onClick={onView}>
           <Eye className="h-5 w-5" /> Look back at this program

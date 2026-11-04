@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { CalendarDays, ListChecks, TrendingUp, Waves } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProgramData } from '@/lib/types'
-import { BlockOverviewCard } from './BlockTimeline'
+import { BlockOverviewCard, YearRoadmapCard } from './BlockTimeline'
 
 export function OverviewTab({
   program,
@@ -17,6 +17,7 @@ export function OverviewTab({
   return (
     <div className="space-y-8">
       <BlockOverviewCard createdAt={createdAt} block={program.trainingBlock} />
+      {program.trainingBlock && <YearRoadmapCard current={program.trainingBlock.number} />}
 
       <Card>
         <CardContent className="p-6 sm:p-8">

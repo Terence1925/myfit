@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { BlockBanner, BlockChip } from './BlockTimeline'
-import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus } from '@/lib/programBlock'
+import { DELOAD_ADVICE, FINAL_WEEK_NOTE, blockStatus, nextTrainingBlock } from '@/lib/programBlock'
 import { TodayCard } from './TodayCard'
 import { TodayWorkout } from './TodayWorkout'
 import type { WorkoutProgram } from '@/lib/types'
@@ -15,7 +15,11 @@ export function ProgramView({ program, userId, onProgramUpdate }: { program: Wor
 
   return (
     <div className="space-y-8">
-      <BlockBanner status={block} note={block.phase === 'deload' ? DELOAD_ADVICE : FINAL_WEEK_NOTE} />
+      <BlockBanner
+        status={block}
+        note={block.phase === 'deload' ? DELOAD_ADVICE : FINAL_WEEK_NOTE}
+        next={program.programData.trainingBlock ? nextTrainingBlock(program.programData.trainingBlock.number) : undefined}
+      />
       <TodayCard
         program={program}
         userId={userId}
