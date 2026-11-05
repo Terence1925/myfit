@@ -47,16 +47,25 @@ export function weekTarget(week: number): WeekTarget {
   return { week: w, phase: 'push', title: 'Push', rir: '1-2', advice: 'The hardest stretch of the block. Stop each set 1 to 2 reps before you cannot do more, and keep your form clean.', deload: false }
 }
 
-/** The day as it is trained this week: in the deload week about half the sets, and the effort note matches the week. */
-export function dayForWeek(day: ProgramDay, target: WeekTarget): ProgramDay {
+/** Sets in a beginner home program: 2 in weeks 1-2, 3 in weeks 3-4, then 4 for the rest of the block. */
+export function rampedSets(week: number): number {
+  return week <= 2 ? 2 : week <= 4 ? 3 : 4
+}
+
+/**
+ * The day as it is trained this week: in the deload week about half the sets, and the effort note matches the week.
+ * `ramp` (beginner home programs) adds sets as the weeks go by; an exercise the person typed in keeps the sets they chose.
+ */
+export function dayForWeek(day: ProgramDay, target: WeekTarget, ramp = false): ProgramDay {
   return {
     ...day,
     exercises: day.exercises.map((e) => {
       const mindBody = e.format === 'yoga' || e.format === 'pilates'
       if (mindBody) return e
+      const base = ramp && !e.custom ? Math.max(e.sets, rampedSets(target.week)) : e.sets
       return {
         ...e,
-        sets: target.deload ? Math.max(1, Math.round(e.sets / 2)) : e.sets,
+        sets: target.deload ? Math.max(1, Math.round(base / 2)) : base,
         notes: e.notes ? plainEffort(e.notes.replace(/\b\d(?:[-+]\d)?\+? RIR\b/, `${target.rir} RIR`)) : e.notes,
       }
     }),

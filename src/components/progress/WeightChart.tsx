@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { entryDate } from '@/lib/entryDate'
 
 export interface ChartPoint {
   date: string
@@ -140,7 +141,7 @@ export function WeightChart({ points, unitLabel }: { points: ChartPoint[]; unitL
           <div className="font-semibold text-foreground">
             {hover.value.toFixed(1)} {unitLabel}
           </div>
-          <div className="text-muted-foreground">{new Date(hover.date).toLocaleDateString()}</div>
+          <div className="text-muted-foreground">{entryDate(hover.date)}</div>
         </div>
       )}
     </div>

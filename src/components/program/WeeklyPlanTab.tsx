@@ -17,6 +17,7 @@ import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer, type RestState } from '@/lib/restTimerStore'
 import { buildLog, clearDraft, loadDraft, reconcileLog, saveDraft } from '@/lib/workoutLog'
 import { dayProgress, historyRows } from '@/lib/streak'
+import { NO_SWAP_MESSAGE } from '@/lib/backend/swapFamily'
 import type { Exercise, ExerciseLog, ProgramData, WorkoutSession } from '@/lib/types'
 
 export function WeeklyPlanTab({
@@ -40,13 +41,15 @@ export function WeeklyPlanTab({
   userId: string
   activeDay: number
   onActiveDayChange: (day: number) => void
-  onSwapExercise: (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => Promise<void>
+  /** Resolves to false when there was nothing similar to swap to. */
+  onSwapExercise: (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => Promise<void | boolean>
   /** Puts an exercise the person typed in at this position of the day. */
   onCustomExercise?: (dayNumber: number, exerciseIndex: number, exercise: Exercise) => Promise<void>
   hasProgressAccess: boolean
 }) {
   const [unit] = useWeightUnit()
   const [swappingKey, setSwappingKey] = React.useState<string | null>(null)
+  const [noSwapKey, setNoSwapKey] = React.useState<string | null>(null)
   const [customIndex, setCustomIndex] = React.useState<number | null>(null)
   const [loggingMode, setLoggingMode] = React.useState(false)
   const loggingRef = React.useRef(false)
@@ -59,7 +62,7 @@ export function WeeklyPlanTab({
   // This week's targets (effort, aim for each exercise, half the sets in the deload week). A finished program is shown as written.
   const target = startedAt && !readOnly ? weekTarget(blockStatus(startedAt).week) : null
   const planned = program.days.find((d) => d.day === activeDay) ?? program.days[0]
-  const day = target ? dayForWeek(planned, target) : planned
+  const day = target ? dayForWeek(planned, target, program.setRamp) : planned
   const suggestions = day.exercises.map((ex, i) => (target ? suggestFor(userSessions, ex, target, { main: i < 2, unit }) : null))
 
   const startRest = (exerciseIndex: number, setIndex: number) => {
@@ -131,8 +134,10 @@ export function WeeklyPlanTab({
   const handleSwap = async (exerciseIndex: number, exerciseName: string) => {
     const key = `${day.day}-${exerciseIndex}`
     setSwappingKey(key)
+    setNoSwapKey(null)
     try {
-      await onSwapExercise(day.day, exerciseIndex, exerciseName, day.focus)
+      const done = await onSwapExercise(day.day, exerciseIndex, exerciseName, day.focus)
+      if (done === false) setNoSwapKey(key)
     } finally {
       setSwappingKey(null)
     }
@@ -307,6 +312,7 @@ export function WeeklyPlanTab({
               exercise={ex}
               index={i}
               swapping={swappingKey === `${day.day}-${i}`}
+              swapNotice={noSwapKey === `${day.day}-${i}` ? NO_SWAP_MESSAGE : undefined}
               onSwap={() => handleSwap(i, ex.name)}
               onCustomize={onCustomExercise ? () => setCustomIndex(i) : undefined}
               logging={loggingMode}
@@ -326,6 +332,7 @@ export function WeeklyPlanTab({
           onClose={() => setCustomIndex(null)}
           current={customIndex !== null ? day.exercises[customIndex] ?? null : null}
           onSave={async (exercise) => {
+            setNoSwapKey(null)
             if (customIndex !== null && onCustomExercise) await onCustomExercise(day.day, customIndex, exercise)
           }}
         />

@@ -88,6 +88,8 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
     if (!profile) return
     const today = data.days.find((d) => d.day === dayNumber)?.exercises.map((e) => e.name) ?? []
     const swap = await programs.alternate(profile.id, exerciseName, dayFocus, answers, today)
+    // Nothing similar to offer: keep the exercise (false tells the screen to say so)
+    if (swap.name === exerciseName) return false
     const next: ProgramData = {
       ...data,
       days: data.days.map((d) => (d.day === dayNumber ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) } : d)),

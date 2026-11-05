@@ -2,6 +2,7 @@ import { GOAL_LABELS, getRecoveryTier } from '../tdee'
 import type { Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
 import { armFitsDay, fitsDay, sideFitsDay, type DayKind } from './focusFit'
 import { EXERCISES, isAllowed, poolFor, type LibraryExercise } from './exerciseLibrary'
+import { swapFamily, RELATED_FAMILIES } from './swapFamily'
 import { disciplineOf, normalizeEquipment } from '../discipline'
 import { generateMindBodyAlternate, generateMindBodyProgram } from './mindBodyGenerator'
 import {
@@ -791,6 +792,7 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
     programName: `${goalLabel} Protocol`,
     tagline: `${answers.trainingDays}-day ${equipmentLabel} program built for your ${tier.tier.toLowerCase()} recovery capacity`,
     ...(blockInfo ? { trainingBlock: { number: blockInfo.number, name: blockInfo.name, summary: blockInfo.summary } } : {}),
+    ...(isHomeProgram && homeLevelFor(answers.experience) === 'beginner' ? { setRamp: true } : {}),
     overview: `This program is built around ${goalLabel.toLowerCase()} as the primary objective, using ${equipmentLabel} equipment across ${answers.trainingDays} training days per week. Volume and intensity are calibrated to your ${answers.experience === '0-1' ? 'beginner' : answers.experience} experience level and your current recovery score of ${nutrition.recoveryScore}/100.`,
     personalizationNotes,
     weeklyVolume: `${days.reduce((sum, d) => sum + d.exercises.reduce((s, e) => s + e.sets, 0), 0)} sets a week across ${answers.trainingDays} sessions`,
@@ -818,13 +820,14 @@ export function generateProgram(answers: IntakeAnswers, nutrition: NutritionPlan
 }
 
 // Subgroups that train an opposing/antagonist muscle despite sharing a broader `muscle` label
-// (e.g. "legs" covers both quads and hamstrings). When the original exercise's subgroup has no
-// same-subgroup alternative to fall back to, these are excluded before falling back further —
-// better to offer a less-precise-but-still-quad match than to silently flip to hamstrings.
+// (e.g. "legs" covers both quads and hamstrings). Used when a template slot needs a stand-in.
 const OPPOSING_SUBGROUPS: Record<string, string[]> = {
   'quad-isolation': ['hamstring-isolation'],
   'hamstring-isolation': ['quad-isolation'],
 }
+
+/** Said when there is nothing similar to swap to. The exercise is returned unchanged, with this note, and the screens show the message instead. */
+export const NO_SWAP_NOTE = 'No equipment-compatible swap found — keep current exercise.'
 
 export function generateAlternate(
   exerciseName: string,
@@ -834,25 +837,19 @@ export function generateAlternate(
   avoid: string[] = [],
 ): Exercise {
   if (disciplineOf(answers.equipment) !== 'strength') return generateMindBodyAlternate(exerciseName, answers, avoid)
-  let pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName)
-  const withoutToday = pool.filter((e) => !avoid.includes(e.name))
-  if (withoutToday.length > 0) pool = withoutToday
-  // Prefer staying within the same specific movement (e.g. biceps vs triceps within "arms", or
-  // which deltoid head within "shoulders") so a swap still feels like a reasonable substitute —
-  // otherwise "arms" alone would happily swap a triceps exercise like Dip for a biceps one like
-  // Barbell Curl, which share a muscle-group label but train opposite, unrelated movements.
+  // Never the same exercise, and never one that is already in today's session
+  let pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName && !avoid.includes(e.name))
+  // The swap has to be the same kind of movement (a row for a row, a curl for a curl). If none is left for this
+  // equipment or injury, only a close relative is offered; otherwise there is no swap, and the caller says so.
   const original = EXERCISES.find((e) => e.name === exerciseName)
-  if (original?.subgroup) {
-    const narrowed = pool.filter((e) => e.subgroup === original.subgroup)
-    if (narrowed.length > 0) {
-      pool = narrowed
-    } else {
-      const opposing = OPPOSING_SUBGROUPS[original.subgroup]
-      if (opposing) {
-        const avoided = pool.filter((e) => !e.subgroup || !opposing.includes(e.subgroup))
-        if (avoided.length > 0) pool = avoided
-      }
+  if (original) {
+    const family = swapFamily(original)
+    let related = pool.filter((e) => swapFamily(e) === family)
+    for (const next of RELATED_FAMILIES[family] ?? []) {
+      if (related.length > 0) break
+      related = pool.filter((e) => swapFamily(e) === next)
     }
+    pool = related
   }
   const replacement = pool[Math.floor(Math.random() * pool.length)]
   const scheme = repSchemeFor(answers.goal, answers.experience)
@@ -862,7 +859,7 @@ export function generateAlternate(
       sets: scheme.compoundSets,
       reps: scheme.compoundReps,
       rest: scheme.rest,
-      notes: 'No equipment-compatible swap found — keep current exercise.',
+      notes: NO_SWAP_NOTE,
     }
   }
   if (replacement.holdBased) {

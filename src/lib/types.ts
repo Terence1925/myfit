@@ -185,6 +185,8 @@ export interface ProgramData {
   days: ProgramDay[]
   /** Which block of the year this program is (Foundation, Strength, Size or Peak). */
   trainingBlock?: { number: number; name: string; summary: string }
+  /** Beginner home programs add sets as the weeks go by (2, then 3, then 4); the week screens read this. */
+  setRamp?: boolean
 }
 
 export interface WorkoutProgram {

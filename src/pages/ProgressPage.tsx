@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CalendarPicker, toDayKey } from '@/components/ui/calendar-picker'
+import { entryDate } from '@/lib/entryDate'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { WeightChart } from '@/components/progress/WeightChart'
@@ -188,7 +189,7 @@ export default function ProgressPage() {
                 {e.bodyFatPercent && <span className="text-muted-foreground ml-2">{e.bodyFatPercent}% BF</span>}
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-xs text-muted-foreground">{new Date(e.date).toLocaleDateString()}</span>
+                <span className="text-xs text-muted-foreground">{entryDate(e.date)}</span>
                 <button
                   onClick={async () => {
                     await metrics.delete(e.id, profile.id)

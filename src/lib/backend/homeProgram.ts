@@ -119,7 +119,7 @@ const LEVELS = {
   beginner: {
     sets: 2,
     rest: '60-90 sec',
-    plan: 'Weeks 1-2: 2 sets. Weeks 3-4: 3 sets. Weeks 5-8: 4 sets.',
+    plan: 'Weeks 1-2: 2 sets. Weeks 3-4: 3 sets. From week 5: 4 sets.',
   },
   intermediate: {
     sets: 4,
@@ -142,7 +142,7 @@ export function homeLevelFor(experience: string): HomeLevel {
 /** How the owner wants each level explained in the program. */
 export function homeProgressionText(level: HomeLevel): string {
   if (level === 'beginner') {
-    return 'Beginner progression: weeks 1-2 do 2 sets of each exercise, weeks 3-4 do 3 sets, and weeks 5-8 do 4 sets. Add reps or time once a set feels easy.'
+    return 'Beginner progression: weeks 1-2 do 2 sets of each exercise, weeks 3-4 do 3 sets, and from week 5 do 4 sets (the last week is an easy deload week). Add reps or time once a set feels easy.'
   }
   if (level === 'intermediate') {
     return 'Intermediate progression: 4 sets of each exercise, lower slowly for 3 seconds on every rep, and keep rest to 60 seconds.'

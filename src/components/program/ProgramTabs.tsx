@@ -37,6 +37,8 @@ export function ProgramTabs({
   const handleSwap = async (dayNumber: number, exerciseIndex: number, exerciseName: string, dayFocus: string) => {
     const today = program.programData.days.find((d) => d.day === dayNumber)?.exercises.map((e) => e.name) ?? []
     const swap = await programs.alternate(userId, exerciseName, dayFocus, program.answers, today)
+    // Nothing similar to offer: keep the exercise (false tells the screen to say so)
+    if (swap.name === exerciseName) return false
     const updatedDays = program.programData.days.map((d) =>
       d.day === dayNumber
         ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) }

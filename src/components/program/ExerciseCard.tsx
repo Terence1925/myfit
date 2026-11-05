@@ -45,6 +45,7 @@ export function ExerciseCard({
   onSwap,
   onCustomize,
   swapping,
+  swapNotice,
   logging,
   setLogs,
   onSetChange,
@@ -66,6 +67,8 @@ export function ExerciseCard({
   /** Opens the form to type in an exercise of their own in its place. Left out: no button. */
   onCustomize?: () => void
   swapping: boolean
+  /** Shown under the buttons when Swap found nothing similar to offer. */
+  swapNotice?: string
   logging?: boolean
   setLogs?: SetLog[]
   onSetChange?: (setIndex: number, field: 'weight' | 'reps' | 'completed', value: number | boolean) => void
@@ -178,7 +181,7 @@ export function ExerciseCard({
             </p>
           )}
           <div className="mt-3 flex flex-wrap gap-2">
-            {!readOnly && (
+            {!readOnly && !exercise.custom && (
               <button
                 onClick={onSwap}
                 disabled={swapping}
@@ -216,6 +219,11 @@ export function ExerciseCard({
             </button>
             )}
           </div>
+          {swapNotice && (
+            <p role="status" className="mt-2 text-xs text-muted-foreground">
+              {swapNotice}
+            </p>
+          )}
         </div>
       </div>
 

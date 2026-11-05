@@ -342,7 +342,7 @@ export const programs = {
   async alternate(userId: string, exerciseName: string, dayFocus: string, answers: IntakeAnswers, avoid: string[] = []) {
     await new Promise((r) => setTimeout(r, 700))
     const muscle = (EXERCISES.find((e) => e.name === exerciseName)?.muscle[0] ??
-      dayFocus.split(' / ')[0].replace(' ', '-')) as IntakeAnswers['focusAreas'][number]
+      dayFocus.split(' / ')[0].toLowerCase().replace(' ', '-')) as IntakeAnswers['focusAreas'][number]
     const swap = generateAlternate(exerciseName, muscle, answers, avoid)
     logActivity(userId, 'swapped_exercise', { from: exerciseName, to: swap.name })
     return swap

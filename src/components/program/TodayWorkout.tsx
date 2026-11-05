@@ -3,6 +3,7 @@ import { ExerciseCard } from './ExerciseCard'
 import { WeekTargetCard } from './WeekTargetCard'
 import { CustomExerciseDialog } from './CustomExerciseDialog'
 import { withExercise } from '@/lib/programEdit'
+import { NO_SWAP_MESSAGE } from '@/lib/backend/swapFamily'
 import { programs, sessions } from '@/lib/backend/api'
 import { blockStatus } from '@/lib/programBlock'
 import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
@@ -37,12 +38,13 @@ export function TodayWorkout({
   const planned = program.programData.days.find((d) => d.day === dayNumber)
   const block = blockStatus(program.createdAt)
   const target = weekTarget(block.week)
-  const day = planned ? dayForWeek(planned, target) : null
+  const day = planned ? dayForWeek(planned, target, program.programData.setRamp) : null
   const [userSessions, setUserSessions] = React.useState<WorkoutSession[]>([])
   const [log, setLog] = React.useState<ExerciseLog[]>(() => (day ? reconcileLog(day.exercises, loadDraft(program.id, day.day)) : []))
   const [todays, setTodays] = React.useState<WorkoutSession[]>([])
   const [justSaved, setJustSaved] = React.useState(false)
   const [swappingIndex, setSwappingIndex] = React.useState<number | null>(null)
+  const [noSwapIndex, setNoSwapIndex] = React.useState<number | null>(null)
   const [customIndex, setCustomIndex] = React.useState<number | null>(null)
 
   // After a swap, keep what was already typed for the other exercises
@@ -105,8 +107,14 @@ export function TodayWorkout({
   const handleSwap = async (exerciseIndex: number, exerciseName: string) => {
     if (!planned) return
     setSwappingIndex(exerciseIndex)
+    setNoSwapIndex(null)
     try {
       const swap = await programs.alternate(userId, exerciseName, planned.focus, program.answers, planned.exercises.map((e) => e.name))
+      // Nothing similar to offer: keep the exercise and say so
+      if (swap.name === exerciseName) {
+        setNoSwapIndex(exerciseIndex)
+        return
+      }
       const updatedDays = program.programData.days.map((d) =>
         d.day === dayNumber ? { ...d, exercises: d.exercises.map((e, i) => (i === exerciseIndex ? swap : e)) } : d,
       )
@@ -121,6 +129,7 @@ export function TodayWorkout({
   // The person's own exercise, typed in, takes the place of this one
   const saveCustom = async (exercise: Exercise) => {
     if (customIndex === null) return
+    setNoSwapIndex(null)
     const updatedProgramData = withExercise(program.programData, dayNumber, customIndex, exercise)
     onProgramUpdate({ ...program, programData: updatedProgramData })
     await programs.update(program.id, updatedProgramData)
@@ -206,6 +215,7 @@ export function TodayWorkout({
               exercise={ex}
               index={i}
               swapping={swappingIndex === i}
+              swapNotice={noSwapIndex === i ? NO_SWAP_MESSAGE : undefined}
               onSwap={() => handleSwap(i, ex.name)}
               onCustomize={() => setCustomIndex(i)}
               logging
