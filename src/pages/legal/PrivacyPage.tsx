@@ -2,7 +2,7 @@ import { LegalLayout } from './LegalLayout'
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout title="Privacy Policy" updated="October 26, 2026">
+    <LegalLayout title="Privacy Policy" updated="November 5, 2026">
       <p>
         MyFit ("we") respects your privacy. The controller of your personal data is Terence Tagayona, who operates MyFit. This policy explains what data we collect, why, and the
         rights you have over it under the Philippines' Data Privacy Act of 2012 (RA 10173), and under the data protection law where you live (for example the GDPR in the EU and UK).
@@ -12,7 +12,8 @@ export default function PrivacyPage() {
       <ul>
         <li><strong>Account data:</strong> name, email address, and a hashed password (if you sign up with email). If you choose "Continue with Google", we receive your name and email address from Google. We never receive your Google password.</li>
         <li><strong>Body &amp; lifestyle data:</strong> age, sex, weight, height, sleep, stress, activity level, training goal — used to work out your calorie needs and generate your program.</li>
-        <li><strong>Usage data:</strong> generated programs, logged workouts, body-metric entries, activity history.</li>
+        <li><strong>Profile photo (optional):</strong> if you add one, you pick a photo from your phone. The app shrinks it to a small square picture and stores it with your profile so it can show next to your name. We do not read the rest of your photo library, and the app never uses your camera permission. You can remove the photo at any time in Account, and it is deleted when you delete your account.</li>
+        <li><strong>Usage data:</strong> generated programs, logged workouts, exercises you add or edit yourself, food log entries, body-metric entries, activity history.</li>
         <li><strong>Support access:</strong> if you ask us for help, MyFit administrators can view your workout program and account details so they can fix the problem or send you a copy of your program by email.</li>
         <li><strong>Billing data:</strong> your subscription plan and status. Payments are handled entirely by Google Play or the Apple App Store — we never see or store your card number.</li>
       </ul>
@@ -25,7 +26,7 @@ export default function PrivacyPage() {
 
       <h2>3. Who We Share It With</h2>
       <p>
-        Only the service providers necessary to run MyFit: our database and sign-in provider (Supabase), our website host (Vercel), Brevo (to send the account-deleted email), Google (for Continue with Google), and our payment provider (Google Play or the Apple App Store, via RevenueCat for subscription status). Exercise videos are played from YouTube, which may collect data under its own policy. Food searches go to the USDA and Open Food Facts databases without your name or account details. We do not share your health or body data with advertisers.
+        Only the service providers necessary to run MyFit: our database and sign-in provider (Supabase), our website host (Vercel), Brevo (to send account emails, such as the account-deleted confirmation), Google (for Continue with Google), and our payment provider (Google Play or the Apple App Store, via RevenueCat for subscription status). Exercise videos are played from YouTube, which may collect data under its own policy. Food searches go to the USDA and Open Food Facts databases without your name or account details. We do not share your health or body data with advertisers.
       </p>
 
       <h2>4. Data Storage &amp; Security</h2>

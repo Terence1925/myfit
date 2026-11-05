@@ -44,17 +44,20 @@ Does the app collect or share any of the required user data types? **Yes**.
 | Data type | Category | Required? | Purpose |
 |---|---|---|---|
 | Name | Personal info | Required | Account management, app functionality |
-| Email address | Personal info | Required | Account management, app functionality, developer communications (welcome and account-deleted emails) |
+| Email address | Personal info | Required | Account management, app functionality, developer communications (account emails, such as the account-deleted confirmation) |
 | User IDs | Personal info | Required | Account management, app functionality |
 | Health info (weight, body fat, age, sex, height, sleep, stress, food log) | Health and fitness | Required for the plan; body fat and notes are optional | App functionality, personalization |
 | Fitness info (training goal, equipment, logged workouts) | Health and fitness | Required | App functionality, personalization |
 | Purchase history (subscription plan and status) | Financial info | Required for Pro | App functionality, account management |
+| Photos (the optional profile photo) | Photos and videos | **Optional** | App functionality (shown next to the user's name). Not shared. |
 
-Not collected: location, contacts, photos or videos, audio, files, messages, web browsing, device or advertising IDs, crash logs or diagnostics. The app has no analytics or crash-reporting library.
+The profile photo is chosen from the phone and shrunk to a small square picture before it is stored with the profile. It is deleted when the user removes it or deletes the account. Answer the "optional" question for Photos as **users can choose whether to provide it**.
+
+Not collected: location, contacts, videos, audio, other files, messages, web browsing, device or advertising IDs, crash logs or diagnostics. The app has no analytics or crash-reporting library and does not use the camera permission.
 
 **Payment details:** handled entirely by Google Play. The app never sees card numbers, so do not declare "payment info".
 
-**Shared with third parties:** Google's rules do not count data sent to service providers that process it on your behalf, so these are not "sharing": Supabase (database and sign-in), RevenueCat (subscription status), Brevo (the welcome and account-deleted emails), Vercel (website host). Two cases to decide on yourself, because they are borderline:
+**Shared with third parties:** Google's rules do not count data sent to service providers that process it on your behalf, so these are not "sharing": Supabase (database and sign-in), RevenueCat (subscription status), Brevo (account emails), Vercel (website host). Two cases to decide on yourself, because they are borderline:
 - **YouTube:** a few exercise videos play from YouTube, which collects its own data (such as IP address) when a user presses play. The conservative answer is to disclose this as sharing "Device or other IDs" with a third party for app functionality.
 - **Food databases (USDA, Open Food Facts):** the server sends them only the search text or barcode, with no name, email or account ID, and MyFit stores no search history. This does not need to be disclosed as sharing personal data.
 
