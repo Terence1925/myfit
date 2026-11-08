@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CalendarDays, Check, Lock, Moon, Utensils } from 'lucide-react'
+import { CalendarDays, Check, Lock, Moon, Sparkles, Utensils } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -126,6 +126,10 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
   return (
     <div className="container max-w-3xl py-10 pb-44 sm:py-14 sm:pb-28">
       <div className="text-center">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
+          <Sparkles className="h-8 w-8 text-primary-foreground" />
+        </div>
+        <p className="text-xs font-bold uppercase tracking-widest text-primary">Built just for you</p>
         <h1 className="font-display text-4xl sm:text-5xl tracking-wide text-gradient-gold">
           {firstName ? `${firstName}, your ${BLOCK_WEEKS}-week program is ready!` : `Your ${BLOCK_WEEKS}-week program is ready!`}
         </h1>

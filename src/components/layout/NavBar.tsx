@@ -1,4 +1,4 @@
-import { LayoutList, Settings, LogOut, Crown, LineChart, ShieldCheck, Utensils } from 'lucide-react'
+import { LayoutList, Settings, LogOut, LineChart, ShieldCheck, Utensils } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -33,7 +33,7 @@ export function NavBar() {
 
             <button onClick={() => navigate('/account')} className="hidden sm:block">
               <Badge variant={proAccess ? 'default' : 'outline'} className="gap-1 cursor-pointer">
-                {isAdmin ? <ShieldCheck className="h-3 w-3" /> : pro && <Crown className="h-3 w-3" />}
+                {isAdmin && <ShieldCheck className="h-3 w-3" />}
                 {isAdmin ? 'Admin' : pro ? 'Pro' : 'Free'}
               </Badge>
             </button>
