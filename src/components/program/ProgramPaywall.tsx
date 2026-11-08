@@ -11,7 +11,6 @@ import { TRIAL_DAYS, hasSubscribedBefore } from '@/lib/billing'
 import { useStorePrices } from '@/lib/storePrices'
 import { goalLabelOf } from '@/lib/goalLabel'
 import { firstNameOf } from '@/lib/displayName'
-import { storeName } from '@/lib/platform'
 import type { Equipment, FocusArea, WorkoutProgram } from '@/lib/types'
 import { BLOCK_WEEKS } from '@/lib/programBlock'
 
@@ -60,8 +59,8 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
   const firstName = firstNameOf(profile?.displayName)
   const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const subscribeLine = pricesLoading
-    ? `Renews automatically. Cancel any time in ${storeName()}.`
-    : `${prices.monthly}/month or ${prices.yearly}/year. Renews automatically. Cancel any time in ${storeName()}.`
+    ? 'Renews automatically. Cancel any time in Settings.'
+    : `${prices.monthly}/month or ${prices.yearly}/year. Renews automatically. Cancel any time in Settings.`
 
   const chips = [
     goalLabelOf(answers),
@@ -91,25 +90,24 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
               />
             )}
           </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/40 px-6 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gold-gradient shadow-glow-lg">
-              <Lock className="h-9 w-9 text-primary-foreground" />
+          <div className="absolute inset-0 flex flex-col items-center justify-start bg-background/40 px-6 pt-[202px] text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gold-gradient shadow-glow-lg">
+              <Lock className="h-7 w-7 text-primary-foreground" />
             </div>
-            <h1 className="mt-4 font-display text-3xl tracking-wide text-foreground">Your plan is locked</h1>
-            <p className="mt-1 max-w-xs font-body text-sm text-muted-foreground">Subscribe to open it again, log your workouts and keep your progress.</p>
+            <p className="mt-3 max-w-xs font-body text-xs text-muted-foreground">Your plan is locked. Subscribe to open it again, log your workouts and keep your progress.</p>
+            <Card className="mt-4 w-full text-left">
+              <CardContent className="flex items-center justify-between gap-2 p-4">
+                <div>
+                  <div className="whitespace-nowrap font-body text-sm font-bold">Your food log is always free</div>
+                  <div className="text-xs text-muted-foreground">Log meals against your calories, protein, carbs and fat.</div>
+                </div>
+                <Button variant="outline" size="sm" className="shrink-0 gap-1.5 px-3" onClick={() => navigate('/food')}>
+                  <Utensils className="h-4 w-4" /> Open
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-        <Card className="mt-4">
-          <CardContent className="flex items-center justify-between gap-3 p-4">
-            <div>
-              <div className="font-body text-sm font-bold">Your food log is always free</div>
-              <div className="text-xs text-muted-foreground">Log meals against your calories, protein, carbs and fat.</div>
-            </div>
-            <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => navigate('/food')}>
-              <Utensils className="h-4 w-4" /> Open
-            </Button>
-          </CardContent>
-        </Card>
         <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:bottom-0">
           <div className="mx-auto max-w-3xl">
             <Button size="lg" className="w-full" onClick={openSubscribe}>

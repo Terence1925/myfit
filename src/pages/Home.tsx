@@ -124,8 +124,8 @@ export default function Home() {
     return (
       <div className="container flex min-h-[70vh] flex-col items-center justify-center text-center">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10 border border-destructive/30">
-            <Lock className="h-9 w-9 text-destructive" />
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 border border-destructive/30">
+            <Lock className="h-7 w-7 text-destructive" />
           </div>
           <h2 className="font-display text-4xl tracking-wide text-foreground">Program limit reached</h2>
           <p className="mt-3 max-w-md font-body text-muted-foreground">

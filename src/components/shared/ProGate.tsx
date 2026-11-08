@@ -25,9 +25,9 @@ export function ProGate({ description }: { title?: string; description?: string 
           aria-label="Unlock with a subscription"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-gradient shadow-glow-lg"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-gold-gradient shadow-glow-lg"
         >
-          <Lock className="h-5 w-5 text-primary-foreground" />
+          <Lock className="h-7 w-7 text-primary-foreground" />
         </motion.button>
         <p className="mt-3 max-w-xs font-body text-xs text-muted-foreground">{description ? `${description} ` : ""}{line}</p>
       </div>
