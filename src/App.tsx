@@ -128,7 +128,7 @@ function AppShell() {
         <Route
           path="/saved"
           element={
-            <RequirePro title="MY PROGRAMS" description="Subscribe to open, track and manage your programs. Your food log stays free.">
+            <RequirePro title="MY PROGRAMS" description="Log your programs and track them week by week. Your food log stays free.">
               <SavedPrograms />
             </RequirePro>
           }
@@ -136,7 +136,7 @@ function AppShell() {
         <Route
           path="/saved/:programId"
           element={
-            <RequirePro title="MY PROGRAMS" description="Subscribe to open, track and manage your programs. Your food log stays free.">
+            <RequirePro title="MY PROGRAMS" description="Log your programs and track them week by week. Your food log stays free.">
               <ProgramPage />
             </RequirePro>
           }
@@ -176,7 +176,7 @@ function AppShell() {
         <Route
           path="/progress"
           element={
-            <RequirePro title="PROGRESS TRACKING" description="Log your weight and body metrics over time and see your trend charted. Subscribe to unlock it.">
+            <RequirePro title="PROGRESS TRACKING" description="Log your weight and body metrics over time and see your trend charted.">
               <ProgressPage />
             </RequirePro>
           }

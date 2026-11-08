@@ -43,10 +43,7 @@ export default function ProgressPage() {
 
   if (!hasProAccess(profile, role)) {
     return (
-      <ProGate
-        title="PROGRESS TRACKING"
-        description="Log your weight and body metrics over time, see your trend charted, and track exactly how your program is working. Upgrade to Pro to unlock it."
-      />
+      <ProGate description="Log your weight and body metrics over time and see your trend charted." />
     )
   }
 
