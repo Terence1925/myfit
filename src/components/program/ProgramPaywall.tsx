@@ -124,7 +124,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
 
   // A new member: the subscribe screen
   return (
-    <div className="container max-w-3xl py-10 pb-44 sm:py-14 sm:pb-28">
+    <div className="container max-w-3xl py-10 pb-10 sm:py-14 sm:pb-10">
       <div className="text-center">
         <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
           <Sparkles className="h-8 w-8 text-primary-foreground" />
@@ -184,7 +184,7 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
         <Button size="lg" className="w-full" onClick={openSubscribe}>
           Start {TRIAL_DAYS}-day free trial
         </Button>
-        <p className="mt-3 font-body text-sm text-muted-foreground">
+        <p className="mt-3 text-left text-xs leading-relaxed font-body text-muted-foreground">
           Log every workout with the rest timer, watch the demos, swap or add your own exercises, and see your progress history and charts. Food calorie tracker for free.
         </p>
       </div>
