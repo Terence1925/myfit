@@ -18,14 +18,14 @@ const SLIDES: { icon: LucideIcon; title: string; text: string; extra?: string }[
     text: 'Every exercise has an animation and a real-person video that show proper form. Tick off your sets, and the rest timer keeps you on pace.',
   },
   {
-    icon: ClipboardList,
-    title: 'Bring your own plan',
-    text: 'Got a plan from a coach or a friend? Build it here and log every set with the rest timer.',
-  },
-  {
     icon: Flame,
     title: 'Stay on track',
     text: 'Track your calorie intake by searching a food or scanning a barcode. Keep your routine, and reminders help you show up.',
+  },
+  {
+    icon: ClipboardList,
+    title: 'Create your own plan',
+    text: 'Got a plan from a coach or a friend? Build it here and log every set with the rest timer.',
   },
 ]
 
@@ -80,7 +80,7 @@ export function WelcomeTour({ onDone }: { onDone: () => void }) {
             <div className="relative mb-8 flex h-40 w-40 items-center justify-center rounded-[2.5rem] bg-primary/15">
               <div className="absolute inset-3 rounded-[2rem] border border-primary/30" />
               <Icon className="h-20 w-20 text-primary" strokeWidth={1.5} />
-              {step === SLIDES.length - 1 && <Utensils className="absolute -bottom-2 -right-2 h-12 w-12 rounded-2xl bg-card p-2.5 text-primary shadow-card" />}
+              {step === 2 && <Utensils className="absolute -bottom-2 -right-2 h-12 w-12 rounded-2xl bg-card p-2.5 text-primary shadow-card" />}
             </div>
             <h1 className="font-display text-5xl tracking-wide">{slide.title}</h1>
             <p className="mt-3 max-w-sm font-body text-base text-muted-foreground">{slide.extra ? `${slide.text} ${slide.extra}` : slide.text}</p>
