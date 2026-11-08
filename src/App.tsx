@@ -128,7 +128,7 @@ function AppShell() {
         <Route
           path="/saved"
           element={
-            <RequirePro title="MY PROGRAMS" description="Log your programs and track them week by week. Your food log stays free.">
+            <RequirePro title="MY PROGRAMS" description="Track and manage your programs.">
               <SavedPrograms />
             </RequirePro>
           }
@@ -136,7 +136,7 @@ function AppShell() {
         <Route
           path="/saved/:programId"
           element={
-            <RequirePro title="MY PROGRAMS" description="Log your programs and track them week by week. Your food log stays free.">
+            <RequirePro title="MY PROGRAMS" description="Track and manage your programs.">
               <ProgramPage />
             </RequirePro>
           }
