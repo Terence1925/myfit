@@ -156,7 +156,7 @@ export default function PricingPage() {
           Train without limits
         </h1>
         <p className="mt-3 font-body text-muted-foreground max-w-lg mx-auto">
-          Unlock every day of your personalized program, your progress history and your nutrition plan. Day 1 is always free.
+          Log every workout with the rest timer, watch the demos, and see your progress history. Your plan stays readable and the food log stays free.
         </p>
       </motion.div>
 

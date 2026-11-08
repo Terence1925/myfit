@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronRight, Flame, PlayCircle, Sparkles, Utensils, type LucideIcon } from 'lucide-react'
+import { ChevronRight, ClipboardList, Flame, PlayCircle, Sparkles, Utensils, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils'
 
 const SLIDES: { icon: LucideIcon; title: string; text: string; extra?: string }[] = [
@@ -17,13 +18,18 @@ const SLIDES: { icon: LucideIcon; title: string; text: string; extra?: string }[
     text: 'Every exercise has an animation and a real-person video that show proper form. Tick off your sets, and the rest timer keeps you on pace.',
   },
   {
+    icon: ClipboardList,
+    title: 'Bring your own plan',
+    text: 'Got a plan from a coach or a friend? Build it here and log every set with the rest timer.',
+  },
+  {
     icon: Flame,
     title: 'Stay on track',
     text: 'Track your calorie intake by searching a food or scanning a barcode. Keep your routine, and reminders help you show up.',
   },
 ]
 
-/** Three short screens shown once, before the first plan is built. */
+/** Four short screens shown once, before the first plan is built. */
 export function WelcomeTour({ onDone }: { onDone: () => void }) {
   const [step, setStep] = React.useState(0)
   const [dir, setDir] = React.useState(1)
@@ -49,7 +55,10 @@ export function WelcomeTour({ onDone }: { onDone: () => void }) {
       aria-label="Welcome to MyFit"
     >
       <div className="relative flex items-center justify-between px-5 pt-[calc(1rem+env(safe-area-inset-top))]">
-        <span className="font-brand text-2xl font-medium">MyFit</span>
+        <span className="flex items-center gap-2.5">
+          <Logo className="h-9 w-9 rounded-lg" />
+          <span className="font-brand text-2xl font-medium">MyFit</span>
+        </span>
         {!last && (
           <button onClick={onDone} className="rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
             Skip
@@ -71,7 +80,7 @@ export function WelcomeTour({ onDone }: { onDone: () => void }) {
             <div className="relative mb-8 flex h-40 w-40 items-center justify-center rounded-[2.5rem] bg-primary/15">
               <div className="absolute inset-3 rounded-[2rem] border border-primary/30" />
               <Icon className="h-20 w-20 text-primary" strokeWidth={1.5} />
-              {step === 2 && <Utensils className="absolute -bottom-2 -right-2 h-12 w-12 rounded-2xl bg-card p-2.5 text-primary shadow-card" />}
+              {step === SLIDES.length - 1 && <Utensils className="absolute -bottom-2 -right-2 h-12 w-12 rounded-2xl bg-card p-2.5 text-primary shadow-card" />}
             </div>
             <h1 className="font-display text-5xl tracking-wide">{slide.title}</h1>
             <p className="mt-3 max-w-sm font-body text-base text-muted-foreground">{slide.extra ? `${slide.text} ${slide.extra}` : slide.text}</p>

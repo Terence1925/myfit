@@ -24,7 +24,7 @@ export function buildWelcomeEmail(name: string | null | undefined) {
   const paragraphs = [
     `Hi ${who},`,
     'Welcome to MyFit. Your 12-week program is built around your goal, your equipment and your schedule, and each week it tells you what to lift.',
-    'Day 1 is free, and so is the food log with barcode scanning. Go Pro whenever you want the full program.',
+    'The food log with barcode scanning is free, and your plan stays readable. Go Pro to log workouts and track your progress.',
     'Questions? Just reply to this email.',
     'The MyFit team',
   ]

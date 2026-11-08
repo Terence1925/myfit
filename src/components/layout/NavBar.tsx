@@ -6,6 +6,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Wordmark } from '@/components/ui/Wordmark'
 import { Badge } from '@/components/ui/badge'
 import { hasProAccess, isPro } from '@/lib/billing'
+import { displayName } from '@/lib/displayName'
 
 export function NavBar() {
   const { profile, role, signOut } = useAuth()
@@ -27,7 +28,7 @@ export function NavBar() {
 
           <div className="flex items-center gap-1 sm:gap-4">
             <span className="hidden sm:block font-body text-sm text-muted-foreground">
-              Welcome, <span className="text-foreground font-semibold">{profile.displayName}</span>
+              Welcome, <span className="text-foreground font-semibold">{displayName(profile.displayName)}</span>
             </span>
 
             <button onClick={() => navigate('/account')} className="hidden sm:block">
@@ -36,13 +37,6 @@ export function NavBar() {
                 {isAdmin ? 'Admin' : pro ? 'Pro' : 'Free'}
               </Badge>
             </button>
-
-            {!proAccess && (
-              <Button size="sm" className="gap-1.5 px-2 sm:px-3" onClick={() => navigate('/pricing')}>
-                <Crown className="h-4 w-4" />
-                <span className="hidden sm:inline">Upgrade</span>
-              </Button>
-            )}
 
             <Button variant="ghost" size="sm" onClick={() => navigate('/food')} className="hidden gap-1.5 px-2 sm:inline-flex sm:px-3" aria-label="Food log">
               <Utensils className="h-4 w-4" />

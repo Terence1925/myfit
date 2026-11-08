@@ -1,5 +1,5 @@
 import { GOAL_LABELS, getRecoveryTier } from '../tdee'
-import type { Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
+import type { Equipment, Exercise, FocusArea, IntakeAnswers, NutritionPlan, ProgramData, ProgramDay } from '../types'
 import { armFitsDay, fitsDay, sideFitsDay, type DayKind } from './focusFit'
 import { EXERCISES, isAllowed, poolFor, type LibraryExercise } from './exerciseLibrary'
 import { swapFamily, RELATED_FAMILIES } from './swapFamily'
@@ -829,6 +829,45 @@ const OPPOSING_SUBGROUPS: Record<string, string[]> = {
 /** Said when there is nothing similar to swap to. The exercise is returned unchanged, with this note, and the screens show the message instead. */
 export const NO_SWAP_NOTE = 'No equipment-compatible swap found — keep current exercise.'
 
+const STRENGTH_EQUIPMENT: Equipment[] = ['full-gym', 'dumbbells-only', 'home-workout', 'calisthenics', 'resistance-bands']
+
+/**
+ * The exercises that can be offered for a muscle. A custom plan has no single kind of equipment, so it can use any of them
+ * (every exercise still has to pass the same checks as in a generated plan, so it has a demo and suits the injury).
+ */
+export function strengthPool(muscle: FocusArea, equipment: Equipment, injuries: IntakeAnswers['injuries']): LibraryExercise[] {
+  if (equipment !== 'custom') return poolFor(muscle, equipment, injuries)
+  const seen = new Set<string>()
+  const out: LibraryExercise[] = []
+  for (const eq of STRENGTH_EQUIPMENT) {
+    for (const ex of poolFor(muscle, eq, injuries)) {
+      if (seen.has(ex.name)) continue
+      seen.add(ex.name)
+      out.push(ex)
+    }
+  }
+  return out
+}
+
+/** A library exercise as a plan line, with sets, reps and rest that suit the person's goal and level. */
+export function exerciseFromLibrary(
+  ex: LibraryExercise,
+  answers: Pick<IntakeAnswers, 'goal' | 'experience'>,
+  notes: string,
+): Exercise {
+  const scheme = repSchemeFor(answers.goal, answers.experience)
+  if (ex.holdBased) {
+    return { name: ex.name, sets: Math.max(2, scheme.compoundSets - 1), reps: holdTimeFor(answers.experience), rest: '45-60 sec', notes }
+  }
+  return {
+    name: ex.name,
+    sets: ex.compound ? scheme.compoundSets : Math.max(2, scheme.compoundSets - 1),
+    reps: ex.compound ? scheme.compoundReps : scheme.accessoryReps,
+    rest: ex.compound ? scheme.rest : '60-75 sec',
+    notes,
+  }
+}
+
 export function generateAlternate(
   exerciseName: string,
   muscle: FocusArea,
@@ -838,7 +877,7 @@ export function generateAlternate(
 ): Exercise {
   if (disciplineOf(answers.equipment) !== 'strength') return generateMindBodyAlternate(exerciseName, answers, avoid)
   // Never the same exercise, and never one that is already in today's session
-  let pool = poolFor(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName && !avoid.includes(e.name))
+  let pool = strengthPool(muscle, answers.equipment, answers.injuries).filter((e) => e.name !== exerciseName && !avoid.includes(e.name))
   // The swap has to be the same kind of movement (a row for a row, a curl for a curl). If none is left for this
   // equipment or injury, only a close relative is offered; otherwise there is no swap, and the caller says so.
   const original = EXERCISES.find((e) => e.name === exerciseName)
@@ -862,20 +901,11 @@ export function generateAlternate(
       notes: NO_SWAP_NOTE,
     }
   }
-  if (replacement.holdBased) {
-    return {
-      name: replacement.name,
-      sets: Math.max(2, scheme.compoundSets - 1),
-      reps: holdTimeFor(answers.experience),
-      rest: '45-60 sec',
-      notes: 'Swapped to match your equipment and target muscle group — hold with a neutral spine and braced core.',
-    }
-  }
-  return {
-    name: replacement.name,
-    sets: replacement.compound ? scheme.compoundSets : Math.max(2, scheme.compoundSets - 1),
-    reps: replacement.compound ? scheme.compoundReps : scheme.accessoryReps,
-    rest: replacement.compound ? scheme.rest : '60-75 sec',
-    notes: 'Swapped to match your equipment and target muscle group.',
-  }
+  return exerciseFromLibrary(
+    replacement,
+    answers,
+    replacement.holdBased
+      ? 'Swapped to match your equipment and target muscle group — hold with a neutral spine and braced core.'
+      : 'Swapped to match your equipment and target muscle group.',
+  )
 }

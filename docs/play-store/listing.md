@@ -60,7 +60,7 @@ First release: your 12-week workout plan, a free food log with barcode scanning,
 - Privacy policy URL: https://getmyfit.vercel.app/privacy
 - The text says "Try Pro free for 7 days". The app shows a trial only when the Play subscription has a free-trial offer, and it expects 7 days (TRIAL_DAYS in src/lib/billing.ts). In Play Console > Monetize > Subscriptions, make sure each base plan has a 7-day free-trial offer. If you change the length, change both the text and TRIAL_DAYS.
 - The text says "video demos", not "animated demos", on purpose: the rights to the animated clips are still unconfirmed.
-- Free-vs-Pro lines follow the app today (Day 1 free; food log, scanner and cookbook free).
+- Free-vs-Pro lines follow the app today (your plan is readable without a subscription; food log, scanner and cookbook free; logging workouts, rest timer, demos and progress need the 7-day free trial or a subscription).
 - The screenshots show a demo account named Alex with sample meals and weights. Nothing in them is a real person's data.
 
 ## Graphics (in this folder)

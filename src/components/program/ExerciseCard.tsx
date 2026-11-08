@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
 import { Check, ChevronDown, Crown, Flame, Loader2, PlayCircle, Plus, RefreshCw, Target, TrendingUp } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
 import { ExerciseHistoryDialog } from './ExerciseHistoryDialog'
@@ -46,6 +46,7 @@ export function ExerciseCard({
   onCustomize,
   swapping,
   swapNotice,
+  demoLocked,
   logging,
   setLogs,
   onSetChange,
@@ -69,13 +70,15 @@ export function ExerciseCard({
   swapping: boolean
   /** Shown under the buttons when Swap found nothing similar to offer. */
   swapNotice?: string
+  /** The demos need a trial or a subscription: the button then goes to the pricing page. */
+  demoLocked?: boolean
   logging?: boolean
   setLogs?: SetLog[]
   onSetChange?: (setIndex: number, field: 'weight' | 'reps' | 'completed', value: number | boolean) => void
   userSessions: WorkoutSession[]
   hasProgressAccess: boolean
 }) {
-  const navigate = useNavigate()
+  const { openSubscribe } = useSubscribeSheet()
   const [unit] = useWeightUnit()
   const [demoOpen, setDemoOpen] = React.useState(false)
   const [historyOpen, setHistoryOpen] = React.useState(false)
@@ -86,7 +89,7 @@ export function ExerciseCard({
 
   const handleHistoryClick = () => {
     if (!hasProgressAccess) {
-      navigate('/pricing')
+      openSubscribe()
       return
     }
     setHistoryOpen(true)
@@ -202,10 +205,10 @@ export function ExerciseCard({
             )}
             {!exercise.custom && (
               <button
-                onClick={() => setDemoOpen(true)}
+                onClick={() => (demoLocked ? openSubscribe() : setDemoOpen(true))}
                 className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
               >
-                <PlayCircle className="h-3.5 w-3.5" />
+                {demoLocked ? <Crown className="h-3.5 w-3.5" /> : <PlayCircle className="h-3.5 w-3.5" />}
                 Demo
               </button>
             )}

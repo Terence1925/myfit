@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { ChoiceGrid, MultiChoiceGrid, type ChoiceOption } from './ChoiceGrid'
+import { CustomProgramBuilder } from './CustomProgramBuilder'
+import { customDaysValid } from '@/lib/backend/customProgram'
 import { cn } from '@/lib/utils'
 import type { IntakeAnswers } from '@/lib/types'
 import { disciplineOf, isMindBody } from '@/lib/discipline'
@@ -310,7 +312,10 @@ function Step10Days({ answers, update }: StepProps) {
   const mindBody = isMindBody(answers.equipment ?? '')
   const discipline = disciplineOf(answers.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'
   const style = answers.mindBodyStyle ? MIND_BODY_STYLE_BY_ID.get(answers.mindBodyStyle) : undefined
-  const options: ChoiceOption[] = mindBody
+  const custom = answers.equipment === 'custom'
+  const options: ChoiceOption[] = custom
+    ? [2, 3, 4, 5, 6, 7].map((n) => ({ value: String(n), label: n + ' Days/Week' }))
+    : mindBody
     ? MIND_BODY_DAY_OPTIONS[discipline].map((n) => ({
         value: String(n),
         label: n === 7 ? '7 Days/Week' : `${n} Days/Week`,
@@ -330,7 +335,9 @@ function Step10Days({ answers, update }: StepProps) {
           ? style
             ? `${style.label} is usually done ${style.recommended}. How many days can you commit to?`
             : 'How many days a week would you like to practice?'
-          : 'How many days a week can you train? (1-2 days is not enough to train every muscle properly, and 7 leaves no rest day)'
+          : custom
+            ? 'How many days a week will you train? You will build each day next.'
+            : 'How many days a week can you train? (1-2 days is not enough to train every muscle properly, and 7 leaves no rest day)'
       }
     >
       <ChoiceGrid
@@ -371,6 +378,7 @@ function Step12Equipment({ answers, update }: StepProps) {
     { value: 'resistance-bands', label: 'Resistance Bands' },
     { value: 'yoga', label: 'Yoga', description: 'Mat only. Poses held for time, no sets or reps' },
     { value: 'pilates', label: 'Pilates', description: 'Mat Pilates. Slow, controlled moves, no machine' },
+    { value: 'custom', label: 'Build my own', description: 'Pick the exercises for each day yourself' },
   ]
   return (
     <StepShell title="How do you want to train?" subtitle="Pick what you have or what you enjoy. We only program moves you can actually do.">
@@ -447,6 +455,10 @@ const STEP_DAYS: StepDef = {
     (!isMindBody(a.equipment ?? '') ||
       MIND_BODY_DAY_OPTIONS[disciplineOf(a.equipment ?? '') === 'pilates' ? 'pilates' : 'yoga'].includes(a.trainingDays)),
 }
+const STEP_BUILDER: StepDef = {
+  Component: CustomProgramBuilder,
+  valid: (a) => customDaysValid(a.customDays, a.trainingDays),
+}
 const BODY_STEPS: StepDef[] = [
   {
     Component: StepAboutYou,
@@ -462,6 +474,8 @@ const BODY_STEPS: StepDef[] = [
  * Yoga and Pilates skip the level question (the style sets it), so they have one step fewer.
  */
 function stepsFor(a: Partial<IntakeAnswers>): StepDef[] {
+  // Build my own: goal, days, the body questions, then the person builds the days (no level or focus questions)
+  if (a.equipment === 'custom') return [STEP_EQUIPMENT, STEP_GOAL, STEP_DAYS, BODY_STEPS[0], BODY_STEPS[1], STEP_BUILDER]
   return [STEP_EQUIPMENT, STEP_GOAL, ...(isMindBody(a.equipment ?? '') ? [] : [STEP_LEVEL]), STEP_DAYS, ...BODY_STEPS]
 }
 
@@ -490,6 +504,18 @@ export function IntakeWizard({
           next.mindBodyStyle = undefined
           next.experience = undefined
           next.goal = undefined
+        }
+      }
+      if (key === 'equipment') {
+        // Build my own skips the level and injury questions, so they are filled in quietly (and cleared again if the choice changes)
+        if (value === 'custom') {
+          next.experience = next.experience ?? '2-3'
+          next.injuries = next.injuries ?? 'none'
+          next.focusAreas = []
+        } else if (prev.equipment === 'custom') {
+          next.experience = undefined
+          next.injuries = undefined
+          next.customDays = undefined
         }
       }
       return next
@@ -583,7 +609,7 @@ export function IntakeWizard({
           {isLast ? (
             <>
               <Dumbbell className="h-4 w-4" />
-              Generate my program
+              {answers.equipment === 'custom' ? 'Create my program' : 'Generate my program'}
             </>
           ) : (
             <>

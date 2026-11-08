@@ -1,28 +1,31 @@
 import { motion } from 'framer-motion'
-import { Crown } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Lock } from 'lucide-react'
+import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 import { Button } from '@/components/ui/button'
 
-export function ProGate({
-  title,
-  description,
-}: {
-  title: string
-  description: string
-}) {
-  const navigate = useNavigate()
+/** A locked page: the page behind is blurred, with a lock icon, the title, a short line and one Subscribe button. */
+export function ProGate({ title, description }: { title: string; description: string }) {
+  const { openSubscribe } = useSubscribeSheet()
   return (
-    <div className="container flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 border border-primary/30 shadow-glow">
-          <Crown className="h-9 w-9 text-primary" />
-        </div>
-        <h2 className="font-display text-4xl tracking-wide text-gradient-gold">{title}</h2>
-        <p className="mt-3 max-w-md font-body text-muted-foreground">{description}</p>
-        <Button size="lg" className="mt-6 gap-2" onClick={() => navigate('/pricing')}>
-          <Crown className="h-4 w-4" /> Upgrade to Pro
-        </Button>
-      </motion.div>
+    <div className="relative min-h-[70vh] overflow-hidden">
+      <div aria-hidden="true" className="container pointer-events-none select-none space-y-4 py-10 blur-md">
+        <div className="h-10 w-56 rounded-xl bg-muted" />
+        <div className="h-40 rounded-2xl bg-card" />
+        <div className="h-40 rounded-2xl bg-card" />
+        <div className="h-24 rounded-2xl bg-card" />
+      </div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/40 px-6 text-center">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gold-gradient shadow-glow-lg">
+            <Lock className="h-9 w-9 text-primary-foreground" />
+          </div>
+          <h2 className="mt-4 font-display text-3xl tracking-wide text-foreground">{title}</h2>
+          <p className="mt-2 max-w-xs font-body text-xs text-muted-foreground">{description}</p>
+          <Button size="lg" className="mt-5" onClick={openSubscribe}>
+            Subscribe
+          </Button>
+        </motion.div>
+      </div>
     </div>
   )
 }

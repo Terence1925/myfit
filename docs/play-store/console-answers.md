@@ -87,7 +87,7 @@ Government apps: **No**. Financial features: **No** (subscriptions are sold thro
 
 - Product IDs in the app: `pro_monthly` and `pro_yearly`.
 - Give each base plan a **7-day free-trial offer**: the app and the store description both say 7 days (`TRIAL_DAYS` in `src/lib/billing.ts`).
-- The demo prices in the app (₱199 a month, ₱1,790 a year) are only a fallback. Real prices come from the prices you set here.
+- The demo prices in the app (₱149 a month, ₱1,290 a year) are only a fallback. Real prices come from the prices you set here.
 - Link Play to RevenueCat: add the Play service-account credentials in the RevenueCat dashboard, map both products to the Pro entitlement, and add yourself under Settings > License testing so test purchases are free.
 
 ## 11. Release

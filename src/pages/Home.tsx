@@ -16,12 +16,14 @@ import { programs } from '@/lib/backend/api'
 import { adoptWeightUnit } from '@/lib/weightUnit'
 import { hasProAccess } from '@/lib/billing'
 import type { IntakeAnswers, WorkoutProgram } from '@/lib/types'
+import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 
 type Mode = 'loading' | 'intake' | 'program' | 'limit' | 'error'
 
 export default function Home() {
   const { profile, role, roleLoading } = useAuth()
   const navigate = useNavigate()
+  const { openSubscribe } = useSubscribeSheet()
   const [searchParams, setSearchParams] = useSearchParams()
   const proAccess = hasProAccess(profile, role)
   const [mode, setMode] = React.useState<Mode>('loading')
@@ -131,7 +133,7 @@ export default function Home() {
             your current one from My programs to generate a new one.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button size="lg" className="gap-2" onClick={() => navigate('/pricing')}>
+            <Button size="lg" className="gap-2" onClick={openSubscribe}>
               <Crown className="h-4 w-4" /> Upgrade to Pro
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate('/saved')}>
@@ -143,7 +145,7 @@ export default function Home() {
     )
   }
 
-  // The three-screen tour: once, before the very first plan (or again with ?tour=1 from the Account page)
+  // The four-screen tour: once, before the very first plan (or again with ?tour=1 from the Account page)
   const forceTour = searchParams.get('tour') === '1'
   const showTour = tourOpen && (forceTour || (mode === 'intake' && !tourSeen(profile.id)))
   const closeTour = () => {

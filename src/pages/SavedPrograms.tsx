@@ -13,6 +13,7 @@ import { canExportPdf, hasProAccess } from '@/lib/billing'
 import { exportProgramPdf } from '@/lib/exportProgramPdf'
 import { cn } from '@/lib/utils'
 import type { WorkoutProgram } from '@/lib/types'
+import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 
 function daysRemaining(expiresAt: string): number {
   return Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -21,6 +22,7 @@ function daysRemaining(expiresAt: string): number {
 export default function SavedPrograms() {
   const { profile, role } = useAuth()
   const navigate = useNavigate()
+  const { openSubscribe } = useSubscribeSheet()
   const [list, setList] = React.useState<WorkoutProgram[]>([])
   const [loaded, setLoaded] = React.useState(false)
   // The program waiting for a yes or no before it is deleted
@@ -32,7 +34,7 @@ export default function SavedPrograms() {
 
   const handleExportPdf = async (p: WorkoutProgram) => {
     if (!profile || !hasProAccess(profile, role)) {
-      navigate('/pricing')
+      openSubscribe()
       return
     }
     if (!canExportPdf(profile, role)) {

@@ -1,4 +1,4 @@
-// The three-screen welcome tour is shown once per person on this phone (before their first program). `?tour=1` on the
+// The four-screen welcome tour is shown once per person on this phone (before their first program). `?tour=1` on the
 // home page shows it again (the Account page has a "Take the tour again" button).
 const key = (userId: string) => `myfit_tour_seen_${userId}`
 

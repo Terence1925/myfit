@@ -22,6 +22,9 @@ import RefundPage from '@/pages/legal/RefundPage'
 import DeleteAccountPage from '@/pages/legal/DeleteAccountPage'
 import { Footer } from '@/components/layout/Footer'
 import { hasProAccess } from '@/lib/billing'
+import { SubscribeSheetProvider } from '@/context/SubscribeSheetContext'
+import { firstNameOf } from '@/lib/displayName'
+import { ProGate } from '@/components/shared/ProGate'
 import { syncTrialReminder } from '@/lib/trialReminder'
 import { stopRestTimer, useRestTimer } from '@/lib/restTimerStore'
 import { syncWorkoutReminders } from '@/lib/workoutReminder'
@@ -38,11 +41,12 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
-function RequirePro({ children }: { children: ReactNode }) {
+function RequirePro({ children, title, description }: { children: ReactNode; title: string; description: string }) {
   const { profile, role, loading, roleLoading } = useAuth()
   if (loading || roleLoading) return null
   if (!profile) return <Navigate to="/auth" replace />
-  if (!hasProAccess(profile, role)) return <Navigate to="/pricing" replace />
+  // Without a subscription: a locked screen with the Subscribe button (the plan picker slides up over it), not another page
+  if (!hasProAccess(profile, role)) return <ProGate title={title} description={description} />
   return <>{children}</>
 }
 
@@ -81,7 +85,7 @@ function AppShell() {
 
   // Keep the Android home-screen widget current: today's workout, the week and the streak. It is refreshed when the app
   // opens, after a workout is saved, and whenever the app goes to or comes back from the background. Signing out clears it.
-  const firstName = profile?.displayName?.trim().split(/\s+/)[0]
+  const firstName = firstNameOf(profile?.displayName)
   React.useEffect(() => {
     if (loading) return
     if (!profileId) {
@@ -124,7 +128,7 @@ function AppShell() {
         <Route
           path="/saved"
           element={
-            <RequirePro>
+            <RequirePro title="MY PROGRAMS" description="Subscribe to open, track and manage your programs. Your food log stays free.">
               <SavedPrograms />
             </RequirePro>
           }
@@ -132,7 +136,7 @@ function AppShell() {
         <Route
           path="/saved/:programId"
           element={
-            <RequirePro>
+            <RequirePro title="MY PROGRAMS" description="Subscribe to open, track and manage your programs. Your food log stays free.">
               <ProgramPage />
             </RequirePro>
           }
@@ -172,7 +176,7 @@ function AppShell() {
         <Route
           path="/progress"
           element={
-            <RequirePro>
+            <RequirePro title="PROGRESS TRACKING" description="Log your weight and body metrics over time and see your trend charted. Subscribe to unlock it.">
               <ProgressPage />
             </RequirePro>
           }
@@ -195,7 +199,9 @@ function AppShell() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppShell />
+      <SubscribeSheetProvider>
+        <AppShell />
+      </SubscribeSheetProvider>
     </AuthProvider>
   )
 }

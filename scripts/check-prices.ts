@@ -20,13 +20,13 @@ check('USD saving', usd.savingsAmount, 'Save $17.89 a year')
 check('USD percent', usd.savingsPercent, 'Save 37%')
 
 const php = describePrices(
-  { price: 199, priceString: '₱199.00', currencyCode: 'PHP' },
-  { price: 1790, priceString: '₱1,790.00', currencyCode: 'PHP' },
+  { price: 149, priceString: '₱149.00', currencyCode: 'PHP' },
+  { price: 1290, priceString: '₱1,290.00', currencyCode: 'PHP' },
   'en-PH',
 )
-check('PHP per month', php.yearlyPerMonth, '₱149.17')
-check('PHP saving', php.savingsAmount, 'Save ₱598.00 a year')
-check('PHP percent', php.savingsPercent, 'Save 25%')
+check('PHP per month', php.yearlyPerMonth, '₱107.50')
+check('PHP saving', php.savingsAmount, 'Save ₱498.00 a year')
+check('PHP percent', php.savingsPercent, 'Save 28%')
 
 // Money that has no cents (yen) must not show invented decimals
 const jpy = describePrices(
@@ -41,7 +41,10 @@ const same = describePrices({ price: 5, priceString: '$5.00', currencyCode: 'USD
 check('no saving when yearly is not cheaper', [same.savingsAmount, same.savingsPercent], [null, null])
 check('missing yearly falls back to pesos', describePrices({ price: 3.99, priceString: '$3.99', currencyCode: 'USD' }, null).source, 'fallback')
 check('two currencies fall back', describePrices({ price: 3, priceString: '$3', currencyCode: 'USD' }, { price: 30, priceString: '€30', currencyCode: 'EUR' }).source, 'fallback')
-check('fallback is the peso price', FALLBACK_PRICES.monthly, '₱199')
+check('fallback is the peso price', FALLBACK_PRICES.monthly, '₱149')
+check('fallback yearly price', FALLBACK_PRICES.yearly, '₱1,290')
+check('fallback yearly per month', FALLBACK_PRICES.yearlyPerMonth, '₱108')
+check('fallback saving', [FALLBACK_PRICES.savingsPercent, FALLBACK_PRICES.savingsAmount], ['Save 28%', 'Save ₱498 a year'])
 
 if (problems.length) {
   console.log('FAILED')

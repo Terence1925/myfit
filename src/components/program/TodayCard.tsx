@@ -10,6 +10,7 @@ import { computeStreak, countedDates } from '@/lib/streak'
 import { nextWorkoutDay, ringText, weekDots } from '@/lib/todayPlan'
 import type { WorkoutProgram, WorkoutSession } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { firstNameOf } from '@/lib/displayName'
 
 /**
  * The first thing on the Workout page: a friendly greeting, this week at a glance, and one big button for the next
@@ -30,7 +31,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
   }, [refresh])
 
   const days = program.programData.days
-  const firstName = profile?.displayName?.trim().split(/\s+/)[0]
+  const firstName = firstNameOf(profile?.displayName)
   const now = new Date()
   const list = saved ?? []
 

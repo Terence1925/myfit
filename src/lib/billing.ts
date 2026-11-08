@@ -16,8 +16,8 @@ function php(amount: number): string {
   return `₱${PHP_FORMATTER.format(amount)}`
 }
 
-const MONTHLY_PRICE = 199
-const YEARLY_PRICE = 1790
+const MONTHLY_PRICE = 149
+const YEARLY_PRICE = 1290
 const YEARLY_PER_MONTH = YEARLY_PRICE / 12
 const SAVINGS_PERCENT = Math.round((1 - YEARLY_PRICE / (MONTHLY_PRICE * 12)) * 100)
 
@@ -43,12 +43,12 @@ export const TRIAL_DAYS = 7
 
 // Only list what Pro really unlocks today.
 export const PRO_FEATURES = [
-  'Every training day of your program, with sets, reps and rest',
+  'Log every training day of your program: sets, reps and rest',
   'An animated demo and a real-person video for every exercise',
   'A workout log, plus a rest timer that alerts you even when the app is in the background',
   'Progress history with personal-record alerts',
   'Weight and body-measurement charts',
-  'Your nutrition and recovery plan, built from your sleep, stress and activity',
+  'Your full nutrition and recovery plan, built from your sleep, stress and activity',
   'Unlimited saved programs, and a new one whenever you like',
   'PDF export of any program (after your free trial)',
 ]
@@ -80,6 +80,18 @@ export function hasProAccess(
   role: Role,
 ): boolean {
   return role === 'admin' || isPro(profile)
+}
+
+/**
+ * True for someone whose trial or subscription has ended: they were subscribed before, but Pro is no longer active.
+ * (After an expiry the webhook leaves the tier at 'pro' and sets the status to 'canceled'; someone who never subscribed is
+ * 'free' and 'none'.) The free trial is for new members only, so these people are offered a plain subscription.
+ */
+export function hasSubscribedBefore(
+  profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionPeriod'> | null,
+): boolean {
+  if (!profile) return false
+  return profile.subscriptionTier === 'pro' || profile.subscriptionStatus === 'canceled' || !!profile.subscriptionPeriod
 }
 
 /** True while the user has Pro only because of a free trial — no payment taken yet. */

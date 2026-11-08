@@ -29,6 +29,7 @@ export function WeeklyPlanTab({
   onSwapExercise,
   onCustomExercise,
   hasProgressAccess,
+  demoLocked,
   readOnly,
   startedAt,
 }: {
@@ -46,6 +47,8 @@ export function WeeklyPlanTab({
   /** Puts an exercise the person typed in at this position of the day. */
   onCustomExercise?: (dayNumber: number, exerciseIndex: number, exercise: Exercise) => Promise<void>
   hasProgressAccess: boolean
+  /** The demos need a trial or a subscription (the plan is view only without one). */
+  demoLocked?: boolean
 }) {
   const [unit] = useWeightUnit()
   const [swappingKey, setSwappingKey] = React.useState<string | null>(null)
@@ -320,6 +323,7 @@ export function WeeklyPlanTab({
               onSetChange={(setIndex, field, value) => updateSet(i, setIndex, field, value)}
               userSessions={userSessions}
               hasProgressAccess={hasProgressAccess}
+              demoLocked={demoLocked}
               readOnly={readOnly}
               suggestion={suggestions[i]}
               warmup={target ? warmupFor(day.exercises, i, suggestions[i]?.weight, target, unit) : null}

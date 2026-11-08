@@ -20,7 +20,8 @@ import type {
   WorkoutSession,
 } from '../types'
 import { EXERCISES } from './exerciseLibrary'
-import { generateAlternate, generateProgram } from './programGenerator'
+import { generateAlternate } from './programGenerator'
+import { programFor, withoutCustomDays } from './customProgram'
 import { readAll, readOne, removeKey, uid, writeAll, writeOne } from './storage'
 
 interface StoredUser {
@@ -316,17 +317,19 @@ export const programs = {
     if (!isProUser && existing.filter((p) => !blockStatus(p.createdAt).complete).length >= 1) {
       throw new Error('PROGRAM_LIMIT_REACHED')
     }
-    const nutrition = calculateNutrition(answers)
-    await profiles.saveIntake(userId, answers, nutrition)
+    // "Build my own" brings its days along; they become the program and are not saved with the answers
+    const stored = withoutCustomDays(answers)
+    const nutrition = calculateNutrition(stored)
+    await profiles.saveIntake(userId, stored, nutrition)
     await new Promise((r) => setTimeout(r, 1400))
-    const programData = generateProgram(answers, nutrition, existing.filter((p) => blockStatus(p.createdAt).complete).length)
+    const programData = programFor(answers, nutrition, existing.filter((p) => blockStatus(p.createdAt).complete).length)
     const now = Date.now()
     const program: WorkoutProgram = {
       id: uid(),
       userId,
       programName: programData.programName,
       programData,
-      answers,
+      answers: stored,
       nutrition,
       recoveryScore: nutrition.recoveryScore,
       createdAt: new Date(now).toISOString(),

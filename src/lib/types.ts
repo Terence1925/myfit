@@ -46,6 +46,8 @@ export type Equipment =
   | 'resistance-bands'
   | 'yoga'
   | 'pilates'
+  /** "Build my own": the person picks every exercise themselves instead of getting a generated plan. */
+  | 'custom'
 
 export type FocusArea =
   | 'chest'
@@ -83,6 +85,8 @@ export interface IntakeAnswers {
   injuries: InjuryLimitation
   /** Yoga and Pilates only: the style of session. Programs made before this existed do not have it. */
   mindBodyStyle?: MindBodyStyleId
+  /** "Build my own" only: the days the person built in the last step. Used to make the program, never saved with the answers. */
+  customDays?: ProgramDay[]
 }
 
 export interface RecoveryTier {

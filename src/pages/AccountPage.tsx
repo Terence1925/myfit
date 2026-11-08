@@ -19,6 +19,8 @@ import { ProfilePhoto } from '@/components/account/ProfilePhoto'
 import { WorkoutReminders } from '@/components/account/WorkoutReminders'
 import { WeightUnitToggle } from '@/components/shared/WeightUnitToggle'
 import { useTheme, type ThemeChoice } from '@/lib/theme'
+import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
+import { displayName } from '@/lib/displayName'
 
 // Must match capacitor.config.ts's appId
 const ANDROID_PACKAGE_ID = 'com.myfit.app'
@@ -31,6 +33,7 @@ export default function AccountPage() {
   const { profile, refreshProfile, role, deleteAccount, updatePassword, signOut, usesPassword, verifyPassword } = useAuth()
   const { prices, loading: pricesLoading } = useStorePrices(profile?.id)
   const navigate = useNavigate()
+  const { openSubscribe } = useSubscribeSheet()
   const [searchParams] = useSearchParams()
   const [syncing, setSyncing] = React.useState(false)
   const { choice: themeChoice, setChoice: setThemeChoice } = useTheme()
@@ -199,7 +202,7 @@ export default function AccountPage() {
             ) : (
               <p className="flex items-center justify-between gap-3">
                 <span>
-                  <span className="text-muted-foreground">Name:</span> {profile.displayName}
+                  <span className="text-muted-foreground">Name:</span> {displayName(profile.displayName)}
                 </span>
                 <Button
                   size="sm"
@@ -261,7 +264,7 @@ export default function AccountPage() {
                 <p className="text-muted-foreground">
                   You don't have an active subscription. Subscribe to unlock your program and everything in Pro.
                 </p>
-                <Button className="gap-2" onClick={() => navigate('/pricing')}>
+                <Button className="gap-2" onClick={openSubscribe}>
                   <Crown className="h-4 w-4" /> See Plans
                 </Button>
               </>
@@ -320,7 +323,7 @@ export default function AccountPage() {
           <CardContent className="flex items-center justify-between gap-3 p-4">
             <div>
               <div className="font-body text-sm font-bold">Welcome tour</div>
-              <div className="text-xs text-muted-foreground">A 3-screen look at what MyFit can do.</div>
+              <div className="text-xs text-muted-foreground">A 4-screen look at what MyFit can do.</div>
             </div>
             <Button variant="outline" size="sm" className="shrink-0" onClick={() => navigate('/?tour=1')}>
               Take the tour again

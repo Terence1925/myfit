@@ -10,7 +10,7 @@ const check = (label: string, got: unknown, want: unknown) => {
 const mail = buildWelcomeEmail('Alex')
 check('subject', mail.subject, 'Welcome to MyFit')
 check('greets by name', mail.text.startsWith('Hi Alex,'), true)
-check('says Day 1 and the food log are free', mail.text.includes('Day 1 is free, and so is the food log'), true)
+check('says the food log is free and the plan stays readable', mail.text.includes('The food log with barcode scanning is free, and your plan stays readable'), true)
 check('invites a reply for questions', mail.text.includes('reply to this email'), true)
 check('paragraphs are separated by a blank line', mail.text.split('\n\n').length, 5)
 check('html has one paragraph each', (mail.html.match(/<p /g) ?? []).length, 5)
@@ -22,4 +22,4 @@ if (problems.length) {
   for (const p of problems) console.log(' - ' + p)
   process.exit(1)
 }
-console.log('PASSED: the welcome email greets the member, says Day 1 and the food log are free, and cannot be tampered with by a name.')
+console.log('PASSED: the welcome email greets the member, says the food log is free and the plan stays readable, and cannot be tampered with by a name.')
