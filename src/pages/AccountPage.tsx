@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Check, ChevronRight, Crown, KeyRound, Loader2, Lock, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -404,27 +404,6 @@ export default function AccountPage() {
           </Card>
         )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">About and legal</CardTitle>
-          </CardHeader>
-          <CardContent className="font-body text-sm">
-            <ul className="divide-y divide-border">
-              {[
-                ['Terms of Service', '/terms'],
-                ['Privacy Policy', '/privacy'],
-                ['Refund policy', '/refund-policy'],
-              ].map(([label, to]) => (
-                <li key={to}>
-                  <Link to={to} className="flex min-h-[44px] items-center justify-between py-3 transition-colors hover:text-primary">
-                    {label}
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
 
         <Card className="border-destructive/30">
           <CardHeader>
@@ -518,6 +497,20 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          <Link to="/terms" className="underline underline-offset-2">
+            Terms of Service
+          </Link>
+          {' · '}
+          <Link to="/privacy" className="underline underline-offset-2">
+            Privacy Policy
+          </Link>
+          {' · '}
+          <Link to="/refund-policy" className="underline underline-offset-2">
+            Refund policy
+          </Link>
+        </p>
       </motion.div>
     </div>
   )
