@@ -378,7 +378,7 @@ function Step12Equipment({ answers, update }: StepProps) {
     { value: 'resistance-bands', label: 'Resistance Bands' },
     { value: 'yoga', label: 'Yoga', description: 'Mat only. Poses held for time, no sets or reps' },
     { value: 'pilates', label: 'Pilates', description: 'Mat Pilates. Slow, controlled moves, no machine' },
-    { value: 'custom', label: 'Build my own', description: 'Pick the exercises for each day yourself' },
+    { value: 'custom', label: 'Custom', description: 'Pick the exercises for each day yourself' },
   ]
   return (
     <StepShell title="How do you want to train?" subtitle="Pick what you have or what you enjoy. We only program moves you can actually do.">
