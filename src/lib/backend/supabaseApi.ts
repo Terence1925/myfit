@@ -651,6 +651,8 @@ function mapFoodLog(r: any): FoodLogEntry {
     proteinG: Number(r.protein_g),
     carbsG: Number(r.carbs_g),
     fatG: Number(r.fat_g),
+    baseAmount: r.base_amount == null ? undefined : Number(r.base_amount),
+    baseUnit: r.base_unit ?? undefined,
     createdAt: r.created_at,
   }
 }
@@ -736,6 +738,8 @@ export const foodLog = {
         protein_g: entry.proteinG,
         carbs_g: entry.carbsG,
         fat_g: entry.fatG,
+        base_amount: entry.baseAmount ?? null,
+        base_unit: entry.baseUnit ?? null,
       })
       .select()
       .single()
@@ -754,5 +758,27 @@ export const foodLog = {
   async delete(id: string, userId: string): Promise<void> {
     const { error } = await sb().from('food_logs').delete().eq('id', id).eq('user_id', userId)
     if (error) throw new Error(error.message)
+  },
+
+  async update(
+    id: string,
+    userId: string,
+    patch: { servings: number; kcal: number; proteinG: number; carbsG: number; fatG: number },
+  ): Promise<FoodLogEntry> {
+    const { data, error } = await sb()
+      .from('food_logs')
+      .update({
+        servings: patch.servings,
+        kcal: patch.kcal,
+        protein_g: patch.proteinG,
+        carbs_g: patch.carbsG,
+        fat_g: patch.fatG,
+      })
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapFoodLog(data)
   },
 }

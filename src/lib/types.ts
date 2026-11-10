@@ -320,5 +320,8 @@ export interface FoodLogEntry {
   proteinG: number
   carbsG: number
   fatG: number
+  /** Grams (or ml) in one serving of this food. Set on entries logged from the amount screen, so they can be edited by weight. */
+  baseAmount?: number
+  baseUnit?: 'g' | 'ml'
   createdAt: string
 }

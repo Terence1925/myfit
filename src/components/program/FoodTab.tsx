@@ -13,7 +13,6 @@ import {
   Sun,
   Sunrise,
   Sunset,
-  Trash2,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -105,6 +104,14 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [addMeal, setAddMeal] = React.useState<MealType | null>(null)
+  // The logged item being edited, and the servings the person typed for it
+  const [editing, setEditing] = React.useState<FoodLogEntry | null>(null)
+  const [editText, setEditText] = React.useState('1')
+  const [editMode, setEditMode] = React.useState<'servings' | 'amount'>('servings')
+  const [editGramsText, setEditGramsText] = React.useState('')
+  const [editUnit, setEditUnit] = React.useState<'g' | 'ml'>('g')
+  const [editSaving, setEditSaving] = React.useState(false)
+  const [editError, setEditError] = React.useState<string | null>(null)
   // Meals whose items are opened (they start closed, like the macro row under each meal)
   const [openMeals, setOpenMeals] = React.useState<Set<MealType>>(new Set())
   // True until the first load finishes (then switching days does not flash the placeholders again)
@@ -143,6 +150,55 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
     } catch {
       setError('Could not delete that item.')
       void load()
+    }
+  }
+
+  const openEdit = (e: FoodLogEntry) => {
+    setEditing(e)
+    setEditMode('servings')
+    setEditText(String(e.servings))
+    setEditUnit(e.baseUnit ?? 'g')
+    setEditGramsText(e.baseAmount ? String(r0(e.servings * e.baseAmount)) : '')
+    setEditError(null)
+  }
+
+  // Switching tabs keeps the same amount, shown in servings or in grams
+  const switchEditMode = (m: 'servings' | 'amount') => {
+    if (!editing || m === editMode) return
+    if (m === 'amount' && editing.baseAmount) setEditGramsText(String(r0(editServingsNow() * editing.baseAmount)))
+    if (m === 'servings') setEditText(String(r1(editServingsNow())))
+    setEditMode(m)
+  }
+
+  function editServingsNow(): number {
+    if (!editing) return 0
+    if (editMode === 'amount' && editing.baseAmount) return Math.max(0, Number(editGramsText) || 0) / editing.baseAmount
+    return Math.max(0, Number(editText) || 0)
+  }
+
+  // Per-serving numbers stay the same; the totals follow the new servings
+  const editServings = editServingsNow()
+  const editPer = editing && editing.servings > 0 ? 1 / editing.servings : 0
+  const editKcal = editing ? editing.kcal * editPer * editServings : 0
+
+  const saveEdit = async () => {
+    if (!editing || !(editServings > 0)) return
+    setEditSaving(true)
+    setEditError(null)
+    try {
+      const updated = await foodLog.update(editing.id, userId, {
+        servings: editServings,
+        kcal: editing.kcal * editPer * editServings,
+        proteinG: editing.proteinG * editPer * editServings,
+        carbsG: editing.carbsG * editPer * editServings,
+        fatG: editing.fatG * editPer * editServings,
+      })
+      setEntries((list) => list.map((x) => (x.id === updated.id ? updated : x)))
+      setEditing(null)
+    } catch {
+      setEditError('Could not save that change. Try again.')
+    } finally {
+      setEditSaving(false)
     }
   }
 
@@ -258,23 +314,22 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <div className="truncate text-sm font-normal">{e.name}</div>
-                            <div className="text-xs font-semibold text-primary">{e.servings === 1 ? e.serving : `${e.servings} × ${e.serving}`}</div>
+                            <div className="text-xs font-semibold text-primary">{e.baseAmount ? `${r0(e.servings * e.baseAmount)} ${e.baseUnit ?? 'g'}` : e.servings === 1 ? e.serving : `${e.servings} × ${e.serving}`}</div>
                           </div>
-                          <div className="shrink-0 text-sm font-bold tabular-nums">{r0(e.kcal)}</div>
+                          <button
+                            onClick={() => openEdit(e)}
+                            aria-label={`Edit ${e.name}`}
+                            className="-my-1 flex shrink-0 items-center gap-1 rounded-lg px-1 py-1 text-sm font-bold tabular-nums hover:bg-muted"
+                          >
+                            {r0(e.kcal)}
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          </button>
                         </div>
                         <div className={cn(COLS, 'mt-1 text-sm text-muted-foreground')}>
                           <span className={NUM}>{f1(e.fatG)}</span>
                           <span className={NUM}>{f1(e.carbsG)}</span>
                           <span className={NUM}>{f1(e.proteinG)}</span>
-                          <span className="flex justify-end">
-                            <button
-                              aria-label={`Remove ${e.name}`}
-                              className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive"
-                              onClick={() => void remove(e.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </span>
+                          <span className="flex justify-end" />
                         </div>
                       </li>
                     ))}
@@ -290,6 +345,101 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
         Food numbers are approximate; real servings vary. Use them as a guide, not a lab result. Fat helps regulate your hormones.
         Carbs are your main fuel: they power your workouts and your day, and help your muscles recover. Protein builds and repairs your muscles after training, and helps you stay full.
       </p>
+
+      <Dialog open={!!editing} onClose={() => setEditing(null)} title="Edit amount">
+        {editing && (
+          <div className="space-y-5">
+            <div className="font-body text-lg font-bold">{editing.name}</div>
+            {editing.baseAmount && (
+              <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-secondary/40 p-1">
+                {(['servings', 'amount'] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => switchEditMode(m)}
+                    className={cn(
+                      'rounded-lg py-2 text-sm font-semibold transition-colors',
+                      editMode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    {m === 'servings' ? 'Servings' : editUnit === 'ml' ? 'Milliliters (ml)' : 'Grams (g)'}
+                  </button>
+                ))}
+              </div>
+            )}
+            {editMode === 'amount' && editing.baseAmount ? (
+              <div>
+                <div className="flex items-center justify-center gap-2">
+                  <Input
+                    inputMode="decimal"
+                    value={editGramsText}
+                    onChange={(e) => setEditGramsText(e.target.value)}
+                    className="h-14 w-32 text-center font-display text-3xl"
+                    aria-label={`Amount in ${editUnit}`}
+                  />
+                  <span className="text-lg font-semibold text-muted-foreground">{editUnit}</span>
+                </div>
+                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <span>Measure in</span>
+                  {(['g', 'ml'] as const).map((u) => (
+                    <button
+                      key={u}
+                      onClick={() => setEditUnit(u)}
+                      aria-pressed={editUnit === u}
+                      className={cn(
+                        'min-h-[44px] rounded-full border px-4 font-semibold transition-colors sm:min-h-0 sm:px-3 sm:py-1',
+                        editUnit === u ? 'border-primary bg-primary/15 text-primary' : 'border-border bg-secondary/50 hover:text-foreground',
+                      )}
+                    >
+                      {u}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <Input
+                  inputMode="decimal"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className="h-14 w-32 text-center font-display text-3xl"
+                  aria-label="Number of servings"
+                />
+                <span className="text-lg font-semibold text-muted-foreground">serving{editServings === 1 ? '' : 's'}</span>
+              </div>
+            )}
+            <div className="grid grid-cols-4 gap-2 text-center">
+              {[
+                ['kcal', r0(editKcal)],
+                ['Protein', `${r1(editing.proteinG * editPer * editServings)}g`],
+                ['Carbs', `${r1(editing.carbsG * editPer * editServings)}g`],
+                ['Fat', `${r1(editing.fatG * editPer * editServings)}g`],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg bg-secondary/50 px-1 py-2">
+                  <div className="text-sm font-bold">{value}</div>
+                  <div className="text-[11px] text-muted-foreground">{label}</div>
+                </div>
+              ))}
+            </div>
+            {editError && <p className="text-sm text-destructive">{editError}</p>}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  const id = editing.id
+                  setEditing(null)
+                  void remove(id)
+                }}
+                className="h-12 w-full rounded-xl bg-[#e25a1c] font-semibold text-white transition-colors hover:bg-[#c94d16]"
+              >
+                Delete
+              </button>
+              <Button className="h-12 w-full" disabled={editSaving || !(editServings > 0)} onClick={() => void saveEdit()}>
+                Save
+              </Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
 
       <AddFoodDialog
         meal={addMeal}
@@ -459,11 +609,13 @@ function AddFoodDialog({
         meal: chosen,
         name: food.name,
         serving: label ?? food.serving,
-        servings: label ? 1 : count,
+        servings: count,
         kcal: r1(food.kcal * count),
         proteinG: r1(food.proteinG * count),
         carbsG: r1(food.carbsG * count),
         fatG: r1(food.fatG * count),
+        // Grams (or ml) per serving, so the entry can be shown and edited by weight
+        ...(food.amount ? { baseAmount: food.amount, baseUnit: food.unit ?? 'g' } : {}),
       })
       // Lets badges notice a first meal or a week of logging
       window.dispatchEvent(new Event('myfit:food-saved'))

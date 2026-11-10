@@ -577,4 +577,20 @@ export const foodLog = {
       readAll<FoodLogEntry>(FOOD_LOG_KEY).filter((e) => !(e.id === id && e.userId === userId)),
     )
   },
+
+  async update(
+    id: string,
+    userId: string,
+    patch: { servings: number; kcal: number; proteinG: number; carbsG: number; fatG: number },
+  ): Promise<FoodLogEntry> {
+    const all = readAll<FoodLogEntry>(FOOD_LOG_KEY)
+    const found = all.find((e) => e.id === id && e.userId === userId)
+    if (!found) throw new Error('That item is no longer in your log.')
+    const updated = { ...found, ...patch }
+    writeAll(
+      FOOD_LOG_KEY,
+      all.map((e) => (e.id === id ? updated : e)),
+    )
+    return updated
+  },
 }
