@@ -101,13 +101,13 @@ export function unitLabel(base: 'g' | 'ml', units: FoodUnits): string {
   return 'ml'
 }
 
-export function toBase(value: number, base: 'g' | 'ml', units: FoodUnits): number {
+export function toBase(value: number, _base: 'g' | 'ml', units: FoodUnits): number {
   // The second unit is ml, treated as 1 g = 1 ml
   if (units === 'metric') return value
   return value
 }
 
-export function fromBase(value: number, base: 'g' | 'ml', units: FoodUnits): number {
+export function fromBase(value: number, _base: 'g' | 'ml', units: FoodUnits): number {
   // The second unit is ml, treated as 1 g = 1 ml
   if (units === 'metric') return value
   return value

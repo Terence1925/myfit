@@ -595,6 +595,8 @@ function AddFoodDialog({
       proteinG: e.proteinG / e.servings,
       carbsG: e.carbsG / e.servings,
       fatG: e.fatG / e.servings,
+      // Keeps the grams per serving, so the same Servings / Grams screen opens as for a new food
+      ...(e.baseAmount ? { amount: e.baseAmount, unit: e.baseUnit ?? 'g' } : {}),
       source: 'custom',
     })
 
