@@ -72,17 +72,8 @@ export type FoodUnits = 'metric' | 'imperial'
 export const G_PER_OZ = 28.3495
 export const ML_PER_FLOZ = 29.5735
 
-/** The United States (and a few others) think in ounces. Everyone else gets grams until they pick. */
+/** Everyone starts on grams (and ml for liquids) until they pick otherwise. */
 export function guessUnits(): FoodUnits {
-  try {
-    const lang = (navigator.language || '').toLowerCase()
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
-    if (lang === 'en-us' || lang === 'en-lr' || lang === 'my-mm' || tz.startsWith('America/New_York') || tz.startsWith('America/Chicago') || tz.startsWith('America/Denver') || tz.startsWith('America/Los_Angeles')) {
-      return 'imperial'
-    }
-  } catch {
-    /* fall through */
-  }
   return 'metric'
 }
 
@@ -107,15 +98,17 @@ export function saveUnits(units: FoodUnits) {
 /** Name of the unit shown to the person for a food measured in g or ml. */
 export function unitLabel(base: 'g' | 'ml', units: FoodUnits): string {
   if (units === 'metric') return base
-  return base === 'ml' ? 'fl oz' : 'oz'
+  return 'ml'
 }
 
 export function toBase(value: number, base: 'g' | 'ml', units: FoodUnits): number {
+  // The second unit is ml, treated as 1 g = 1 ml
   if (units === 'metric') return value
-  return value * (base === 'ml' ? ML_PER_FLOZ : G_PER_OZ)
+  return value
 }
 
 export function fromBase(value: number, base: 'g' | 'ml', units: FoodUnits): number {
+  // The second unit is ml, treated as 1 g = 1 ml
   if (units === 'metric') return value
-  return value / (base === 'ml' ? ML_PER_FLOZ : G_PER_OZ)
+  return value
 }

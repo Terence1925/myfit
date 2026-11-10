@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   History,
-  Minus,
   Moon,
   Plus,
   ScanBarcode,
@@ -350,6 +349,7 @@ function AddFoodDialog({
   const [query, setQuery] = React.useState('')
   const [picked, setPicked] = React.useState<FoodItem | null>(null)
   const [servings, setServings] = React.useState(1)
+  const [servingsText, setServingsText] = React.useState('1')
   // 'servings' = count of the food's own serving; 'amount' = an exact grams or ml figure
   const [mode, setMode] = React.useState<'servings' | 'amount'>('servings')
   const [amountText, setAmountText] = React.useState('')
@@ -381,6 +381,7 @@ function AddFoodDialog({
     setQuery('')
     setPicked(null)
     setServings(1)
+    setServingsText('1')
     setMode('servings')
     setTab('food')
     setFavs(loadFavorites())
@@ -429,6 +430,7 @@ function AddFoodDialog({
     if (query.trim()) setSearches(rememberSearch(query))
     setPicked(food)
     setServings(1)
+    setServingsText('1')
     setMode('servings')
     setAmountText(food.amount ? shown(fromBase(food.amount, food.unit ?? 'g', units)) : '')
     setStep('amount')
@@ -486,7 +488,6 @@ function AddFoodDialog({
     setUnitsState(u)
     saveUnits(u)
   }
-  const quickAmounts = units === 'metric' ? [50, 100, 150, 200, 250] : baseUnit === 'ml' ? [4, 8, 12, 16, 20] : [2, 4, 6, 8, 10]
 
   const mealLabel = MEALS.find((m) => m.id === mealSel)?.label ?? ''
   const num = (v: string) => Math.max(0, Number(v) || 0)
@@ -775,7 +776,7 @@ function AddFoodDialog({
                         mode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
                       )}
                     >
-                      {m === 'servings' ? 'Servings' : units === 'metric' ? (picked.unit === 'ml' ? 'Milliliters (ml)' : 'Grams (g)') : picked.unit === 'ml' ? 'Fluid ounces (fl oz)' : 'Ounces (oz)'}
+                      {m === 'servings' ? 'Servings' : units === 'metric' ? (picked.unit === 'ml' ? 'Milliliters (ml)' : 'Grams (g)') : 'Milliliters (ml)'}
                     </button>
                   ))}
                 </div>
@@ -791,17 +792,6 @@ function AddFoodDialog({
                       aria-label={`Amount in ${unitName}`}
                     />
                     <span className="text-lg font-semibold text-muted-foreground">{unitName}</span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap justify-center gap-2">
-                    {quickAmounts.map((v) => (
-                      <button
-                        key={v}
-                        onClick={() => setAmountText(String(v))}
-                        className="rounded-full border border-border bg-secondary/50 px-3 py-1 text-xs font-semibold hover:bg-secondary"
-                      >
-                        {v} {unitName}
-                      </button>
-                    ))}
                   </div>
                   <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
                     <span>Measure in</span>
@@ -821,23 +811,20 @@ function AddFoodDialog({
                   </div>
                 </div>
               ) : (
-              <div className="flex items-center justify-center gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  aria-label="Less"
-                  disabled={servings <= 0.5}
-                  onClick={() => setServings((s) => Math.max(0.5, s - 0.5))}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <div className="min-w-[5rem] text-center">
-                  <div className="font-display text-3xl tracking-wide">{servings}</div>
-                  <div className="text-xs text-muted-foreground">serving{servings === 1 ? '' : 's'}</div>
-                </div>
-                <Button variant="outline" size="sm" aria-label="More" onClick={() => setServings((s) => s + 0.5)}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center justify-center gap-2">
+                <Input
+                  inputMode="decimal"
+                  value={servingsText}
+                  onChange={(e) => {
+                    setServingsText(e.target.value)
+                    const n = Number(e.target.value)
+                    if (e.target.value.trim() && n > 0) setServings(n)
+                  }}
+                  onBlur={() => setServingsText(String(servings))}
+                  className="h-14 w-32 text-center font-display text-3xl"
+                  aria-label="Number of servings"
+                />
+                <span className="text-lg font-semibold text-muted-foreground">serving{servings === 1 ? '' : 's'}</span>
               </div>
               )}
               <div className="grid grid-cols-4 gap-2 text-center">
