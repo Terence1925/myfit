@@ -28,6 +28,8 @@ export default function ProgressPage() {
   const [pickingDay, setPickingDay] = React.useState(false)
   const [weight, setWeight] = React.useState('')
   const [bodyFat, setBodyFat] = React.useState('')
+  // History shows the newest 7 entries; "Load more" adds 7 at a time
+  const [visibleCount, setVisibleCount] = React.useState(7)
 
   const refresh = React.useCallback(async () => {
     if (!profile) return
@@ -173,7 +175,7 @@ export default function ProgressPage() {
           <CardTitle className="text-lg">History</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {[...entries].reverse().map((e, i) => (
+          {[...entries].reverse().slice(0, visibleCount).map((e, i) => (
             <motion.div
               key={e.id}
               initial={{ opacity: 0, x: -8 }}
@@ -199,6 +201,11 @@ export default function ProgressPage() {
               </div>
             </motion.div>
           ))}
+          {entries.length > visibleCount && (
+            <Button variant="outline" className="w-full" onClick={() => setVisibleCount((n) => n + 7)}>
+              Load more ({Math.min(7, entries.length - visibleCount)} more)
+            </Button>
+          )}
           {entries.length === 0 && (
             <div className="py-6 text-center">
               <p className="text-sm font-semibold">Log your first weight above to start your chart.</p>
