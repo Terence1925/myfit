@@ -245,7 +245,15 @@ export default function AccountPage() {
                     You're on your free trial. PDF export unlocks once your first payment goes through.
                   </p>
                 )}
-                {profile.subscriptionRenewsAt && (
+                {profile.subscriptionRenewsAt && isOnTrial(profile) && (
+                  <p className="text-muted-foreground">
+                    Trial ends {new Date(profile.subscriptionRenewsAt).toLocaleDateString()} ·{' '}
+                    <span className="font-semibold text-foreground">
+                      {Math.max(0, Math.ceil((new Date(profile.subscriptionRenewsAt).getTime() - Date.now()) / 864e5))} days left
+                    </span>
+                  </p>
+                )}
+                {profile.subscriptionRenewsAt && !isOnTrial(profile) && (
                   <p className="text-muted-foreground">
                     Renews on {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}
                   </p>
@@ -271,17 +279,6 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
-
-        <Button
-          variant="outline"
-          className="w-full gap-2"
-          onClick={() => {
-            signOut()
-            navigate('/auth')
-          }}
-        >
-          <LogOut className="h-4 w-4" /> Sign out
-        </Button>
 
         <Card>
           <CardHeader>
@@ -318,18 +315,6 @@ export default function AccountPage() {
         </Card>
 
         <WorkoutReminders userId={profile.id} />
-
-        <Card>
-          <CardContent className="flex items-center justify-between gap-3 p-4">
-            <div>
-              <div className="font-body text-sm font-bold">Welcome tour</div>
-              <div className="text-xs text-muted-foreground">A 4-screen look at what MyFit can do.</div>
-            </div>
-            <Button variant="outline" size="sm" className="shrink-0" onClick={() => navigate('/?tour=1')}>
-              Take the tour again
-            </Button>
-          </CardContent>
-        </Card>
 
         {nativePlatform() === 'android' && <RestSoundPicker />}
         {nativePlatform() === 'android' && isOwner && <RestAlarmCheck />}
@@ -498,7 +483,18 @@ export default function AccountPage() {
           </CardContent>
         </Card>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <Button
+          variant="outline"
+          className="w-full gap-2"
+          onClick={() => {
+            signOut()
+            navigate('/auth')
+          }}
+        >
+          <LogOut className="h-4 w-4" /> Sign out
+        </Button>
+
+        <p className="text-center text-xs text-muted-foreground">
           <Link to="/terms" className="underline underline-offset-2">
             Terms of Service
           </Link>
