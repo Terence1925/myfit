@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { Camera, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar } from '@/components/shared/Avatar'
 import { profiles } from '@/lib/backend/api'
@@ -49,9 +48,6 @@ export function ProfilePhoto({ profile, onChanged }: { profile: Profile; onChang
         className="relative rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <Avatar url={profile.avatarUrl} className="h-24 w-24" />
-        <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-        </span>
       </button>
       <input ref={input} type="file" accept="image/*" className="hidden" onChange={onPick} data-testid="avatar-input" />
       <div className="flex gap-2">
