@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, Palette, ShieldCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, MessageCircle, Palette, ShieldCheck, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +28,10 @@ const ANDROID_PACKAGE_ID = 'com.myfit.app'
 // Must match supabase/functions/delete-account's OWNER_EMAIL — the server is the real
 // enforcement; this just avoids offering a delete flow that would only fail at the last step.
 const OWNER_EMAIL = 'ttagayona1985@gmail.com'
+// Where "Contact us" sends bug reports. Change this to a support address before release.
+const SUPPORT_EMAIL = 'joinmyfit@gmail.com'
+// Matches versionName in android/app/build.gradle
+const APP_VERSION = '1.0'
 
 export default function AccountPage() {
   const { profile, refreshProfile, role, deleteAccount, updatePassword, signOut, usesPassword, verifyPassword } = useAuth()
@@ -390,6 +394,25 @@ export default function AccountPage() {
         )}
 
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-primary" /> Contact us
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm font-body">
+            <p className="text-muted-foreground">Found a bug or need help? Send us a message and tell us what happened.</p>
+            <Button
+              className="w-full"
+              onClick={() => {
+                window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`MyFit support (version ${APP_VERSION})`)}`
+              }}
+            >
+              Contact us
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card className="border-destructive/30">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-destructive">
@@ -507,6 +530,7 @@ export default function AccountPage() {
             Refund policy
           </Link>
         </p>
+        <p className="text-center text-xs text-muted-foreground">MyFit version {APP_VERSION}</p>
       </motion.div>
     </div>
   )
