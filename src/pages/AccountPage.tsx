@@ -403,7 +403,7 @@ export default function AccountPage() {
           <CardContent className="space-y-3 text-sm font-body">
             <p className="text-muted-foreground">Found a bug or need help? Send us a message and tell us what happened.</p>
             <Button
-              className="w-full"
+              size="sm"
               onClick={() => {
                 window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`MyFit support (version ${APP_VERSION})`)}`
               }}
@@ -527,7 +527,7 @@ export default function AccountPage() {
           </Link>
           {' · '}
           <Link to="/refund-policy" className="underline underline-offset-2">
-            Refund policy
+            Refund Policy
           </Link>
         </p>
         <p className="text-center text-xs text-muted-foreground">MyFit version {APP_VERSION}</p>
