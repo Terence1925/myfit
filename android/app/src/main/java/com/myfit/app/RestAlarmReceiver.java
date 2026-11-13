@@ -35,8 +35,8 @@ public class RestAlarmReceiver extends BroadcastReceiver {
     private static final String CHANNEL_PREFIX = "rest-timer-alarm-v3-";
     private static final String[] OLD_CHANNEL_IDS = new String[] { "rest-timer-alarm", "rest-timer", "rest-timer-alarm-v2" };
     static final String DEFAULT_SOUND = "chime";
-    private static final String[] SOUNDS = new String[] { "chime", "beeps", "bell" };
-    private static final String[] SOUND_NAMES = new String[] { "Chime", "Beeps", "Bell" };
+    private static final String[] SOUNDS = new String[] { "chime", "beeps", "digital" };
+    private static final String[] SOUND_NAMES = new String[] { "Chime", "Beeps", "Digital alarm" };
     private static final int NOTIFICATION_ID = 4102;
     private static final long[] VIBRATION_PATTERN = new long[] { 0, 700, 400, 700, 400 };
 

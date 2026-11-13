@@ -2,7 +2,7 @@
 export const REST_SOUNDS = [
   { id: 'chime', label: 'Chime', hint: 'Two soft rising notes' },
   { id: 'beeps', label: 'Beeps', hint: 'Three quick beeps' },
-  { id: 'bell', label: 'Digital alarm', hint: 'Digital alarm clock beeps' },
+  { id: 'digital', label: 'Digital alarm', hint: 'Digital alarm clock beeps' },
 ] as const
 
 export type RestSoundId = (typeof REST_SOUNDS)[number]['id']
