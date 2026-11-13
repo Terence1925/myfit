@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, Palette, ShieldCheck, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -225,7 +225,7 @@ export default function AccountPage() {
         <Card className={proAccess ? 'border-primary/40 shadow-glow' : ''}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg flex items-center gap-2">
-              {proAccess && <Crown className="h-5 w-5 text-primary" />} Subscription
+              <Crown className="h-5 w-5 text-primary" /> Subscription
             </CardTitle>
             <Badge variant={proAccess ? 'default' : 'outline'}>
               {pro ? 'Pro' : isAdmin ? 'Admin' : 'Free'}
@@ -258,7 +258,7 @@ export default function AccountPage() {
                     Renews on {new Date(profile.subscriptionRenewsAt).toLocaleDateString()}
                   </p>
                 )}
-                <Button variant="outline" size="sm" onClick={handleManageNative}>
+                <Button onClick={handleManageNative}>
                   Manage in {nativePlatform() === 'ios' ? 'the App Store' : 'Google Play'}
                 </Button>
               </>
@@ -272,9 +272,7 @@ export default function AccountPage() {
                 <p className="text-muted-foreground">
                   You don't have an active subscription. Subscribe to unlock your program and everything in Pro.
                 </p>
-                <Button className="gap-2" onClick={openSubscribe}>
-                  <Crown className="h-4 w-4" /> See Plans
-                </Button>
+                <Button onClick={openSubscribe}>See Plans</Button>
               </>
             )}
           </CardContent>
@@ -282,7 +280,9 @@ export default function AccountPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Appearance</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Palette className="h-5 w-5 text-primary" /> Appearance
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex rounded-lg border border-border p-1">
