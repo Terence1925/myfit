@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, MessageCircle, Palette, ShieldCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, Crown, KeyRound, Loader2, Lock, LogOut, MessageCircle, Palette, Scale, ShieldCheck, Trash2 } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -285,6 +285,20 @@ export default function AccountPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
+              <Scale className="h-5 w-5 text-primary" /> Weight units
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm font-body">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-muted-foreground">Used for your lifts, body weight and charts.</p>
+              <WeightUnitToggle />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
               <Palette className="h-5 w-5 text-primary" /> Appearance
             </CardTitle>
           </CardHeader>
@@ -305,16 +319,6 @@ export default function AccountPage() {
               ))}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Auto follows your phone's light or dark setting.</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="flex items-center justify-between gap-3 p-4">
-            <div>
-              <div className="font-body text-sm font-bold">Weight units</div>
-              <div className="text-xs text-muted-foreground">Used for your lifts, body weight and charts.</div>
-            </div>
-            <WeightUnitToggle />
           </CardContent>
         </Card>
 
