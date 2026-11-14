@@ -97,7 +97,7 @@ function SummaryFigure({ label, eaten }: { label: string; eaten: number }) {
   )
 }
 
-export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userId: string }) {
+export function FoodTab({ userId }: { nutrition: NutritionPlan; userId: string }) {
   const [date, setDate] = React.useState(() => dayKey(new Date()))
   const [pickingDay, setPickingDay] = React.useState(false)
   const [entries, setEntries] = React.useState<FoodLogEntry[]>([])
