@@ -128,10 +128,10 @@ export function ProgramPaywall({ program }: { program: WorkoutProgram }) {
           <Sparkles className="h-8 w-8 text-primary-foreground" />
         </div>
         <p className="text-xs font-bold uppercase tracking-widest text-primary">Built just for you</p>
-        <h1 className="font-display text-4xl sm:text-5xl tracking-wide text-gradient-gold">
+        <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
           {firstName ? `${firstName}, your ${BLOCK_WEEKS}-week program is ready!` : `Your ${BLOCK_WEEKS}-week program is ready!`}
         </h1>
-        <p className="mt-3 font-body text-foreground">
+        <p className="mt-3 font-body text-sm text-foreground">
           {data.programName} — {data.tagline}
         </p>
       </div>
