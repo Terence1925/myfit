@@ -409,7 +409,7 @@ export default function AccountPage() {
             <Button
               size="sm"
               onClick={() => {
-                window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`MyFit support (version ${APP_VERSION})`)}`
+                window.location.href = `mailto:${SUPPORT_EMAIL}`
               }}
             >
               Contact us
