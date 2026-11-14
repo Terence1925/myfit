@@ -166,7 +166,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="container py-8 sm:py-12 max-w-2xl">
+    <div className="container py-8 sm:py-12 max-w-2xl [&_.text-muted-foreground]:text-foreground">
       <h1 className="sr-only">Account</h1>
 
       {syncing && (
@@ -521,7 +521,7 @@ export default function AccountPage() {
           <LogOut className="h-4 w-4" /> Sign out
         </Button>
 
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
           <Link to="/terms" className="underline underline-offset-2">
             Terms of Service
           </Link>
@@ -534,7 +534,7 @@ export default function AccountPage() {
             Refund Policy
           </Link>
         </p>
-        <p className="text-center text-xs text-muted-foreground">MyFit version {APP_VERSION}</p>
+        <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">MyFit version {APP_VERSION}</p>
       </motion.div>
     </div>
   )
