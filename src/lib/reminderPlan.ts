@@ -33,18 +33,29 @@ export function planReminders(opts: {
   days: ProgramDay[]
   time: string
   doneToday: boolean
+  /** The weekdays the person chose (0 = Sunday ... 6 = Saturday). Without them, the program's usual weekdays are used. */
+  weekdays?: number[]
 }): PlannedReminder[] {
-  const { now, days, time, doneToday } = opts
+  const { now, days, time, doneToday, weekdays } = opts
   if (days.length === 0) return []
-  const schedule = weekdaysFor(days.length)
   const [hour, minute] = time.split(':').map(Number)
+  // Monday-first order, so the first chosen day gets the first workout of the program
+  const chosen = weekdays?.length ? [1, 2, 3, 4, 5, 6, 0].filter((d) => weekdays.includes(d)) : null
+  const schedule = chosen ? null : weekdaysFor(days.length)
   const out: PlannedReminder[] = []
   for (let offset = 0; offset < HORIZON_DAYS; offset++) {
     const at = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset, hour, minute, 0, 0)
     if (at.getTime() <= now.getTime() + 30 * 1000) continue
     if (offset === 0 && doneToday) continue
-    const index = schedule.indexOf(WEEKDAY_NAMES[at.getDay()])
-    if (index === -1) continue
+    let index: number
+    if (chosen) {
+      const position = chosen.indexOf(at.getDay())
+      if (position === -1) continue
+      index = position % days.length
+    } else {
+      index = schedule!.indexOf(WEEKDAY_NAMES[at.getDay()])
+      if (index === -1) continue
+    }
     const day = days[index]
     const mindBody = day.exercises[0]?.format === 'yoga' || day.exercises[0]?.format === 'pilates'
     const count = day.exercises.length

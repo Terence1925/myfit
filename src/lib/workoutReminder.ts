@@ -14,6 +14,8 @@ export interface ReminderSettings {
   enabled: boolean
   /** 24-hour "HH:MM". */
   time: string
+  /** Days the person picked (0 = Sunday ... 6 = Saturday). Missing means "use my program's days". */
+  weekdays?: number[]
 }
 
 export { DEFAULT_REMINDER_TIME, formatReminderTime } from './reminderPlan'
@@ -26,7 +28,14 @@ export function loadReminderSettings(userId: string): ReminderSettings {
     const raw = localStorage.getItem(storageKey(userId))
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<ReminderSettings>
-      return { enabled: !!parsed.enabled, time: /^\d{2}:\d{2}$/.test(parsed.time ?? '') ? (parsed.time as string) : DEFAULT_REMINDER_TIME }
+      const weekdays = Array.isArray(parsed.weekdays)
+        ? [...new Set(parsed.weekdays.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))].sort((a, b) => a - b)
+        : []
+      return {
+        enabled: !!parsed.enabled,
+        time: /^\d{2}:\d{2}$/.test(parsed.time ?? '') ? (parsed.time as string) : DEFAULT_REMINDER_TIME,
+        ...(weekdays.length ? { weekdays } : {}),
+      }
     }
   } catch {
     /* fall through to the defaults */
@@ -68,7 +77,13 @@ export async function syncWorkoutReminders(userId: string): Promise<ReminderResu
     // A little logged this morning should not switch off this evening's reminder: only a workout that counts does
     const doneToday = countedDates(saved).some((d) => new Date(d).toDateString() === today)
 
-    const planned = planReminders({ now: new Date(), days: latest.programData.days, time: settings.time, doneToday })
+    const planned = planReminders({
+      now: new Date(),
+      days: latest.programData.days,
+      time: settings.time,
+      doneToday,
+      weekdays: settings.weekdays,
+    })
     if (planned.length === 0) return 'on'
 
     if (nativePlatform() === 'android') {
@@ -98,9 +113,18 @@ export async function syncWorkoutReminders(userId: string): Promise<ReminderResu
 }
 
 /** Turn reminders on or off from a screen. Saves the choice, then updates the phone. */
-export async function setWorkoutReminders(userId: string, enabled: boolean, time?: string): Promise<ReminderResult> {
+/**
+ * weekdays: undefined keeps the current choice, null goes back to the program's days, an array sets the chosen days.
+ */
+export async function setWorkoutReminders(
+  userId: string,
+  enabled: boolean,
+  time?: string,
+  weekdays?: number[] | null,
+): Promise<ReminderResult> {
   const current = loadReminderSettings(userId)
-  saveReminderSettings(userId, { enabled, time: time ?? current.time })
+  const nextDays = weekdays === undefined ? current.weekdays : weekdays === null || weekdays.length === 0 ? undefined : weekdays
+  saveReminderSettings(userId, { enabled, time: time ?? current.time, ...(nextDays ? { weekdays: nextDays } : {}) })
   const result = await syncWorkoutReminders(userId)
   window.dispatchEvent(new Event('myfit:reminders-changed'))
   return result
