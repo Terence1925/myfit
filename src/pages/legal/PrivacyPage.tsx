@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
       <h2>3. Who We Share It With</h2>
       <p>
-        Only the service providers necessary to run MyFit: our database and sign-in provider (Supabase), our website host (Vercel), Brevo (to send account emails, such as the account-deleted confirmation), Google (for Continue with Google), and our payment provider (Google Play or the Apple App Store, via RevenueCat for subscription status). Exercise videos are played from YouTube, which may collect data under its own policy. Food searches and barcode scans go to the USDA and Open Food Facts databases without your name or account details; for a barcode scan only the number is looked up, never a picture. We do not share your health or body data with advertisers.
+        Only the service providers necessary to run MyFit: a database and sign-in provider, a website host, an email provider (to send account emails, such as the account-deleted confirmation), Google (for Continue with Google), and the app stores and our subscription service (for billing and subscription status). Exercise videos are played from a video platform, which may collect data under its own policy. Food searches and barcode scans go to public food databases without your name or account details; for a barcode scan only the number is looked up, never a picture. These providers process data only to provide those services. We do not sell your data or share your health or body data with advertisers.
       </p>
 
       <h2>4. Data Storage &amp; Security</h2>
