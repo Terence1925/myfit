@@ -2,7 +2,7 @@ import { LegalLayout } from './LegalLayout'
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms of Service" updated="October 26, 2026">
+    <LegalLayout title="Terms of Service" updated="November 14, 2026">
       <p>
         These Terms of Service ("Terms") govern your use of MyFit (the "Service"), operated by Terence Tagayona. By creating an account or using the Service, you agree to these Terms.
       </p>
@@ -31,14 +31,18 @@ export default function TermsPage() {
       <h2>4. Subscriptions &amp; Billing</h2>
       <ul>
         <li>
-          Day 1 of your program and the food log are free. The rest of your program requires a Pro
-          subscription.
+          The food log is free for everyone. Your workout program, progress tracking and the other Pro features need an
+          active Pro subscription or free trial.
         </li>
         <li>
-          New subscribers may be offered a free trial (7 days). If you don't cancel in your Google Play or
-          Apple ID subscription settings at least 24 hours before the trial ends, it converts automatically into a
-          paid subscription at the price shown when you started the trial. Each Google or Apple account is
-          eligible for one trial.
+          New members may start a free trial (7 days) with full access to everything in Pro. If you don't cancel in your Google
+          Play or Apple ID subscription settings before the trial ends, it converts automatically into a paid subscription at the
+          price shown when you started the trial. If you cancel during the trial, you keep access until the trial ends and you are not
+          charged. Each Google or Apple account is eligible for one trial.
+        </li>
+        <li>
+          When your trial or subscription ends, your program and progress pages are locked. The food log stays free. Your data stays in
+          your account, and your program unlocks again if you subscribe.
         </li>
         <li>
           Pro plans (Monthly and Yearly) are purchased in the MyFit mobile app through
@@ -46,7 +50,10 @@ export default function TermsPage() {
           Google Play or Apple ID subscription settings; you keep access until the end of the period you already paid
           for. A Pro subscription also applies when you sign in to MyFit on the web.
         </li>
-        <li>The price you pay is the one Google Play or the App Store shows you before you subscribe, in your local currency Prices may change with prior notice for future billing periods.</li>
+        <li>
+          The price you pay is the one Google Play or the App Store shows you before you subscribe, in your local currency (for example, in
+          the Philippines: Monthly ₱149 and Yearly ₱1,290). Prices may change with prior notice for future billing periods.
+        </li>
         <li>Refunds are handled under our <a href="/refund-policy">Refund policy</a>.</li>
       </ul>
 

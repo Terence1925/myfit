@@ -2,12 +2,12 @@ import { LegalLayout } from './LegalLayout'
 
 export default function RefundPage() {
   return (
-    <LegalLayout title="Refund policy" updated="October 26, 2026">
+    <LegalLayout title="Refund Policy" updated="November 14, 2026">
       <p>MyFit is operated by Terence Tagayona. Subscriptions are bought through Google Play or the Apple App Store, which process all payments and refunds.</p>
       <h2>Free Trial</h2>
       <p>
-        Cancelling in Google Play or the Apple App Store before a free trial ends means you are never charged. Once a trial converts into a paid
-        subscription, the rules below apply.
+        The free trial lasts 7 days. Cancelling in Google Play or the Apple App Store before the trial ends means you are never charged, and you
+        keep access until the trial ends. Once a trial converts into a paid subscription, the rules below apply.
       </p>
 
       <h2>Monthly Pro</h2>

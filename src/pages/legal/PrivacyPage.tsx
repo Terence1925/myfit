@@ -2,7 +2,7 @@ import { LegalLayout } from './LegalLayout'
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout title="Privacy Policy" updated="November 5, 2026">
+    <LegalLayout title="Privacy Policy" updated="November 14, 2026">
       <p>
         MyFit ("we") respects your privacy. The controller of your personal data is Terence Tagayona, who operates MyFit. This policy explains what data we collect, why, and the
         rights you have over it under the Philippines' Data Privacy Act of 2012 (RA 10173), and under the data protection law where you live (for example the GDPR in the EU and UK).
@@ -15,7 +15,8 @@ export default function PrivacyPage() {
         <li><strong>Profile photo (optional):</strong> if you add one, you pick a photo from your phone. The app shrinks it to a small square picture and stores it with your profile so it can show next to your name. We do not read the rest of your photo library, and the app never uses your camera permission. You can remove the photo at any time in Account, and it is deleted when you delete your account.</li>
         <li><strong>Usage data:</strong> generated programs, logged workouts, exercises you add or edit yourself, food log entries, body-metric entries, activity history.</li>
         <li><strong>Support access:</strong> if you ask us for help, MyFit administrators can view your workout program and account details so they can fix the problem or send you a copy of your program by email.</li>
-        <li><strong>Billing data:</strong> your subscription plan and status. Payments are handled entirely by Google Play or the Apple App Store — we never see or store your card number.</li>
+        <li><strong>Billing data:</strong> your subscription plan, whether you are on a free trial, and your trial end or renewal date. Payments are handled entirely by Google Play or the Apple App Store — we never see or store your card number.</li>
+        <li><strong>Settings kept on your phone:</strong> your workout reminder time and days, your rest alarm sound, your weight units and your theme are saved on your phone. Reminders and the rest-timer alert are scheduled by your phone, so they work offline. We do not receive these settings.</li>
       </ul>
 
       <h2>2. How We Use Your Data</h2>
@@ -26,7 +27,7 @@ export default function PrivacyPage() {
 
       <h2>3. Who We Share It With</h2>
       <p>
-        Only the service providers necessary to run MyFit: our database and sign-in provider (Supabase), our website host (Vercel), Brevo (to send account emails, such as the account-deleted confirmation), Google (for Continue with Google), and our payment provider (Google Play or the Apple App Store, via RevenueCat for subscription status). Exercise videos are played from YouTube, which may collect data under its own policy. Food searches go to the USDA and Open Food Facts databases without your name or account details. We do not share your health or body data with advertisers.
+        Only the service providers necessary to run MyFit: our database and sign-in provider (Supabase), our website host (Vercel), Brevo (to send account emails, such as the account-deleted confirmation), Google (for Continue with Google), and our payment provider (Google Play or the Apple App Store, via RevenueCat for subscription status). Exercise videos are played from YouTube, which may collect data under its own policy. Food searches and barcode scans go to the USDA and Open Food Facts databases without your name or account details; for a barcode scan only the number is looked up, never a picture. We do not share your health or body data with advertisers.
       </p>
 
       <h2>4. Data Storage &amp; Security</h2>
@@ -54,7 +55,7 @@ export default function PrivacyPage() {
       </p>
 
       <h2>7. Cookies &amp; Local Storage</h2>
-      <p>We use local browser storage to keep you signed in and remember your preferences. We do not use third-party advertising trackers.</p>
+      <p>We use local storage on your phone or browser to keep you signed in and remember your preferences (such as units, theme, reminders and rest alarm sound). We do not use third-party advertising trackers.</p>
 
       <h2>8. Children's Privacy</h2>
       <p>MyFit is not directed at children under 16 and we do not knowingly collect their data. If you believe a child under 16 has given us their details, contact joinmyfit@gmail.com and we will delete them.</p>
