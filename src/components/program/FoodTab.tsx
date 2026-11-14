@@ -138,9 +138,6 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
     (t, e) => ({ kcal: t.kcal + e.kcal, p: t.p + e.proteinG, c: t.c + e.carbsG, f: t.f + e.fatG }),
     { kcal: 0, p: 0, c: 0, f: 0 },
   )
-  const target = nutrition.calorieTarget
-  const left = target - totals.kcal
-  const over = left < 0
   const today = dayKey(new Date())
 
   const remove = async (id: string) => {
@@ -255,9 +252,6 @@ export function FoodTab({ nutrition, userId }: { nutrition: NutritionPlan; userI
             <div className="min-w-0 text-right">
               <div className="text-[11px] font-semibold text-muted-foreground">Calories</div>
               <div className="font-display text-sm leading-none tracking-wide tabular-nums">{r0(totals.kcal).toLocaleString('en-PH')}</div>
-              <div className={cn('text-[10px]', over ? 'text-destructive' : 'text-muted-foreground')}>
-                {Math.abs(r0(left)).toLocaleString('en-PH')} {over ? 'over' : 'left'}
-              </div>
             </div>
           </div>
         </CardContent>
