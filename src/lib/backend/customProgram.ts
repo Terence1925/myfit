@@ -64,13 +64,18 @@ export function withoutCustomDays(answers: IntakeAnswers): IntakeAnswers {
   return copy
 }
 
+/** "push day" -> "Push day": only the first letter changes, the rest stays as typed. */
+export function capitalizeFirst(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
 /** A program from the days the person built themselves, with the same nutrition and recovery pieces as a generated one. */
 export function buildCustomProgram(answers: IntakeAnswers, nutrition: NutritionPlan): ProgramData {
   const built = answers.customDays ?? []
   if (built.length === 0) throw new Error('Build at least one day first.')
   const days: ProgramDay[] = built.map((d, i) => ({
     day: i + 1,
-    name: d.name.trim() || `Day ${i + 1}`,
+    name: capitalizeFirst(d.name.trim()) || `Day ${i + 1}`,
     focus: dayFocusOf(d.exercises),
     duration: dayDurationOf(d.exercises),
     exercises: d.exercises,
