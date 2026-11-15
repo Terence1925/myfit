@@ -174,7 +174,7 @@ export function TodayWorkout({
   const doneToday = dayProgress(todays.filter((h) => new Date(h.date).toDateString() === new Date().toDateString())).counts
 
   const handleSave = async () => {
-    if (completedSets === 0) return
+    if (!allDone) return
     await sessions.save({ userId, programId: program.id, day: day.day, dayName: day.name, date: new Date().toISOString(), exercises: log })
     clearDraft(program.id, day.day)
     setLog(buildLog(day.exercises))
@@ -257,7 +257,7 @@ export function TodayWorkout({
             </>
           )}
         </span>
-        <Button size="sm" className="gap-1.5" onClick={handleSave} disabled={completedSets === 0}>
+        <Button size="sm" className="gap-1.5" onClick={handleSave} disabled={!allDone}>
           <Save className="h-3.5 w-3.5" /> Save session
         </Button>
       </div>
