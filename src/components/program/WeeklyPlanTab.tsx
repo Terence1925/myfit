@@ -183,7 +183,6 @@ export function WeeklyPlanTab({
   // "Mark as done" with one tap shows up as a save with no exercises.
   const todayProgress = dayProgress(history.filter((h) => new Date(h.date).toDateString() === today))
   const doneToday = todayProgress.counts
-  const [markingDone, setMarkingDone] = React.useState(false)
 
   const afterSessionSaved = async () => {
     setHistory(await sessions.listForProgramDay(programId, day.day))
@@ -192,17 +191,6 @@ export function WeeklyPlanTab({
     window.dispatchEvent(new Event('myfit:session-saved'))
     setJustSaved(true)
     setTimeout(() => setJustSaved(false), 3000)
-  }
-
-  const handleMarkDone = async () => {
-    if (markingDone || doneToday) return
-    setMarkingDone(true)
-    try {
-      await sessions.save({ userId, programId, day: day.day, dayName: day.name, date: new Date().toISOString(), exercises: [] })
-      await afterSessionSaved()
-    } finally {
-      setMarkingDone(false)
-    }
   }
 
   const handleSave = async () => {
@@ -270,9 +258,6 @@ export function WeeklyPlanTab({
                       Started: {todayProgress.done} of {todayProgress.planned} {mindBody ? 'done' : 'sets'}
                     </span>
                   )}
-                  <Button size="sm" variant="outline" className="gap-1.5" onClick={handleMarkDone} disabled={markingDone}>
-                    <CheckCircle2 className="h-4 w-4" /> Mark as done
-                  </Button>
                 </>
               ))}
           </div>
