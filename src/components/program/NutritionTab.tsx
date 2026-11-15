@@ -9,21 +9,24 @@ function StatCard({
   label,
   value,
   sub,
+  highlight = false,
 }: {
   icon: ReactNode
   label: string
   value: string
   sub?: string
+  /** A light green card with green text, for the daily target. */
+  highlight?: boolean
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 text-muted-foreground mb-2">
+    <Card className={highlight ? 'border-primary/30 bg-primary/15' : undefined}>
+      <CardContent className="p-4">
+        <div className={`mb-1.5 flex items-center gap-2 ${highlight ? 'text-primary' : 'text-muted-foreground'}`}>
           {icon}
-          <span className="text-xs font-bold uppercase tracking-widest">{label}</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
         </div>
-        <div className="font-display text-3xl tracking-wide text-gradient-gold">{value}</div>
-        {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+        <div className={`font-display text-2xl tracking-wide ${highlight ? 'text-primary' : 'text-gradient-gold'}`}>{value}</div>
+        {sub && <div className={`mt-0.5 text-[11px] ${highlight ? 'text-primary' : 'text-muted-foreground'}`}>{sub}</div>}
       </CardContent>
     </Card>
   )
@@ -76,7 +79,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
     <div className="space-y-8">
       <div>
         <h3 className="font-display text-2xl tracking-wide mb-4">Calorie blueprint</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard icon={<Flame className="h-4 w-4" />} label="At rest" value={`${nutrition.bmr}`} sub="kcal your body burns" />
           <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Maintenance" value={`${nutrition.tdee}`} sub="kcal to keep your weight" />
           <StatCard
@@ -84,6 +87,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
             label="Target"
             value={`${nutrition.calorieTarget}`}
             sub="kcal/day goal"
+            highlight
           />
           <StatCard
             icon={nutrition.weeklyShiftKcal < 0 ? <TrendingDown className="h-4 w-4" /> : <TrendingUp className="h-4 w-4" />}
@@ -130,7 +134,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
         <CardHeader>
           <CardTitle className="text-lg">How we work this out</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm font-body text-muted-foreground">
+        <CardContent className="space-y-2 text-sm font-body text-foreground">
           <p>At rest: the calories your body burns just staying alive, worked out from your weight, height, age and sex.</p>
           <p>Maintenance: your at-rest calories plus what you burn moving around. Eat this much and your weight stays the same.</p>
           <p>Your calorie target is your maintenance, adjusted for your goal and how well you recover.</p>
@@ -146,7 +150,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
         <CardContent>
           <ul className="space-y-3">
             {tips.map((t, i) => (
-              <li key={i} className="flex gap-2 text-sm font-body text-foreground/90">
+              <li key={i} className="flex gap-2 text-sm font-body text-foreground">
                 <span className="text-primary shrink-0">•</span> {t}
               </li>
             ))}
