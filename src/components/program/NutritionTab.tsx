@@ -99,7 +99,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-lg">Protein, carbs and fat</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -131,7 +131,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-lg">How we work this out</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm font-body text-foreground">
@@ -144,7 +144,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-lg">Nutrition tips</CardTitle>
         </CardHeader>
         <CardContent>

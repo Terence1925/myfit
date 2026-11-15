@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { CalendarDays, ListChecks, TrendingUp, Waves } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProgramData } from '@/lib/types'
 import { BlockOverviewCard, YearRoadmapCard } from './BlockTimeline'
@@ -27,7 +27,7 @@ export function OverviewTab({
 
       {program.personalizationNotes?.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               Why this program is built for you
             </CardTitle>
@@ -46,19 +46,13 @@ export function OverviewTab({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
-          <CardHeader className="flex-row items-center gap-3 space-y-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
-            </div>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">Sets per week</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-foreground font-body">{program.weeklyVolume}</CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex-row items-center gap-3 space-y-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-              <Waves className="h-5 w-5 text-muted-foreground" />
-            </div>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">Progression</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-foreground font-body">{program.progressionStrategy}</CardContent>
@@ -67,10 +61,8 @@ export function OverviewTab({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-muted-foreground" /> Warm-Up
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Warm-Up</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -83,10 +75,8 @@ export function OverviewTab({
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-muted-foreground" /> Cool-Down
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Cool-Down</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">

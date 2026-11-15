@@ -1,4 +1,3 @@
-import { CalendarCheck, Dumbbell, Zap } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { effortSentence } from '@/lib/effortWords'
@@ -27,15 +26,14 @@ export function RecoveryTab({
   const tier = getRecoveryTier(recoveryScore, mindBody ? 'mind-body' : 'strength')
 
   const impact = [
-    { icon: Dumbbell, label: mindBody ? 'Session length' : 'Sets per session', text: tier.volumeAdjustment },
+    { label: mindBody ? 'Session length' : 'Sets per session', text: tier.volumeAdjustment },
     {
-      icon: CalendarCheck,
       label: 'Rest days',
       text: tier.extraRest
         ? 'An extra recovery day was added to your weekly split.'
         : 'Full training frequency was preserved — no extra rest days required.',
     },
-    { icon: Zap, label: mindBody ? 'Effort level' : 'Effort per set', text: effortSentence(tier.targetRIR) },
+    { label: mindBody ? 'Effort level' : 'Effort per set', text: effortSentence(tier.targetRIR) },
   ]
 
   return (
@@ -67,13 +65,10 @@ export function RecoveryTab({
         <h3 className="mb-3 font-display text-xl tracking-wide">What this means for your training</h3>
         <Card>
           <CardContent className="divide-y divide-border/60 p-0">
-            {impact.map(({ icon: Icon, label, text }) => (
-              <div key={label} className="flex gap-3 p-4">
-                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                <div>
-                  <div className="font-body text-sm font-bold">{label}</div>
-                  <p className="font-body text-sm text-foreground">{text}</p>
-                </div>
+            {impact.map(({ label, text }) => (
+              <div key={label} className="p-4">
+                <div className="font-body text-sm font-bold">{label}</div>
+                <p className="font-body text-sm text-foreground">{text}</p>
               </div>
             ))}
           </CardContent>
