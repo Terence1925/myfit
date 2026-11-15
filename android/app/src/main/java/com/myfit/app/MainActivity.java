@@ -22,6 +22,7 @@ public class MainActivity extends BridgeActivity {
         // Local plugins must be registered before super.onCreate().
         registerPlugin(RestAlarmPlugin.class);
         registerPlugin(WidgetPlugin.class);
+        registerPlugin(DownloadsPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -31,6 +31,8 @@ export default function SavedPrograms() {
   // The program whose PDF is being made, and a message about the last PDF that could not be made
   const [exportingId, setExportingId] = React.useState<string | null>(null)
   const [exportError, setExportError] = React.useState<{ id: string; text: string } | null>(null)
+  // Shown for a few seconds after a PDF was saved straight to the phone's Downloads folder
+  const [exportNote, setExportNote] = React.useState<string | null>(null)
 
   const handleExportPdf = async (p: WorkoutProgram) => {
     if (!profile || !hasProAccess(profile, role)) {
@@ -44,8 +46,13 @@ export default function SavedPrograms() {
     }
     setExportingId(p.id)
     setExportError(null)
+    setExportNote(null)
     try {
-      await exportProgramPdf(p)
+      const result = await exportProgramPdf(p)
+      if (result === 'saved') {
+        setExportNote(p.id)
+        window.setTimeout(() => setExportNote(null), 6000)
+      }
     } catch (err) {
       // Dismissing the share sheet rejects on some Android versions — that's not a failure.
       const msg = err instanceof Error ? err.message : ''
@@ -157,6 +164,7 @@ export default function SavedPrograms() {
                       </Button>
                     </div>
                     {exportError?.id === p.id && <p className="text-xs text-destructive">{exportError.text}</p>}
+                    {exportNote === p.id && <p className="text-xs text-foreground">Saved to your Downloads folder.</p>}
                   </CardContent>
                 </Card>
               </motion.div>

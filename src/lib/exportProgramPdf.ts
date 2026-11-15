@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 import { plainEffort } from '@/lib/effortWords'
@@ -15,7 +15,17 @@ const CONTENT_W = PAGE_W - MARGIN * 2
  * (native app). window.print() can't be used: the Android WebView ignores it, so "Export PDF" did
  * nothing on the phone.
  */
-export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
+// Our own small Android plugin (android/app/src/main/java/com/myfit/app/DownloadsPlugin.java): saves straight into Downloads.
+interface DownloadsPlugin {
+  saveFile(options: { fileName: string; data: string; mimeType: string }): Promise<{ uri: string }>
+}
+const Downloads = registerPlugin<DownloadsPlugin>('Downloads')
+
+/**
+ * Makes the PDF. 'downloaded': saved by the browser. 'saved': saved into the phone's Downloads folder (Android).
+ * 'shared': handed to the share sheet (iPhone, or an Android phone that cannot save straight to Downloads).
+ */
+export async function exportProgramPdf(program: WorkoutProgram): Promise<'downloaded' | 'saved' | 'shared'> {
   const { jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const { programData: p, nutrition: n } = program
@@ -116,11 +126,23 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<void> {
 
   if (!Capacitor.isNativePlatform()) {
     doc.save(fileName)
-    return
+    return 'downloaded'
   }
 
   const dataUri = doc.output('datauristring')
   const base64 = dataUri.slice(dataUri.indexOf('base64,') + 'base64,'.length)
+
+  // Android: save straight into the Downloads folder, no share sheet
+  if (Capacitor.getPlatform() === 'android') {
+    try {
+      await Downloads.saveFile({ fileName, data: base64, mimeType: 'application/pdf' })
+      return 'saved'
+    } catch {
+      // An older phone, or the save failed: fall back to the share sheet below
+    }
+  }
+
   const saved = await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache })
   await Share.share({ title: p.programName, files: [saved.uri], dialogTitle: 'Save or share your program' })
+  return 'shared'
 }
