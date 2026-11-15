@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
-import { CalendarCheck, Check, Dumbbell, Play } from 'lucide-react'
+import { CalendarCheck, Check, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProgressRing } from '@/components/ui/progress-ring'
 import { useAuth } from '@/context/AuthContext'
@@ -51,8 +51,9 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
     >
       <div className="relative">
         <h2 className="font-display text-3xl tracking-wide sm:text-4xl">{greeting(firstName, now)}</h2>
-        <p className="mt-1 font-body text-sm font-bold text-primary">{program.programData.programName}</p>
-        <p className="mt-0.5 font-body text-sm text-muted-foreground">{now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+        <p className="mt-1.5 font-body text-sm text-muted-foreground">
+          {program.programData.programName} · {now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+        </p>
 
         <div className="mt-5 flex items-center justify-between gap-1.5" aria-label="This week">
           {dots.map((d, i) => (
@@ -80,7 +81,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
           ))}
         </div>
 
-        <div className="mt-3 flex items-center gap-3 rounded-2xl bg-secondary/40 px-3.5 py-3">
+        <div className="mt-6 flex items-center gap-3 border-t border-border pt-6">
           <ProgressRing value={Math.min(streak.doneThisWeek, days.length)} goal={days.length} label={ring.title} />
           <div className="min-w-0">
             <div className="whitespace-nowrap font-body text-[13px] font-bold">{ring.title}</div>
@@ -89,13 +90,13 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
         </div>
 
         {next ? (
-          <div className="mt-3 rounded-2xl border border-border bg-background/50 p-4">
-            <div className="text-xs font-bold uppercase tracking-widest text-primary">Next up · Day {next.day}</div>
+          <div className="mt-6 border-t border-border pt-6">
+            <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Next up · Day {next.day}</div>
             <div className="mt-1 font-display text-2xl tracking-wide">{next.name}</div>
             <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-body text-sm capitalize text-muted-foreground">
               <span>{next.focus}</span>
-              <span className="inline-flex items-center gap-1 normal-case">
-                <Dumbbell className="h-3.5 w-3.5" /> {next.exercises.length} {mindBody ? 'moves' : 'exercises'}
+              <span className="normal-case">
+                {next.exercises.length} {mindBody ? 'moves' : 'exercises'}
               </span>
               <span className="normal-case">{next.duration}</span>
             </div>
@@ -108,7 +109,7 @@ export function TodayCard({ program, userId, onStart }: { program: WorkoutProgra
             </Button>
           </div>
         ) : (
-          <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-secondary/60 p-4">
+          <div className="mt-6 flex items-center gap-3 border-t border-border pt-6">
             <CalendarCheck className="h-8 w-8 shrink-0 text-primary" />
             <div className="font-body text-sm font-semibold">{allDoneMessage()}</div>
           </div>

@@ -31,7 +31,7 @@ export function ProgramView({ program, userId, onProgramUpdate }: { program: Wor
       />
       {startedDay !== null && <TodayWorkout key={startedDay} program={program} userId={userId} dayNumber={startedDay} onProgramUpdate={onProgramUpdate} />}
       {/* Which week of the 12: always the last thing on the page (12px under the card until a workout opens) */}
-      <BlockChip status={block} className={startedDay === null ? '!mt-3' : '!mt-4'} />
+      <BlockChip status={block} className={startedDay === null ? '!mt-3 !border-0 !bg-transparent !px-1' : '!mt-4 !border-0 !bg-transparent !px-1'} />
     </div>
   )
 }
