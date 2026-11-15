@@ -152,7 +152,7 @@ function Disclosure({ title, children }: { title: string; children: React.ReactN
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left font-body text-sm font-bold"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left font-body text-sm font-normal"
       >
         {title}
         <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
