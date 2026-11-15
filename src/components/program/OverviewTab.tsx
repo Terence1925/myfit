@@ -21,7 +21,7 @@ export function OverviewTab({
 
       <Card>
         <CardContent className="p-5">
-          <p className="font-body text-sm leading-relaxed text-foreground/90">{program.overview}</p>
+          <p className="font-body text-sm leading-relaxed text-foreground">{program.overview}</p>
         </CardContent>
       </Card>
 
@@ -35,7 +35,7 @@ export function OverviewTab({
           <CardContent>
             <ul className="space-y-3">
               {program.personalizationNotes.map((note, i) => (
-                <li key={i} className="flex gap-2.5 text-sm text-foreground/90 font-body leading-relaxed">
+                <li key={i} className="flex gap-2.5 text-sm text-foreground font-body leading-relaxed">
                   <span className="mt-0.5 text-primary shrink-0">•</span> {note}
                 </li>
               ))}
@@ -47,21 +47,21 @@ export function OverviewTab({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="flex-row items-center gap-3 space-y-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <TrendingUp className="h-5 w-5 text-primary" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
+              <TrendingUp className="h-5 w-5 text-muted-foreground" />
             </div>
             <CardTitle className="text-lg">Sets per week</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground font-body">{program.weeklyVolume}</CardContent>
+          <CardContent className="text-sm text-foreground font-body">{program.weeklyVolume}</CardContent>
         </Card>
         <Card>
           <CardHeader className="flex-row items-center gap-3 space-y-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-              <Waves className="h-5 w-5 text-accent" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
+              <Waves className="h-5 w-5 text-muted-foreground" />
             </div>
             <CardTitle className="text-lg">Progression</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground font-body">{program.progressionStrategy}</CardContent>
+          <CardContent className="text-sm text-foreground font-body">{program.progressionStrategy}</CardContent>
         </Card>
       </div>
 
@@ -69,13 +69,13 @@ export function OverviewTab({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-primary" /> Warm-Up
+              <ListChecks className="h-5 w-5 text-muted-foreground" /> Warm-Up
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
               {program.warmup.map((w, i) => (
-                <li key={i} className="flex gap-2 text-sm text-muted-foreground font-body">
+                <li key={i} className="flex gap-2 text-sm text-foreground font-body">
                   <span className="text-primary">•</span> {w}
                 </li>
               ))}
@@ -85,13 +85,13 @@ export function OverviewTab({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-accent" /> Cool-Down
+              <ListChecks className="h-5 w-5 text-muted-foreground" /> Cool-Down
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
               {program.cooldown.map((w, i) => (
-                <li key={i} className="flex gap-2 text-sm text-muted-foreground font-body">
+                <li key={i} className="flex gap-2 text-sm text-foreground font-body">
                   <span className="text-accent">•</span> {w}
                 </li>
               ))}

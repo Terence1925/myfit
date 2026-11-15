@@ -39,8 +39,8 @@ export function BlockOverviewCard({ createdAt, block }: { createdAt: string; blo
         <div className="text-sm font-semibold">{status.label}</div>
       </div>
       {block && <p className="mt-3 font-body text-sm font-semibold text-foreground">{block.summary}</p>}
-      <p className={cn('font-body text-sm leading-relaxed text-foreground/90', block ? 'mt-1' : 'mt-3')}>{BLOCK_NOTE}</p>
-      <p className="mt-1 font-body text-sm text-muted-foreground">
+      <p className={cn('font-body text-sm leading-relaxed text-foreground', block ? 'mt-1' : 'mt-3')}>{BLOCK_NOTE}</p>
+      <p className="mt-1 font-body text-sm text-foreground">
         A deload week means lighter training (about 40-60% of your usual weights) so your body can recover and come back stronger.
       </p>
     </div>
@@ -52,7 +52,7 @@ export function YearRoadmapCard({ current }: { current: number }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="text-xs font-bold uppercase tracking-widest text-primary">Your year</div>
-      <p className="mt-2 font-body text-sm text-muted-foreground">
+      <p className="mt-2 font-body text-sm text-foreground">
         A year is four 12-week programs. Each one is different, so your training keeps moving forward instead of repeating.
       </p>
       <ol className="mt-4 space-y-3">
@@ -74,7 +74,7 @@ export function YearRoadmapCard({ current }: { current: number }) {
                   {b.name}
                   {here && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">You are here</span>}
                 </div>
-                <div className="font-body text-xs leading-relaxed text-muted-foreground">{b.summary}</div>
+                <div className="font-body text-xs leading-relaxed text-foreground">{b.summary}</div>
               </div>
             </li>
           )
