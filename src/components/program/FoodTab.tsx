@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {
   CalendarDays,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -501,6 +502,7 @@ function AddFoodDialog({
   const [tab, setTab] = React.useState<BrowseTab>('food')
   // The meal can be changed from the title; it starts as the one that was tapped
   const [mealSel, setMealSel] = React.useState<MealType>(meal ?? 'breakfast')
+  const [mealMenuOpen, setMealMenuOpen] = React.useState(false)
   const [searches, setSearches] = React.useState<string[]>([])
   // The cookbook: what is being browsed and which recipe is open
   const [cbCategory, setCbCategory] = React.useState<RecipeCategory | 'all'>('all')
@@ -680,20 +682,43 @@ function AddFoodDialog({
               {!heading && <ChevronDown className="h-5 w-5 text-muted-foreground" />}
             </div>
             <div className="text-xs text-muted-foreground">{heading ? `${mealLabel} · ${dayLabel(date)}` : dayLabel(date)}</div>
-            {/* The meal can be changed without leaving: the phone's own list opens on top of the title */}
+            {/* The meal can be changed without leaving: tap the title and a small menu opens under it */}
             {!heading && (
-              <select
-                value={mealSel}
-                onChange={(e) => setMealSel(e.target.value as MealType)}
-                aria-label="Meal"
-                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              >
-                {MEALS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
+              <>
+                <button
+                  type="button"
+                  aria-label="Meal"
+                  aria-haspopup="listbox"
+                  aria-expanded={mealMenuOpen}
+                  onClick={() => setMealMenuOpen((o) => !o)}
+                  className="absolute inset-0 h-full w-full cursor-pointer"
+                />
+                {mealMenuOpen && (
+                  <>
+                    <button type="button" aria-label="Close meal list" onClick={() => setMealMenuOpen(false)} className="fixed inset-0 z-40 cursor-default" />
+                    <ul role="listbox" aria-label="Meal" className="absolute left-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-glow-lg">
+                      {MEALS.map((m) => (
+                        <li key={m.id} role="option" aria-selected={m.id === mealSel}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMealSel(m.id)
+                              setMealMenuOpen(false)
+                            }}
+                            className={cn(
+                              'flex min-h-[48px] w-full items-center justify-between px-4 text-left font-body text-base transition-colors hover:bg-muted',
+                              m.id === mealSel ? 'bg-primary/10 font-semibold text-foreground' : 'text-foreground',
+                            )}
+                          >
+                            {m.label}
+                            {m.id === mealSel && <Check className="h-4 w-4 text-primary" />}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </>
             )}
           </div>
         </header>
