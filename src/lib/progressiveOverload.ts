@@ -7,6 +7,8 @@ export interface ExerciseHistoryPoint {
   topReps: number
   estimated1RM: number
   totalVolume: number
+  /** Every completed set of that workout, in order, so the history can show each one. */
+  sets: Array<{ setNumber: number; weight: number; reps: number }>
 }
 
 /** Epley formula — the standard estimated-1-rep-max calculation used across the fitness industry. */
@@ -48,6 +50,7 @@ export function getExerciseHistory(sessions: WorkoutSession[], exerciseName: str
       topReps: topSet.reps,
       estimated1RM: topE1RM,
       totalVolume,
+      sets: completedSets.map((s) => ({ setNumber: s.setNumber, weight: s.weight, reps: s.reps })),
     })
   }
 
