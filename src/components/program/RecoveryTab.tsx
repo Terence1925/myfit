@@ -1,4 +1,4 @@
-import { BatteryMedium, CalendarCheck, Dumbbell, Zap } from 'lucide-react'
+import { CalendarCheck, Dumbbell, Zap } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { effortSentence } from '@/lib/effortWords'
@@ -44,9 +44,6 @@ export function RecoveryTab({
         <CardContent className="space-y-5 p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
-                <BatteryMedium className="h-6 w-6 text-foreground" />
-              </div>
               <div>
                 <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Recovery score</div>
                 <div className="font-display text-4xl tracking-wide text-gradient-gold">{recoveryScore}/100</div>
@@ -57,7 +54,7 @@ export function RecoveryTab({
             </Badge>
           </div>
           <RecoveryScale score={recoveryScore} currentTier={tier.tier} />
-          <p className="font-body text-sm text-muted-foreground">
+          <p className="font-body text-sm text-foreground">
             <span className="font-semibold text-foreground">What this means: </span>
             {tierMeaning(tier.tier)}
           </p>
@@ -72,10 +69,10 @@ export function RecoveryTab({
           <CardContent className="divide-y divide-border/60 p-0">
             {impact.map(({ icon: Icon, label, text }) => (
               <div key={label} className="flex gap-3 p-4">
-                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                 <div>
                   <div className="font-body text-sm font-bold">{label}</div>
-                  <p className="font-body text-sm text-muted-foreground">{text}</p>
+                  <p className="font-body text-sm text-foreground">{text}</p>
                 </div>
               </div>
             ))}
@@ -91,7 +88,7 @@ export function RecoveryTab({
           <CardContent className="p-5">
             <ul className="space-y-3">
               {advice.map((a, i) => (
-                <li key={i} className="flex gap-2 font-body text-sm text-foreground/90">
+                <li key={i} className="flex gap-2 font-body text-sm text-foreground">
                   <span className="shrink-0 text-primary">•</span> {a}
                 </li>
               ))}

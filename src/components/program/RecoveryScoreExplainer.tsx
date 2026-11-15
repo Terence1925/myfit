@@ -157,7 +157,7 @@ function Disclosure({ title, children }: { title: string; children: React.ReactN
         {title}
         <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
       </button>
-      {open && <div className="border-t border-border/60 px-4 py-4 text-sm font-body text-muted-foreground">{children}</div>}
+      {open && <div className="border-t border-border/60 px-4 py-4 text-sm font-body text-foreground">{children}</div>}
     </div>
   )
 }
@@ -188,7 +188,7 @@ export function RecoveryLearnMore({ currentTier, mindBody = false }: { currentTi
                   )}
                 </div>
                 <p className="mt-1">{t.meaning}</p>
-                <p className="mt-1 text-foreground/90">
+                <p className="mt-1 text-foreground">
                   <span className="font-semibold">Your program:</span> {mindBody ? t.planMindBody : t.plan}
                 </p>
               </div>
