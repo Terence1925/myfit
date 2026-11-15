@@ -10,12 +10,15 @@ export function Dialog({
   children,
   className,
   screen = false,
+  hideClose = false,
 }: {
   open: boolean
   onClose: () => void
   title: string
   children: React.ReactNode
   className?: string
+  /** Leaves out the X in the title bar, for a dialog that brings its own buttons. Tapping outside or Escape still closes it. */
+  hideClose?: boolean
   /** Fills the whole screen with no title bar: the content brings its own header (used by the food search). */
   screen?: boolean
 }) {
@@ -70,13 +73,15 @@ export function Dialog({
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h3 className="font-body text-lg font-bold text-foreground truncate pr-4">{title}</h3>
-              <button
-                onClick={onClose}
-                aria-label="Close"
-                className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              {!hideClose && (
+                <button
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
             </div>
             <div className="p-5">{children}</div>
           </motion.div>

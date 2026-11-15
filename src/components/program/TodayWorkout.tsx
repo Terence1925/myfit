@@ -13,6 +13,7 @@ import { dayProgress } from '@/lib/streak'
 import { parseRestSeconds } from '@/lib/restTimer'
 import { startRestTimer, stopRestTimer } from '@/lib/restTimerStore'
 import { Button } from '@/components/ui/button'
+import { Dialog } from '@/components/ui/dialog'
 import { CheckCircle2, Save } from 'lucide-react'
 import { useWeightUnit } from '@/lib/weightUnit'
 import { cn } from '@/lib/utils'
@@ -64,6 +65,16 @@ export function TodayWorkout({
   }, [signature])
   const [page, setPage] = React.useState(0)
   const scroller = React.useRef<HTMLDivElement>(null)
+
+  // When every set is checked, ask to save the session so nobody forgets. "Not yet" closes it; it asks again if a set is
+  // unchecked and checked again.
+  const [finishOpen, setFinishOpen] = React.useState(false)
+  const allDone = log.length > 0 && log.every((e) => e.sets.length > 0 && e.sets.every((s) => s.completed))
+  React.useEffect(() => {
+    if (allDone && !justSaved) setFinishOpen(true)
+    // Only when the "all done" state changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDone])
 
   React.useEffect(() => {
     let cancelled = false
@@ -242,7 +253,7 @@ export function TodayWorkout({
             </span>
           ) : (
             <>
-              {completedSets}/{totalSets} {mindBody ? 'done' : 'sets logged'}
+              {allDone ? 'All sets logged. Ready to save.' : `${completedSets}/${totalSets} ${mindBody ? 'done' : 'sets logged'}`}
             </>
           )}
         </span>
@@ -273,6 +284,30 @@ export function TodayWorkout({
           })}
         </div>
       </div>
+      <Dialog open={finishOpen} onClose={() => setFinishOpen(false)} title="Workout complete" hideClose>
+        <div className="space-y-5">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="h-8 w-8 shrink-0 text-primary" />
+            <p className="text-sm">
+              You logged every set. Save your session so it counts toward your week.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="h-12" onClick={() => setFinishOpen(false)}>
+              Edit
+            </Button>
+            <Button
+              className="h-12 gap-1.5"
+              onClick={() => {
+                setFinishOpen(false)
+                void handleSave()
+              }}
+            >
+              <Save className="h-4 w-4" /> Save session
+            </Button>
+          </div>
+        </div>
+      </Dialog>
       <CustomExerciseDialog
         open={customIndex !== null}
         onClose={() => setCustomIndex(null)}
