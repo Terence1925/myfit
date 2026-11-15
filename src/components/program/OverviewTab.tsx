@@ -15,13 +15,13 @@ export function OverviewTab({
   onSelectDay: (day: number) => void
 }) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <BlockOverviewCard createdAt={createdAt} block={program.trainingBlock} />
       {program.trainingBlock && <YearRoadmapCard current={program.trainingBlock.number} />}
 
       <Card>
-        <CardContent className="p-6 sm:p-8">
-          <p className="font-body leading-relaxed text-foreground/90">{program.overview}</p>
+        <CardContent className="p-5">
+          <p className="font-body text-sm leading-relaxed text-foreground/90">{program.overview}</p>
         </CardContent>
       </Card>
 
