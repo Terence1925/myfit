@@ -131,7 +131,7 @@ export default function ProgressPage() {
                 id="date"
                 type="button"
                 onClick={() => setPickingDay(true)}
-                className="mt-1.5 flex h-11 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-left text-base sm:h-10 sm:text-sm"
+                className="mt-1.5 flex h-11 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-left text-sm sm:h-10"
               >
                 <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
