@@ -4,6 +4,7 @@ import { Check, ChevronDown, Crown, Flame, Loader2, PlayCircle, Plus, RefreshCw,
 import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
+import { useHideExerciseDetails } from '@/lib/exerciseDetails'
 import { ExerciseHistoryDialog } from './ExerciseHistoryDialog'
 import { plainEffort } from '@/lib/effortWords'
 import { lastSessionHint } from '@/lib/progressiveOverload'
@@ -81,6 +82,7 @@ export function ExerciseCard({
   const { openSubscribe } = useSubscribeSheet()
   const [unit] = useWeightUnit()
   const [demoOpen, setDemoOpen] = React.useState(false)
+  const [hideDetails, setHideDetails] = useHideExerciseDetails()
   const [historyOpen, setHistoryOpen] = React.useState(false)
   const [warmupOpen, setWarmupOpen] = React.useState(false)
   // Yoga and Pilates flow from move to move: no sets table, no rest, no weights to track.
@@ -109,7 +111,24 @@ export function ExerciseCard({
             {index + 1}
           </div>
           <h4 className="min-w-0 flex-1 font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
+          <button
+            type="button"
+            onClick={() => setHideDetails(!hideDetails)}
+            aria-expanded={!hideDetails}
+            aria-label={hideDetails ? 'Show exercise details' : 'Hide exercise details'}
+            className="-mr-1 flex h-9 shrink-0 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
+          >
+            Details
+            <ChevronDown className={cn('h-4 w-4 transition-transform', !hideDetails && 'rotate-180')} />
+          </button>
         </div>
+        {hideDetails ? (
+          <p className="mt-2 text-xs text-muted-foreground font-body">
+            {mindBody
+              ? exercise.reps
+              : `${exercise.sets} sets · ${exercise.reps}${/sec|min|pumps/.test(exercise.reps) ? '' : ' reps'} · ${exercise.rest} rest`}
+          </p>
+        ) : (
         <div className="min-w-0">
           <div className="mt-3 flex flex-wrap gap-2">
             {!mindBody && <Badge variant="default">{exercise.sets} sets</Badge>}
@@ -228,6 +247,7 @@ export function ExerciseCard({
             </p>
           )}
         </div>
+        )}
       </div>
 
       {/* The set boxes use the whole width of the card, so the space on the left and right is equal */}
