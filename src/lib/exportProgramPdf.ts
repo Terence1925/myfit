@@ -139,8 +139,18 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<'downlo
   bullets(p.warmup)
 
   heading('Weekly training plan', 200)
+
+  // A note that repeats on many exercises is printed once here, not under every exercise.
+  const noteCounts = new Map<string, number>()
+  for (const day of p.days) for (const ex of day.exercises) if (ex.notes) noteCounts.set(plainEffort(ex.notes), (noteCounts.get(plainEffort(ex.notes)) ?? 0) + 1)
+  const commonNotes = [...noteCounts.entries()].filter(([, count]) => count >= 3).map(([note]) => note)
+  if (commonNotes.length) {
+    text('NOTES', { size: 7.5, bold: true, color: GREY, gap: 4, spaced: true })
+    commonNotes.forEach((note) => text(note, { size: 9, color: GREY, gap: 4 }))
+    y += 4
+  }
   for (const day of p.days) {
-    ensureSpace(90)
+    ensureSpace(170)
     y += 12
     text(`DAY ${day.day}`, { size: 7.5, bold: true, color: GREEN, gap: 2, spaced: true })
     text(day.name, { size: 15, bold: true, gap: 1 })
@@ -181,7 +191,8 @@ export async function exportProgramPdf(program: WorkoutProgram): Promise<'downlo
       const nameLines = doc.splitTextToSize(ex.name, nameW) as string[]
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
-      const noteLines = ex.notes ? (doc.splitTextToSize(plainEffort(ex.notes), nameW) as string[]) : []
+      const ownNote = ex.notes && !commonNotes.includes(plainEffort(ex.notes)) ? plainEffort(ex.notes) : ''
+      const noteLines = ownNote ? (doc.splitTextToSize(ownNote, nameW) as string[]) : []
       const rowH = 10 + nameLines.length * 13 + noteLines.length * 11 + (noteLines.length ? 2 : 0) + 8
       if (y + rowH > PAGE_H - MARGIN - 10) {
         doc.addPage()
