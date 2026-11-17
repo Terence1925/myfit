@@ -31,12 +31,15 @@ export function WeeklyPlanTab({
   hasProgressAccess,
   demoLocked,
   readOnly,
+  noLogging,
   startedAt,
 }: {
   /** When the program was generated: it sets which week's targets show. Leave out to show the plan as written. */
   startedAt?: string
   /** A finished program is view only: no logging, no swapping. */
   readOnly?: boolean
+  /** Look at the plan only: no Log workout button and no logging (that is done from Home). Swapping still works. */
+  noLogging?: boolean
   program: ProgramData
   programId: string
   userId: string
@@ -101,7 +104,7 @@ export function WeeklyPlanTab({
       logKeyRef.current = key
       const draft = loadDraft(programId, day.day)
       setLog(reconcileLog(day.exercises, draft))
-      setLoggingMode(draft !== null)
+      setLoggingMode(!noLogging && draft !== null)
       setJustSaved(false)
     } else if (logRef.current.length > 0) {
       // Same day, but the exercises changed (a swap): keep what was already typed for the rest.
@@ -235,7 +238,7 @@ export function WeeklyPlanTab({
             <div className="flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
               <Clock className="h-4 w-4" /> {day.duration}
             </div>
-            {!readOnly && (
+            {!readOnly && !noLogging && (
               <Button
                 size="sm"
                 variant={loggingMode ? 'secondary' : 'outline'}
@@ -246,7 +249,7 @@ export function WeeklyPlanTab({
                 {loggingMode ? 'Cancel Log' : 'Log workout'}
               </Button>
             )}
-            {!readOnly && !loggingMode &&
+            {!readOnly && !noLogging && !loggingMode &&
               (doneToday ? (
                 <span className="inline-flex h-9 items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="h-4 w-4" /> Done today
@@ -310,6 +313,7 @@ export function WeeklyPlanTab({
               hasProgressAccess={hasProgressAccess}
               demoLocked={demoLocked}
               readOnly={readOnly}
+              alwaysShowDetails={noLogging}
               suggestion={suggestions[i]}
               warmup={target ? warmupFor(day.exercises, i, suggestions[i]?.weight, target, unit) : null}
             />

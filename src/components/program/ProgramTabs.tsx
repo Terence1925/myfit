@@ -99,6 +99,7 @@ export function ProgramTabs({
             onCustomExercise={handleCustom}
             hasProgressAccess={proAccess}
             readOnly={readOnly}
+            noLogging
             startedAt={program.createdAt}
           />
         </TabsContent>

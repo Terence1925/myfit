@@ -54,6 +54,7 @@ export function ExerciseCard({
   userSessions,
   hasProgressAccess,
   readOnly,
+  alwaysShowDetails,
   suggestion,
   warmup,
 }: {
@@ -61,6 +62,8 @@ export function ExerciseCard({
   index: number
   /** A finished program is view only: no swapping. */
   readOnly?: boolean
+  /** Always show the full details, with no Details switch (the Programs tab). */
+  alwaysShowDetails?: boolean
   /** This week's aim for the exercise, worked out from what was logged before. */
   suggestion?: Suggestion | null
   /** Warm-up sets for a heavy opening lift (shown, not logged). */
@@ -82,7 +85,8 @@ export function ExerciseCard({
   const { openSubscribe } = useSubscribeSheet()
   const [unit] = useWeightUnit()
   const [demoOpen, setDemoOpen] = React.useState(false)
-  const [hideDetails, setHideDetails] = useHideExerciseDetails()
+  const [hideDetailsSetting, setHideDetails] = useHideExerciseDetails()
+  const hideDetails = hideDetailsSetting && !alwaysShowDetails
   const [historyOpen, setHistoryOpen] = React.useState(false)
   const [warmupOpen, setWarmupOpen] = React.useState(false)
   // Yoga and Pilates flow from move to move: no sets table, no rest, no weights to track.
@@ -111,6 +115,7 @@ export function ExerciseCard({
             {index + 1}
           </div>
           <h4 className="min-w-0 flex-1 font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
+          {!alwaysShowDetails && (
           <button
             type="button"
             onClick={() => setHideDetails(!hideDetails)}
@@ -121,6 +126,7 @@ export function ExerciseCard({
             Details
             <ChevronDown className={cn('h-4 w-4 transition-transform', !hideDetails && 'rotate-180')} />
           </button>
+          )}
         </div>
         {hideDetails ? (
           <p className="mt-2 text-xs text-muted-foreground font-body">
