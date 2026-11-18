@@ -22,9 +22,9 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 - Every week has a target: the weight and reps to aim for, with coaching based on the last session. Warm-up sets for heavy lifts. A lighter week after week 12. Swap any exercise for a similar one or type your own.
 - Year-round progression: when a 12-week block ends, the next one continues with fresh exercises (the year is four blocks: Foundation, Strength, Size, Peak), so training keeps moving forward instead of repeating.
 - Workout log from the Home screen: log every set, with a rest timer that alerts even when the app is in the background.
-- Real-person video tutorials for nearly every exercise (say "video tutorials"; do NOT use the word "animated" or "animation" anywhere until the owner confirms the rights), and the ability to swap any exercise for a similar one in one tap (or type your own).
+- Video tutorials for nearly every exercise: real-person videos and animated demos (the owner has confirmed the rights to both), and the ability to swap any exercise for a similar one in one tap (or type your own).
 - Your history is saved to your account, so it is kept when the person changes phones. Unlimited saved plans, and a new plan any time.
-- Food log for breakfast, lunch, dinner and snacks with calories, protein, carbs and fat. Barcode scanner. Search of hundreds of everyday and Filipino foods (with the weight of each serving in grams) plus millions of products worldwide.
+- Food log for breakfast, lunch, dinner and snacks with calories, protein, carbs and fat. Barcode scanner. Search of hundreds of everyday foods (with the weight of each serving in grams) plus millions of products worldwide.
 - Cookbook of 93 healthy recipes, every one with a photo, steps, calories and protein, including high-protein desserts.
 - Daily calorie, protein, carb and fat target worked out from the person's body, activity, sleep and stress.
 - Recovery score from sleep, stress and activity that trims the sets when the person needs rest.
@@ -36,7 +36,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 **Free:** the full food log with barcode scanning, the cookbook, and a readable view of the plan.
 **Pro (7-day free trial, then ₱149 a month or ₱1,290 a year, billed in the person's local currency by Google Play, cancel any time):** logging every training day, the rest timer, video demos, progress history and charts, full nutrition and recovery plan, unlimited saved plans, PDF export.
 
-**Release:** Android only for now (Google Play). Category: Health & Fitness. Tags: workout, fitness, nutrition. Contact email: joinmyfit@gmail.com. Privacy policy: https://getmyfit.vercel.app/privacy
+**Release:** Google Play first, and the Apple App Store next. Write all copy and images so they work on both stores: never say "Android app", "Android only" or mention a phone brand, and show no store logos. Category: Health & Fitness. Tags: workout, fitness, nutrition. Contact email: joinmyfit@gmail.com. Privacy policy: https://getmyfit.vercel.app/privacy
 
 **Brand look:** minimalist and premium. Brand green #66C23D (accent gradient #86DC58 to #4CAB29), dark charcoal base #0D0E12 to #14161C, body grey #A7ADBA, white headlines. Clean sans-serif, tight bold headlines, small spaced-capital labels, generous empty space, a soft green glow behind modern thin-bezel phone frames with the real app UI. Never childish, cluttered or generic. The app icon is a white flexing arm on a green square (attached).
 
@@ -46,7 +46,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 2. **It fits how you train, and keeps you progressing all year.** Gym, home, bands, bodyweight, yoga or Pilates. Use a plan built for you, or build your own (Custom), and swap any exercise in one tap. The plan continues in new 12-week blocks, and every week tells you what to beat from your last session. The longer you use it, the more history and progress you have.
 3. **A real workout log, with video tutorials.** Watch how each exercise is done, then log every set, rep and weight in seconds, with a rest timer that keeps time in the background. Every set is saved, with history for each exercise and personal-record alerts.
 4. **Starts free, with real value.** The full food log with barcode scanner and a cookbook of 93 healthy recipes with photos are free. Pro starts with a 7-day free trial, and you can cancel any time.
-5. **A big food database.** Scan any package barcode and search millions of products worldwide, plus hundreds of everyday and Filipino foods with the weight of each serving in grams. (Filipino foods are a small supporting point, not a headline.)
+5. **A big food database.** Scan any package barcode and search millions of products worldwide, plus hundreds of everyday foods with the weight of each serving in grams.
 6. **No ads.** Never interrupted while you train or log a meal.
 
 Write the copy so a reader sees these six reasons within the first few seconds. Never use unprovable claims such as "best", "easiest", "No. 1" or "#1". Confidence must come from specific facts, not superlatives.
@@ -87,5 +87,8 @@ Produce the full set in the primary dark-charcoal look, and also screenshots 1, 
 - Screens use a demo account ("Alex") with realistic sample data. No real people's data: no personal photo or avatar, and no Admin tab in the bottom bar (use a normal user account).
 - Text in images at least 90 px high on the 1080 px canvas for headlines. All eight must read as one consistent set.
 
-## 4. Output format
+## 4. Later: Apple App Store (do not produce now; design so it can be reused)
+For the App Store, the same artwork will be reused at iPhone size (1320 x 2868). Apple also needs: a 30-character subtitle (suggestion: "Workout & Calorie Tracker"), a 170-character promotional text, and a 100-character hidden keyword list. There is no banner on the App Store.
+
+## 5. Output format
 Return, in order: A, B, C, F, then D and E as finished image specifications (or the images themselves if you can generate them), then G. Give character counts for every text field.
