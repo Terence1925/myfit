@@ -3,7 +3,7 @@
 import { FILIPINO_FOODS, searchFoods } from '../src/lib/foods/filipinoFoods'
 import { FOOD_CATEGORIES, foodsInCategory } from '../src/lib/foods/categories'
 import { isFilipinoPlate, PLATES } from '../src/lib/foods/plates'
-import { fromBase, isFilipinoFood, matchesRegion, regionFirst, toBase } from '../src/lib/foods/region'
+import { fromBase, isFilipinoFood, matchesRegion, regionFirst, toBase, unitLabel } from '../src/lib/foods/region'
 
 const problems: string[] = []
 const check = (label: string, ok: boolean, detail = '') => {
@@ -48,11 +48,10 @@ check('search keeps every result', everyday.length === eggs.length)
 check('Everyday search puts everyday first', !isFilipinoFood(everyday[0]))
 check('Filipino search puts Filipino first', isFilipinoFood(regionFirst(eggs, 'filipino')[0]))
 
-// Ounces: 100 g is about 3.5 oz; 250 ml is about 8.5 fl oz; converting back returns the same number
-const oz = fromBase(100, 'g', 'imperial')
-check('100 g in oz', Math.abs(oz - 3.527) < 0.01, String(oz))
-check('250 ml in fl oz', Math.abs(fromBase(250, 'ml', 'imperial') - 8.454) < 0.01)
-check('oz round trip', Math.abs(toBase(oz, 'g', 'imperial') - 100) < 1e-9)
+// The second unit is ml, with 1 g = 1 ml: amounts pass through unchanged in both modes
+check('grams unchanged in the second unit', fromBase(100, 'g', 'imperial') === 100 && toBase(100, 'g', 'imperial') === 100)
+check('ml unchanged in the second unit', fromBase(250, 'ml', 'imperial') === 250)
+check('second unit is labelled ml', unitLabel('g', 'imperial') === 'ml' && unitLabel('ml', 'imperial') === 'ml')
 check('metric is unchanged', toBase(150, 'g', 'metric') === 150 && fromBase(150, 'ml', 'metric') === 150)
 
 if (problems.length) {
