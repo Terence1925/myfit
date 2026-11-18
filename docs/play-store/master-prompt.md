@@ -22,7 +22,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 - Every week has a target: the weight and reps to aim for, with coaching based on the last session. Warm-up sets for heavy lifts. A lighter week after week 12. Swap any exercise for a similar one or type your own.
 - Year-round progression: when a 12-week block ends, the next one continues with fresh exercises (the year is four blocks: Foundation, Strength, Size, Peak), so training keeps moving forward instead of repeating.
 - Workout log from the Home screen: log every set, with a rest timer that alerts even when the app is in the background.
-- Video tutorials for nearly every exercise: real-person videos and animated demos (the owner has confirmed the rights to both), and the ability to swap any exercise for a similar one in one tap (or type your own).
+- Video tutorials for nearly every exercise: real-person videos and animated demos (the owner has approved showing both), and the ability to swap any exercise for a similar one in one tap (or type your own).
 - Your history is saved to your account, so it is kept when the person changes phones. Unlimited saved plans, and a new plan any time.
 - Food log for breakfast, lunch, dinner and snacks with calories, protein, carbs and fat. Barcode scanner. Search of hundreds of everyday foods (with the weight of each serving in grams) plus millions of products worldwide.
 - Cookbook of 93 healthy recipes, every one with a photo, steps, calories and protein, including high-protein desserts.
