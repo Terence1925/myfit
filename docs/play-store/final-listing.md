@@ -12,9 +12,9 @@ MyFit: Workout Calorie Tracker
 4. Log sets and reps, track calories, follow a plan that grows with you.  (69)
 5. All-in-one workout log and calorie tracker with rest timer and barcode scan.  (76)
 
-## C. Full description (2859 of 4,000 characters)
+## C. Full description (2583 of 4,000 characters)
 
-MyFit is the all-in-one workout and calorie tracker you can keep using all year. Follow a plan built for you, log every set, rep and weight with a rest timer, and track your food with a barcode scanner. One app, no ads.
+MyFit is the all-in-one workout and calorie tracker you can keep using all year. Follow a plan built for you, log every set and rep with a rest timer, and track your food with a barcode scanner. One app, no ads.
 
 TRAIN YOUR WAY
 - Gym, dumbbells only, bodyweight, resistance bands, yoga or Pilates. Or choose Custom and pick the exercises for each day yourself.
@@ -23,41 +23,36 @@ TRAIN YOUR WAY
 - Video tutorials for nearly every exercise: real-person videos and animated demos.
 
 LOG EVERY SET IN SECONDS
-- Log weight and reps for every set right from the Home screen.
+- Log weight and reps for every set from the Home screen.
 - A rest timer that alerts you even when the app is in the background.
 - Every set is saved, with a history for each exercise and personal-record alerts.
-- Every week shows what to beat, based on what you lifted last time.
-- Workout reminders on your training days, a home-screen widget with your next workout and weekly streak, and weights in pounds or kilograms.
+- Each week shows what to beat, based on what you lifted last time.
+- Workout reminders on training days, a home-screen widget with your next workout and streak, and pounds or kilograms.
 
 A PLAN THAT KEEPS GROWING
-- Warm-up sets for your heavy lifts and a lighter week so your body can recover.
+- Warm-up sets for heavy lifts and a lighter week to recover.
 - When a 12-week block ends, the next one starts with fresh exercises: Foundation, Strength, Size and Peak.
 - Weight and body-fat charts show your progress over time.
-- Your history is saved to your account, so you keep it when you change phones. Save as many plans as you like and start a new one any time.
+- Your history is saved to your account, so you keep it when you change phones. Save as many plans as you like.
 
 COUNT CALORIES WITHOUT THE EFFORT
-- Log breakfast, lunch, dinner and snacks, and see your calories, protein, carbs and fat for the day.
-- Scan a package barcode to add a food in seconds.
-- Search hundreds of everyday foods, with the weight of each serving in grams, plus millions of products from around the world.
+- Log breakfast, lunch, dinner and snacks, and see your calories, protein, carbs and fat.
+- Scan a barcode to add a food in seconds, or search everyday foods (with the weight of each serving in grams) and millions of products worldwide.
 - A daily calorie, protein, carb and fat target worked out from your body, activity, sleep and stress.
-
-COOKBOOK OF 93 HEALTHY RECIPES
-- Every recipe has a photo, steps, calories and protein, including high-protein desserts, breakfasts, meals and snacks.
-- Save your favorite foods and meals.
+- A cookbook of healthy recipes with photos, steps, calories and protein, including high-protein desserts.
 
 TRAIN TO MATCH YOUR RECOVERY
-- A recovery score from your sleep, stress and activity shows when to push and trims your sets when you need rest.
+- A recovery score from your sleep, stress and activity trims your sets when you need rest.
 
 FREE AND PRO
 Free: the full food log with barcode scanning, the cookbook, and a readable view of your plan.
-Pro: logging every training day with sets, reps and rest, the rest timer, video demos, progress history and charts, your full nutrition and recovery plan, unlimited saved plans and PDF export.
-Try Pro free for 7 days. After the trial, the subscription renews at the price shown in your local currency, and you can cancel any time in Google Play.
+Pro: logging every training day, the rest timer, video demos, progress history and charts, your full nutrition and recovery plan, unlimited saved plans and PDF export. Try Pro free for 7 days. After the trial it renews at the price shown in your local currency, and you can cancel any time in Google Play.
 
 MyFit is a training and nutrition guide, not medical advice. Talk to your doctor before you start a new exercise or eating plan.
 
 ## F. What's new (302 of 500 characters)
 
-Welcome to MyFit. A personal workout plan for the gym, home, bands, yoga or Pilates (or build your own), a set-by-set workout log with a rest timer and video tutorials, a free food log with barcode scanner, a cookbook of 93 recipes, progress charts, personal-record alerts and a recovery score. No ads.
+Welcome to MyFit. A personal workout plan for the gym, home, bands, yoga or Pilates (or build your own), a set-by-set workout log with a rest timer and video tutorials, a free food log with barcode scanner, a cookbook of healthy recipes, progress charts, personal-record alerts and a recovery score. No ads.
 
 ## G. Rationale, tests and keywords
 
