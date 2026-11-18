@@ -9,7 +9,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 
 ## 1. The app (all of this is real and built; use only these facts)
 
-**Name:** MyFit. **Positioning:** the all-in-one workout and calorie tracker that is simple to use. People get a personal 12-week workout plan and a food log in one place, so they do not need two apps.
+**Name:** MyFit (store title: MyFit: Workout Calorie Tracker). **Positioning:** the all-in-one workout and calorie tracker that is simple to use. People get a personal 12-week workout plan and a food log in one place, so they do not need two apps.
 
 **Audience:** anyone in the world who wants to work out and track calories: beginners, people getting back into training, intermediate gym-goers, home workouts, people losing fat or building muscle. English-speaking market. Tone: friendly, confident, clear, motivating. Never pushy, never medical.
 
@@ -32,15 +32,25 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 
 **Brand look:** minimalist and premium. Brand green #66C23D (accent gradient #86DC58 to #4CAB29), dark charcoal base #0D0E12 to #14161C, body grey #A7ADBA, white headlines. Clean sans-serif, tight bold headlines, small spaced-capital labels, generous empty space, a soft green glow behind modern thin-bezel phone frames with the real app UI. Never childish, cluttered or generic. The app icon is a white flexing arm on a green square (attached).
 
+## Why people must choose MyFit (use these as the core message in every text and image)
+
+1. **One app instead of two.** A real workout plan and a calorie tracker together. No juggling a gym app and a food app.
+2. **A plan that adapts to you.** It is built around your goal, your equipment and how well you recover. Each week has a target, and a recovery score trims your sets when you need rest.
+3. **Starts free, with real value.** The full food log with barcode scanner and a cookbook of 93 healthy recipes with photos are free. Pro starts with a 7-day free trial, and you can cancel any time.
+4. **Fast and simple.** Log a set in seconds. A rest timer that keeps time in the background. A home-screen widget with your next workout and streak.
+5. **Made for how people really eat.** Hundreds of everyday and Filipino foods with the weight of each serving in grams, plus millions of products worldwide through the barcode scanner.
+
+Write the copy so a reader sees these five reasons within the first few seconds. Never use unprovable claims such as "best", "easiest", "No. 1" or "#1". Confidence must come from specific facts, not superlatives.
+
 ## 2. What to produce
 
-**A. Store title (30 characters maximum).** The owner's chosen name is "MyFit: Workout & Calorie Tracker", which is 32 characters and too long. Use **"MyFit: Workout Calorie Tracker"** (exactly 30) unless you can propose a stronger option that is 30 or fewer. Show the character count.
+**A. Store title (30 characters maximum).** The owner's final title is **"MyFit: Workout Calorie Tracker"** (exactly 30 characters). Use it exactly. Show the character count.
 
 **B. Short description (80 characters maximum).** Give 5 options with character counts, then your top pick. Lead with the biggest benefit, include "workout" and "calorie".
 
 **C. Full description (4,000 characters maximum).** Strong first two lines (they show before "Read more"), then short sections with clear all-caps headings and bullets, natural search keywords (workout plan, calorie tracker, food log, barcode scanner, meal recipes, gym, home workout), a Free vs Pro section that is honest about the trial and renewal, and a short health disclaimer at the end. Show the character count.
 
-**D. Feature graphic (banner), 1024 x 500 px, JPG or 24-bit PNG, no transparency.** Headline "Train smarter. Eat on target." with the small line "Workout plan + calorie tracker". Logo and the word MyFit top left. Two overlapping, slightly tilted phones on the right (Home and Food log). Keep all text and the logo at least 60 px inside every edge. Readable at thumbnail size. Also give one alternative bold brand-green version.
+**D. Feature graphic (banner), 1024 x 500 px, JPG or 24-bit PNG, no transparency.** Headline "Train smarter. Eat on target." with the small line "Workout plan + calorie tracker". Logo and the word MyFit top left. Two overlapping, slightly tilted phones on the right (Home and Food log). Keep all text and the logo at least 60 px inside every edge. Readable at thumbnail size. Also give two alternative looks: (1) **pure black** (#000000 base, OLED style) and (2) **white / light** (#F8F9FB base, dark text #0D0E12, deeper green #3F9A22 for text accents). Recommend which of the three (dark charcoal, black, white) will convert best, and why.
 
 **E. Eight phone screenshots, 1080 x 1920 px (9:16).** One system for all eight: small green spaced-caps label, two-line headline (second line in the green gradient), one grey supporting line, then one large phone with the real screen. At most one small floating badge per image, never covering important UI.
 
@@ -55,7 +65,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 | 7 | PROGRESS | Watch your / progress build. | Weight charts and personal-record alerts keep you going. | Weight trend chart in kg |
 | 8 | RECOVERY | Train to match / your recovery. | A score from your sleep and stress that adjusts your sets when you need rest. | Recovery score |
 
-Improve the order or wording if you can justify it. Screens 1 to 3 must be the strongest, because most people never scroll further.
+Produce the full set in the primary dark-charcoal look, and also screenshots 1, 3 and 5 in the pure black and the white looks so the owner can compare. Improve the order or wording if you can justify it. Screens 1 to 3 must be the strongest, because most people never scroll further.
 
 **F. Release notes ("What's new", 500 characters maximum)** for the first release.
 
