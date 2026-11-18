@@ -22,7 +22,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 - Every week has a target: the weight and reps to aim for, with coaching based on the last session. Warm-up sets for heavy lifts. A lighter week after week 12. Swap any exercise for a similar one or type your own.
 - Year-round progression: when a 12-week block ends, the next one continues with fresh exercises (the year is four blocks: Foundation, Strength, Size, Peak), so training keeps moving forward instead of repeating.
 - Workout log from the Home screen: log every set, with a rest timer that alerts even when the app is in the background.
-- Video tutorials for nearly every exercise, and the ability to swap any exercise for a similar one in one tap (or type your own).
+- Real-person video tutorials for nearly every exercise (say "video tutorials"; do NOT use the word "animated" or "animation" anywhere until the owner confirms the rights), and the ability to swap any exercise for a similar one in one tap (or type your own).
 - Your history is saved to your account, so it is kept when the person changes phones. Unlimited saved plans, and a new plan any time.
 - Food log for breakfast, lunch, dinner and snacks with calories, protein, carbs and fat. Barcode scanner. Search of hundreds of everyday and Filipino foods (with the weight of each serving in grams) plus millions of products worldwide.
 - Cookbook of 93 healthy recipes, every one with a photo, steps, calories and protein, including high-protein desserts.
@@ -66,8 +66,8 @@ Write the copy so a reader sees these six reasons within the first few seconds. 
 | # | Label | Headline | Supporting line | Screen |
 |---|---|---|---|---|
 | 1 | MYFIT | Train smarter. / Eat on target. | Your workout plan, set log and calorie tracker, together in one app. | Home with weekly streak and next workout |
-| 2 | YOUR PLAN | Your plan, / your way. | Gym, home, bands, yoga or Pilates. Built around you, or pick every exercise yourself. | Weekly plan with this week's target (or the Custom day builder) |
-| 3 | WORKOUT LOG | Log every set / in seconds. | Weight, reps and a rest timer that keeps time, even when the app is in the background. | Logging sets with rest timer |
+| 2 | TRAIN YOUR WAY | Gym, home, / yoga, Pilates. | Pick how you want to train. We only program moves you can actually do. | The "How do you want to train?" screen listing Full Commercial Gym, Dumbbells Only, Bodyweight / Calisthenics, Resistance Bands, Yoga, Pilates and Custom |
+| 3 | WORKOUT LOG | Log every set / in seconds. | Weight, reps and a rest timer that keeps time, even when the app is in the background. | Logging sets with rest timer. Badge "Video tutorials" |
 | 4 | BEAT LAST TIME | Know exactly / what to beat. | Every week shows your target, based on what you lifted last time. | Exercise history and the weekly target card |
 | 5 | PROGRESS | Watch your / progress build. | Every set saved, weight and body-fat charts, and personal-record alerts. | Weight trend chart and history in kg |
 | 6 | FOOD LOG | Count calories / without the effort. | Scan a barcode or search millions of foods. Hit your daily target. | Food log with sample entries (Chicken breast 150 g, Eggs x4), meals opened. Badge "Scan a barcode" |
@@ -84,7 +84,7 @@ Produce the full set in the primary dark-charcoal look, and also screenshots 1, 
 - Use only real features from section 1. No invented claims, awards, ratings, star icons, download counts, "No. 1", "best", "easiest", "#1", or comparisons with named competitors.
 - No prices, discounts or promotional wording inside the images or the title. No emoji or all-caps spam in the title. No keyword stuffing, and no misleading text.
 - No medical or weight-loss promises. Keep the disclaimer: MyFit is a training and nutrition guide, not medical advice.
-- Screens use a demo account ("Alex") with realistic sample data. No real people's data.
+- Screens use a demo account ("Alex") with realistic sample data. No real people's data: no personal photo or avatar, and no Admin tab in the bottom bar (use a normal user account).
 - Text in images at least 90 px high on the 1080 px canvas for headlines. All eight must read as one consistent set.
 
 ## 4. Output format
