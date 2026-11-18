@@ -11,16 +11,19 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 
 **Name:** MyFit (store title: MyFit: Workout Calorie Tracker). **Positioning:** the all-in-one workout and calorie tracker that people keep using month after month. It is a training companion, not a one-off program: a personal plan that keeps progressing all year, a set-by-set workout log with a rest timer, progress tracking, and a food log, all in one place.
 
+**Gym companion positioning:** MyFit is the companion to a gym membership (or a home setup). The gym gives the equipment; MyFit gives the plan, the log, the timer, the history and the nutrition that make every session count, and it keeps getting more useful the longer someone uses it. Aim for the feeling "this is the app I keep for years". Do not claim it replaces a gym.
+
 **IMPORTANT message rule:** never describe MyFit as only "a 12-week program". The plan is the starting point. The daily habit that keeps people coming back is logging every set, rep and weight, using the rest timer, beating last session, tracking progress, and logging food, all year long.
 
 **Audience:** anyone in the world who wants to work out and track calories: beginners, people getting back into training, intermediate gym-goers, home workouts, people losing fat or building muscle. English-speaking market. Tone: friendly, confident, clear, motivating. Never pushy, never medical.
 
 **Features:**
-- Personalised plan from a short questionnaire (12-week blocks): goal (lose weight, build muscle, get stronger, or lose fat and build muscle), equipment (full gym, dumbbells only, bodyweight, resistance bands, yoga, Pilates), recovery. Or build your own days from the exercise library.
+- Personalised plan from a short questionnaire (12-week blocks): goal (lose weight, build muscle, get stronger, or lose fat and build muscle), equipment (full gym, dumbbells only, bodyweight, resistance bands, yoga, Pilates), recovery. Or choose **Custom**: pick the exercises for each day yourself from the exercise library, by body part and equipment.
 - Every week has a target: the weight and reps to aim for, with coaching based on the last session. Warm-up sets for heavy lifts. A lighter week after week 12. Swap any exercise for a similar one or type your own.
 - Year-round progression: when a 12-week block ends, the next one continues with fresh exercises (the year is four blocks: Foundation, Strength, Size, Peak), so training keeps moving forward instead of repeating.
 - Workout log from the Home screen: log every set, with a rest timer that alerts even when the app is in the background.
 - Short video demos for nearly every exercise.
+- Your history is saved to your account, so it is kept when the person changes phones. Unlimited saved plans, and a new plan any time.
 - Food log for breakfast, lunch, dinner and snacks with calories, protein, carbs and fat. Barcode scanner. Search of hundreds of everyday and Filipino foods (with the weight of each serving in grams) plus millions of products worldwide.
 - Cookbook of 93 healthy recipes, every one with a photo, steps, calories and protein, including high-protein desserts.
 - Daily calorie, protein, carb and fat target worked out from the person's body, activity, sleep and stress.
@@ -40,7 +43,7 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 ## Why people must choose MyFit (use these as the core message in every text and image)
 
 1. **One app instead of two.** A workout plan, a set-by-set workout log and a calorie tracker together. No juggling a gym app and a food app.
-2. **It keeps you progressing all year, not just 12 weeks.** The plan continues in new 12-week blocks, and every week tells you what to beat from your last session.
+2. **It keeps you progressing all year, not just 12 weeks.** Use a plan built for you, or build your own (Custom). The plan continues in new 12-week blocks, and every week tells you what to beat from your last session. The longer you use it, the more history and progress you have.
 3. **A real workout log.** Log every set, rep and weight in seconds, with a rest timer that keeps time in the background. Every set is saved, with history for each exercise and personal-record alerts.
 4. **Starts free, with real value.** The full food log with barcode scanner and a cookbook of 93 healthy recipes with photos are free. Pro starts with a 7-day free trial, and you can cancel any time.
 5. **A big food database.** Scan any package barcode and search millions of products worldwide, plus hundreds of everyday and Filipino foods with the weight of each serving in grams. (Filipino foods are a small supporting point, not a headline.)
@@ -54,7 +57,7 @@ Write the copy so a reader sees these six reasons within the first few seconds. 
 
 **B. Short description (80 characters maximum).** Give 5 options with character counts, then your top pick. Lead with the biggest benefit, include "workout" and "calorie", and hint that it tracks sets and reps. At least one option should mention "no ads".
 
-**C. Full description (4,000 characters maximum).** Strong first two lines (they show before "Read more"), then short sections with clear all-caps headings and bullets, natural search keywords (workout tracker, workout log, gym log, set and rep tracker, rest timer, workout plan, calorie tracker, food log, barcode scanner, meal recipes, home workout), a Free vs Pro section that is honest about the trial and renewal, and a short health disclaimer at the end. Show the character count.
+**C. Full description (4,000 characters maximum).** Strong first two lines (they show before "Read more"), then short sections with clear all-caps headings and bullets, natural search keywords (workout tracker, workout log, gym log, workout planner, set and rep tracker, rest timer, workout plan, calorie tracker, food log, barcode scanner, meal recipes, home workout), a Free vs Pro section that is honest about the trial and renewal, and a short health disclaimer at the end. Show the character count.
 
 **D. Feature graphic (banner), 1024 x 500 px, JPG or 24-bit PNG, no transparency.** Headline "Train smarter. Eat on target." with the small line "Workout log + calorie tracker". Logo and the word MyFit top left. Two overlapping, slightly tilted phones on the right (Home and Food log). Keep all text and the logo at least 60 px inside every edge. Readable at thumbnail size. Also give two alternative looks: (1) **pure black** (#000000 base, OLED style) and (2) **white / light** (#F8F9FB base, dark text #0D0E12, deeper green #3F9A22 for text accents). Recommend which of the three (dark charcoal, black, white) will convert best, and why.
 
@@ -63,7 +66,7 @@ Write the copy so a reader sees these six reasons within the first few seconds. 
 | # | Label | Headline | Supporting line | Screen |
 |---|---|---|---|---|
 | 1 | MYFIT | Train smarter. / Eat on target. | Your workout plan, set log and calorie tracker, together in one app. | Home with weekly streak and next workout |
-| 2 | YOUR PLAN | A plan that / keeps you growing. | Built around your goal and equipment, in new 12-week blocks all year. | Weekly plan with this week's target |
+| 2 | YOUR PLAN | Your plan, / your way. | Built around your goal and equipment, or pick every exercise yourself. New blocks all year. | Weekly plan with this week's target (or the Custom day builder) |
 | 3 | WORKOUT LOG | Log every set / in seconds. | Weight, reps and a rest timer that keeps time, even when the app is in the background. | Logging sets with rest timer |
 | 4 | BEAT LAST TIME | Know exactly / what to beat. | Every week shows your target, based on what you lifted last time. | Exercise history and the weekly target card |
 | 5 | PROGRESS | Watch your / progress build. | Every set saved, weight and body-fat charts, and personal-record alerts. | Weight trend chart and history in kg |
