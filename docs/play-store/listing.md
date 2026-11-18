@@ -11,24 +11,26 @@ Why this name: it names the strongest feature (a 12-week plan that fits your equ
 
 ## Short description (80 max)
 
-12-week workout plan that fits your gear + a free calorie log with barcode scan
+All-in-one workout plan and calorie tracker with barcode scan. Try free.
 
 ## Full description (4000 max)
 
-MyFit gives you a 12-week workout plan built around your goal, your equipment and how well you recover, and tells you what to lift each week. It also has a free food log with a barcode scanner and a cookbook of healthy recipes.
+MyFit is an all-in-one workout and calorie tracker. It gives you a 12-week workout plan built around your goal, your equipment and how well you recover, tells you what to lift each week, and keeps a food log with a barcode scanner and a cookbook of healthy recipes.
 
 A 12-WEEK PLAN THAT FITS YOU
 - Answer a few questions and get a plan for your goal: lose weight, build muscle, get stronger, or lose fat and build muscle together.
-- Choose a full gym, dumbbells only, bodyweight, resistance bands, yoga or Pilates.
+- Choose a full gym, dumbbells only, bodyweight, resistance bands, yoga or Pilates, or build your own days from our exercise library.
 - Every week has a clear target, the weight to aim for, and a coaching tip based on what you logged last time.
+- Swap any exercise for a similar one, or type in your own.
 - Warm-up sets for your heavy lifts, and a lighter week after week 12 so your body can recover.
 - Weights in pounds or kilograms, whichever you prefer.
 - Short video demos for nearly every exercise.
+- Save your plan as a clean PDF to your phone.
 
 A FREE FOOD LOG
 - Log breakfast, lunch, dinner and snacks, and see your calories, protein, carbs and fat for the day.
 - Scan a package barcode to add a food in seconds.
-- Search hundreds of everyday and Filipino foods, plus millions of products from around the world.
+- Search hundreds of everyday and Filipino foods, with the weight of each serving in grams, plus millions of products from around the world.
 - A cookbook of healthy recipes with photos and steps, including high-protein desserts.
 - Save your favorite foods and meals.
 
@@ -37,14 +39,14 @@ CALORIES AND RECOVERY, WORKED OUT FOR YOU
 - A recovery score that shows how your sleep and stress affect your training, and trims your sets when you need it.
 
 STAY ON TRACK
-- A rest timer that alerts you even when the app is in the background.
-- Workout reminders on the days you train.
+- Log every set from your Home screen, with a rest timer that alerts you even when the app is in the background.
+- Workout reminders on the days you train, set like an alarm.
 - A home screen widget with your next workout and your weekly streak.
-- Progress history with personal-record alerts, and weight and body-measurement charts.
+- Progress history with personal-record alerts, and weight and body-fat charts.
 
 FREE AND PRO
-Free: the first workout of every plan, the full food log with barcode scanning, and the cookbook.
-Pro: every training day with sets, reps and rest, the workout log, progress history and charts, your nutrition and recovery plan, unlimited saved plans and PDF export. Try Pro free for 7 days. After the trial, the subscription renews at the price shown in your local currency, and you can cancel any time in Google Play.
+Free: the full food log with barcode scanning, the cookbook, and a readable view of your plan.
+Pro: logging every training day with sets, reps and rest, the rest timer, video demos, progress history and charts, your full nutrition and recovery plan, unlimited saved plans and PDF export. Try Pro free for 7 days. After the trial, the subscription renews at the price shown in your local currency, and you can cancel any time in Google Play.
 
 MyFit is a training and nutrition guide, not medical advice. Talk to your doctor before you start a new exercise or eating plan.
 
