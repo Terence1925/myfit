@@ -11,7 +11,7 @@ https://getmyfit.vercel.app/privacy
 Choose "All or some functionality is restricted", then add instructions:
 
 - Sign-in: email and password (or "Continue with Google"). A reviewer needs an account.
-- Create a reviewer account in the live app, and give it Pro with a redeem code (Admin > Codes) so the reviewer sees every screen. Day 1 of each plan and the food log are free; the rest of the plan needs Pro.
+- Create a reviewer account in the live app, and give it Pro with a redeem code (Admin > Codes) so the reviewer sees every screen. Do not use your own admin account. The food log, the cookbook and a read-only view of the plan are free; logging workouts, the rest timer, demos and progress need Pro.
 - Put the reviewer email and password here in the Play Console form only. Do not write the password into this file or anywhere in the repository.
 
 ## 3. Ads
@@ -79,19 +79,39 @@ Not collected: location, contacts, videos, audio, other files, messages, web bro
 
 The camera permission is not requested: barcode scanning uses Google's code scanner.
 
+The built app also lists `ACCESS_NETWORK_STATE`, `USE_BIOMETRIC`, `USE_FINGERPRINT` and `USE_CREDENTIALS`. They come from the sign-in and networking libraries, they are normal permissions with no prompt, and Play Console does not ask you to justify them. There is no advertising ID and no location permission.
+
 ## 9. Other App content forms
 
 Government apps: **No**. Financial features: **No** (subscriptions are sold through Google Play). News app: **No**. COVID-19 contact tracing or status app: **No**.
 
-## 10. Subscriptions (Monetize > Subscriptions)
+## 10. Subscriptions (Monetize > Products > Subscriptions)
 
-- Product IDs in the app: `pro_monthly` and `pro_yearly`.
-- Give each base plan a **7-day free-trial offer**: the app and the store description both say 7 days (`TRIAL_DAYS` in `src/lib/billing.ts`).
-- The demo prices in the app (₱149 a month, ₱1,290 a year) are only a fallback. Real prices come from the prices you set here.
-- Link Play to RevenueCat: add the Play service-account credentials in the RevenueCat dashboard, map both products to the Pro entitlement, and add yourself under Settings > License testing so test purchases are free.
+Create two subscriptions. The app reads a free trial from the Google Play base plan, so the trial must be an offer on each base plan.
+
+| | Monthly | Yearly |
+|---|---|---|
+| Product ID | `pro_monthly` | `pro_yearly` |
+| Name (users see it) | MyFit Pro Monthly | MyFit Pro Yearly |
+| Base plan | Auto-renewing, billing period 1 month | Auto-renewing, billing period 1 year |
+| Price (Philippines) | PHP 149 | PHP 1,290 |
+| Free-trial offer | Offer type: new customer acquisition, eligibility: new customers, phase: free trial, **7 days** | Same |
+
+- Let Google convert the price for other countries, then check them.
+- The prices in the app (PHP 149 and PHP 1,290) are only a fallback. The real prices come from what you set here.
+- Link Play to RevenueCat: create the Google service account, upload its JSON key in RevenueCat, and import the two products. Attach both to the `pro` entitlement and to the `default` offering as the Monthly and Annual packages.
+- Add yourself under **Settings > License testing**, so test purchases are free.
+- Add the RevenueCat webhook (URL in `PROJECT_NOTES.md`) so Supabase learns about purchases.
 
 ## 11. Release
 
 - Upload `app-release.aab` (Android App Bundle) to your track.
 - Turn on Play App Signing and keep a backup of your upload keystore and its password somewhere other than this computer.
 - Each new upload needs a higher `versionCode` (it is 1 for the first release).
+
+## 12. Store settings and testing
+
+- **Main store listing:** title, short and full description from `final-listing.md`; icon `icon-512.png`; feature graphic and 6 phone screenshots from `google-play-upload/` (or the zip `MyFit-google-play-graphics.zip`).
+- **Store settings:** category **Health & Fitness**; tags: workout, fitness, nutrition; contact email **joinmyfit@gmail.com**; website https://getmyfit.vercel.app.
+- **Closed testing (personal account):** create a closed track, add a tester list (a Google Group or emails), share the opt-in link, and keep **12 testers opted in for 14 days in a row** before applying for production access.
+- **Google sign-in on Play-installed builds:** after the first upload, copy the **app signing SHA-1** from Play Console (Test and release > App integrity) and add it to the Android OAuth client in Google Cloud.
