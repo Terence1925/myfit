@@ -19,16 +19,16 @@ function StatCard({
   highlight?: boolean
 }) {
   return (
-    <div>
-      <div className="py-2.5">
+    <Card className={highlight ? 'border-primary/30 bg-primary/15' : undefined}>
+      <CardContent className="p-4">
         <div className={`mb-1.5 flex items-center gap-2 ${highlight ? 'text-primary' : 'text-muted-foreground'}`}>
           {icon}
           <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
         </div>
-        <div className={`font-display text-xl tracking-wide ${highlight ? 'text-primary' : 'text-gradient-gold'}`}>{value}</div>
+        <div className={`font-display text-2xl tracking-wide ${highlight ? 'text-primary' : 'text-gradient-gold'}`}>{value}</div>
         {sub && <div className={`mt-0.5 text-[11px] ${highlight ? 'text-primary' : 'text-muted-foreground'}`}>{sub}</div>}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -79,7 +79,7 @@ export function NutritionTab({ nutrition, tips }: { nutrition: NutritionPlan; ti
     <div className="space-y-8">
       <div>
         <h3 className="font-display text-2xl tracking-wide mb-4">Calorie blueprint</h3>
-        <div className="grid grid-cols-[auto_auto] justify-start gap-x-10 gap-y-0 px-4 lg:grid-cols-4 lg:justify-normal">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard icon={<Flame className="h-4 w-4" />} label="At rest" value={`${nutrition.bmr}`} sub="kcal your body burns" />
           <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Maintenance" value={`${nutrition.tdee}`} sub="kcal to keep your weight" />
           <StatCard

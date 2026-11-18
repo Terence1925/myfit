@@ -467,7 +467,7 @@ function FoodRows({ foods, onPick }: { foods: FoodItem[]; onPick: (f: FoodItem) 
           <button className="flex w-full items-center gap-3 py-2.5 text-left" onClick={() => onPick(f)}>
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold">{f.name}</div>
-              <div className="truncate text-xs text-muted-foreground">{f.note ?? f.serving}</div>
+              <div className="truncate text-xs text-muted-foreground">{f.note ?? (f.amount ? `${shown(f.amount)} ${f.unit ?? 'g'}` : f.serving)}</div>
             </div>
             <div className="shrink-0 text-sm font-semibold">{f.kcal} kcal</div>
           </button>

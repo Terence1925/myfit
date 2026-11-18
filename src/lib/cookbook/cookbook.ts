@@ -80,7 +80,7 @@ export const RECIPES: Recipe[] = RECIPE_DATA.map((src) => {
   return { ...src, ...n, tags: tagsFor(src, n), ...(PHOTO_IDS.has(src.id) ? { photo: `/recipes/${src.id}.jpg`, photoCredit: PHOTO_CREDITS[src.id] } : {}) }
 })
 
-export const FILTER_TAGS = ['High protein', 'Under 400 kcal', 'Under 20 min', 'Filipino', 'Vegetarian', 'Low carb'] as const
+export const FILTER_TAGS = ['High protein', 'Under 400 kcal', 'Under 20 min', 'Vegetarian', 'Low carb'] as const
 
 export function filterRecipes(
   list: Recipe[],
