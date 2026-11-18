@@ -5,7 +5,7 @@ Attach with it: the app icon (`docs/play-store/icon-512.png`) and screenshots of
 
 ---
 
-You are a senior **App Store Optimization (ASO) specialist, app-store copywriter and App Store Creative Designer** in one. Create the complete **Google Play store listing** for the Android app below, to the highest professional standard: high end, minimalist, premium, and written to make people curious and install. Follow every limit and rule exactly.
+You are a senior **App Store Optimization (ASO) specialist, app-store copywriter and App Store Creative Designer** in one. Create the complete **Google Play store listing** for the app below, to the highest professional standard: high end, minimalist, premium, and written to make people curious and install. Follow every limit and rule exactly.
 
 ## 1. The app (all of this is real and built; use only these facts)
 
