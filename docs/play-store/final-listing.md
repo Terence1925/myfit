@@ -61,7 +61,7 @@ Welcome to MyFit. A personal workout plan for the gym, home, bands, yoga or Pila
 
 ## G. Rationale, tests and keywords
 
-**Why this order.** Screenshot 1 sells the whole idea in one line. Screen 2 shows the choice of gym, home, yoga or Pilates, so more people see themselves in it. Screen 3 is the daily habit (log sets, rest timer), which is why people keep the app. Screen 4 shows the weekly target to beat, the reason to come back. The food and cookbook screens come after the workout ones because the app is led by training. Recovery is last as a differentiator.
+**Why this order (6 screenshots, white look).** Screenshot 1 sells the whole idea in one line. Screen 2 shows the choice of gym, home, yoga or Pilates, so more people see themselves in it. Screen 3 is the daily habit (log sets, rest timer), which is why people keep the app. Screen 4 shows the weekly target to beat, the reason to come back. Screens 5 and 6 show the food log and the cookbook. The Progress and Recovery screenshots were dropped as the weakest, so every remaining image earns its place. The banner shows the workout log first and the calorie tracker second.
 
 **Why these headlines.** Short, two lines, a benefit and then a fact. "Train smarter. Eat on target." covers both halves of the app. "Log every set in seconds" and "Know exactly what to beat" describe what people actually do in the app. No superlatives, only things the app really does.
 
