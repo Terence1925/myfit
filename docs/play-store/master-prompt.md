@@ -25,6 +25,8 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 - Progress: weight and body-fat charts, personal-record alerts, exercise history.
 - Workout reminders on training days (set like an alarm), a home-screen widget (next workout and weekly streak), weights in pounds or kilograms, plan saved as a PDF to the phone.
 
+**No ads anywhere in the app.** (A real, provable selling point: use it.)
+
 **Free:** the full food log with barcode scanning, the cookbook, and a readable view of the plan.
 **Pro (7-day free trial, then ₱149 a month or ₱1,290 a year, billed in the person's local currency by Google Play, cancel any time):** logging every training day, the rest timer, video demos, progress history and charts, full nutrition and recovery plan, unlimited saved plans, PDF export.
 
@@ -38,15 +40,16 @@ You are a senior **App Store Optimization (ASO) specialist, app-store copywriter
 2. **A plan that adapts to you.** It is built around your goal, your equipment and how well you recover. Each week has a target, and a recovery score trims your sets when you need rest.
 3. **Starts free, with real value.** The full food log with barcode scanner and a cookbook of 93 healthy recipes with photos are free. Pro starts with a 7-day free trial, and you can cancel any time.
 4. **Fast and simple.** Log a set in seconds. A rest timer that keeps time in the background. A home-screen widget with your next workout and streak.
-5. **Made for how people really eat.** Hundreds of everyday and Filipino foods with the weight of each serving in grams, plus millions of products worldwide through the barcode scanner.
+5. **A big food database.** Scan any package barcode and search millions of products worldwide, plus hundreds of everyday and Filipino foods with the weight of each serving in grams. (Filipino foods are a small supporting point, not a headline.)
+6. **No ads.** Never interrupted while you train or log a meal.
 
-Write the copy so a reader sees these five reasons within the first few seconds. Never use unprovable claims such as "best", "easiest", "No. 1" or "#1". Confidence must come from specific facts, not superlatives.
+Write the copy so a reader sees these six reasons within the first few seconds. Never use unprovable claims such as "best", "easiest", "No. 1" or "#1". Confidence must come from specific facts, not superlatives.
 
 ## 2. What to produce
 
 **A. Store title (30 characters maximum).** The owner's final title is **"MyFit: Workout Calorie Tracker"** (exactly 30 characters). Use it exactly. Show the character count.
 
-**B. Short description (80 characters maximum).** Give 5 options with character counts, then your top pick. Lead with the biggest benefit, include "workout" and "calorie".
+**B. Short description (80 characters maximum).** Give 5 options with character counts, then your top pick. Lead with the biggest benefit, include "workout" and "calorie". At least one option should mention "no ads".
 
 **C. Full description (4,000 characters maximum).** Strong first two lines (they show before "Read more"), then short sections with clear all-caps headings and bullets, natural search keywords (workout plan, calorie tracker, food log, barcode scanner, meal recipes, gym, home workout), a Free vs Pro section that is honest about the trial and renewal, and a short health disclaimer at the end. Show the character count.
 
@@ -63,7 +66,7 @@ Write the copy so a reader sees these five reasons within the first few seconds.
 | 5 | COOKBOOK | Healthy recipes, / with photos. | 93 recipes with steps, calories and protein worked out for you. | Cookbook photo grid |
 | 6 | NUTRITION | Calories set / for your goal. | Worked out from your body, your activity, your sleep and your stress. | Calorie blueprint. Badge "daily target" |
 | 7 | PROGRESS | Watch your / progress build. | Weight charts and personal-record alerts keep you going. | Weight trend chart in kg |
-| 8 | RECOVERY | Train to match / your recovery. | A score from your sleep and stress that adjusts your sets when you need rest. | Recovery score |
+| 8 | RECOVERY | Train to match / your recovery. | A score from your sleep and stress that adjusts your sets when you need rest. No ads, ever. | Recovery score |
 
 Produce the full set in the primary dark-charcoal look, and also screenshots 1, 3 and 5 in the pure black and the white looks so the owner can compare. Improve the order or wording if you can justify it. Screens 1 to 3 must be the strongest, because most people never scroll further.
 
