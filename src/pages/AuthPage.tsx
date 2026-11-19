@@ -327,14 +327,14 @@ export default function AuthPage() {
         >
           <div className="mb-8 flex flex-col items-center text-center">
             <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
-            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">{linkSent ? 'Check your email' : 'Sign in with email'}</h1>
+            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">{linkSent ? 'Check your email' : 'Sign in with a code'}</h1>
             <p className="mt-1 text-sm text-muted-foreground font-body">
               {linkSent ? (
                 <>
-                  We sent a sign-in link to <span className="text-foreground">{email}</span>. Tap the button in the email, or type the 6-digit code below.
+                  We sent a 6-digit code to <span className="text-foreground">{email}</span>. Type it below to sign in.
                 </>
               ) : (
-                'We will email you a link. No password needed.'
+                'We will email you a 6-digit code. No password needed.'
               )}
             </p>
           </div>
@@ -373,7 +373,7 @@ export default function AuthPage() {
                       setError(null)
                     }}
                   >
-                    Send a new link
+                    Send a new code
                   </button>
                 </form>
               ) : (
@@ -395,7 +395,7 @@ export default function AuthPage() {
                   )}
                   <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Email me a sign-in link
+                    Email me a code
                   </Button>
                 </form>
               )}
@@ -630,7 +630,7 @@ export default function AuthPage() {
                 }}
                 className="mt-4 w-full text-center text-sm font-semibold text-primary hover:underline"
               >
-                Email me a sign-in link instead
+                Email me a sign-in code instead
               </button>
             )}
 

@@ -1,7 +1,8 @@
 <!--
   Paste this into Supabase: Authentication > Email Templates > Magic Link.
-  Subject line to use: Your MyFit sign-in link
-  Supabase fills in {{ .ConfirmationURL }} (the sign-in button) and {{ .Token }} (the 6-digit code).
+  Subject line to use: Your MyFit sign-in code
+  Supabase fills in {{ .Token }} (the 6-digit code). There is deliberately no link: the app asks for the code and signs the person in
+  inside the app, so it works even when an email provider rewrites or blocks links.
 -->
 <!doctype html>
 <html>
@@ -13,25 +14,17 @@
             <tr>
               <td align="center">
                 <p style="margin:0 0 20px;font-size:22px;font-weight:700;letter-spacing:.02em">MyFit</p>
-                <h1 style="margin:0 0 10px;font-size:22px">Sign in to MyFit</h1>
+                <h1 style="margin:0 0 10px;font-size:22px">Your sign-in code</h1>
                 <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#4b5563">
-                  Tap the button below to sign in. The link works once and expires in 10 minutes.
+                  Open MyFit, tap <b>Email me a sign-in code instead</b>, and type this code to sign in.
                 </p>
-                <a href="{{ .ConfirmationURL }}"
-                   style="display:inline-block;background:#66C23D;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 28px;border-radius:12px">
-                  Sign in to MyFit
-                </a>
-                <p style="margin:28px 0 8px;font-size:14px;color:#4b5563">
-                  Button not working? Open MyFit and type this code instead:
-                </p>
-                <p style="margin:0 0 24px;font-size:28px;font-weight:700;letter-spacing:.2em">{{ .Token }}</p>
+                <p style="margin:0 0 24px;font-size:34px;font-weight:700;letter-spacing:.2em">{{ .Token }}</p>
                 <p style="margin:0;font-size:13px;line-height:1.5;color:#6b7280">
-                  Only tap the link on your own device. Do not share it with anyone. If you did not ask to sign in, you can ignore this email.
+                  The code works once and expires soon. Do not share it with anyone. If you did not ask to sign in, you can ignore this email.
                 </p>
               </td>
             </tr>
           </table>
-          <p style="margin:16px 0 0;font-size:12px;color:#6b7280">Questions? Reply to this email or write to joinmyfit@gmail.com</p>
         </td>
       </tr>
     </table>

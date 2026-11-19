@@ -156,7 +156,7 @@ export const auth = {
 
   async verifyEmailCode(email: string, code: string): Promise<Profile> {
     const match = readAll<StoredUser>(USERS_KEY).find((u) => u.email.toLowerCase() === email.toLowerCase())
-    if (code !== DEMO_RESET_CODE || !match) throw new Error('That code is not right, or it has expired. Check it, or send a new link.')
+    if (code !== DEMO_RESET_CODE || !match) throw new Error('That code is not right, or it has expired. Check it, or send a new code.')
     writeOne(SESSION_KEY, { userId: match.id })
     const profile = await profiles.get(match.id)
     if (!profile) throw new Error('Profile not found.')

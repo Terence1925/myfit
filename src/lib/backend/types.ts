@@ -25,7 +25,7 @@ export interface AuthApi {
   signOut(): Promise<void>
   currentSession(): Promise<Profile | null>
   requestPasswordReset(email: string): Promise<void>
-  /** Emails a one-tap sign-in link and a 6-digit code to the address. */
+  /** Emails a 6-digit sign-in code to the address (the email has no link, so it works even when the mail provider rewrites links). */
   requestSignInCode(email: string): Promise<void>
   /** Signs in with the 6-digit code from that email. */
   verifyEmailCode(email: string, code: string): Promise<Profile>
