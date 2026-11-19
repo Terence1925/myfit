@@ -8,6 +8,7 @@ import { BottomNav } from '@/components/layout/BottomNav'
 import { NavBar } from '@/components/layout/NavBar'
 import AuthPage from '@/pages/AuthPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
+import GoPage from '@/pages/GoPage'
 import Home from '@/pages/Home'
 import SavedPrograms from '@/pages/SavedPrograms'
 import ProgramPage from '@/pages/ProgramPage'
@@ -117,6 +118,7 @@ function AppShell() {
       <Routes>
         <Route path="/auth" element={profile ? <Navigate to="/" replace /> : <AuthPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/go" element={<GoPage />} />
         <Route
           path="/"
           element={

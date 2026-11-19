@@ -157,31 +157,41 @@ try {
   })
 
   // ---------------- email me a sign-in code instead ----------------
-  await check('Sign-in code: the button opens the email screen', async () => {
-    await signedOut(); await b.click('Email me a sign-in code'); await sleep(700)
-    return /Sign in with a code/i.test(await text()) && (await b.ev(`!!document.getElementById('linkEmail')`)) ? true : 'the email screen did not open'
+  await check('Sign-in link: the button opens the email screen', async () => {
+    await signedOut(); await b.click('Email me a sign-in link'); await sleep(700)
+    return /Sign in with email/i.test(await text()) && (await b.ev(`!!document.getElementById('linkEmail')`)) ? true : 'the email screen did not open'
   })
-  await check('Sign-in code: sending moves to the code screen', async () => {
-    await b.type('#linkEmail', email); await b.click('^Email me a code'); await sleep(1200)
+  await check('Sign-in link: sending moves to the code screen', async () => {
+    await b.type('#linkEmail', email); await b.click('^Email me a sign-in link'); await sleep(1200)
     return /Check your email/i.test(await text()) && (await b.ev(`!!document.getElementById('signInCode')`)) ? true : 'no code screen'
   })
-  await check('Sign-in code: a wrong code is refused', async () => {
+  await check('Sign-in link: a wrong code is refused', async () => {
     await b.type('#signInCode', '000000'); await sleep(200); await submit(); await sleep(1000)
     return /not right|expired/i.test(await text()) ? true : 'no wrong-code message'
   })
-  await check('Sign-in code: the right code signs you in without a password', async () => {
+  await check('Sign-in link: the code in the email signs you in without a password', async () => {
     await b.type('#signInCode', DEMO_CODE); await sleep(200); await submit()
     return (await b.until(`location.pathname === '/'`, 9000)) ? true : 'did not sign in with the code'
   })
-  await check('Sign-in code: "Send a new code" goes back to the email step', async () => {
-    await signedOut(); await b.click('Email me a sign-in code'); await sleep(600)
-    await b.type('#linkEmail', email); await b.click('^Email me a code'); await sleep(1000)
-    await b.click('Send a new code'); await sleep(600)
+  await check('Sign-in link: "Send a new link" goes back to the email step', async () => {
+    await signedOut(); await b.click('Email me a sign-in link'); await sleep(600)
+    await b.type('#linkEmail', email); await b.click('^Email me a sign-in link'); await sleep(1000)
+    await b.click('Send a new link'); await sleep(600)
     return (await b.ev(`!!document.getElementById('linkEmail')`)) ? true : 'did not return to the email step'
   })
-  await check('Sign-in code: Back to sign in works', async () => {
+  await check('Sign-in link: Back to sign in works', async () => {
     await b.click('Back to sign in'); await sleep(600)
     return (await b.ev(`!!document.getElementById('password')`)) ? true : 'did not return to sign in'
+  })
+
+  await check('Sign-in link page: a broken or used link says so and offers a way back', async () => {
+    await b.go('/go?th=not-a-real-token', 2500)
+    const t = await text()
+    return /did not work/i.test(t) && /Back to sign in/i.test(t) ? true : 'the link page did not explain the failure'
+  })
+  await check('Sign-in link page: opening it with no token does not crash', async () => {
+    await b.go('/go', 2000)
+    return /did not work/i.test(await text()) ? true : 'no message for an empty link'
   })
 
   const errs = b.errors.filter((e) => !/favicon|DevTools|\[vite\]/i.test(e.text))

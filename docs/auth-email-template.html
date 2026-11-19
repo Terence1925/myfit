@@ -1,8 +1,10 @@
 <!--
-  Paste this into Supabase: Authentication > Email Templates > Magic Link.
-  Subject line to use: Your MyFit sign-in code
-  Supabase fills in {{ .Token }} (the 6-digit code). There is deliberately no link: the app asks for the code and signs the person in
-  inside the app, so it works even when an email provider rewrites or blocks links.
+  Paste this into Supabase: Authentication > Email Templates > "Magic link or OTP".
+  Subject line to use: Your MyFit sign-in link
+  Supabase fills in {{ .TokenHash }} (inside the link) and {{ .Token }} (the 6-digit code).
+  The link is written as plain text on purpose, not as a clickable <a> tag: Brevo rewrites every <a> link through its own tracking
+  server, which can be unreachable. A plain address is not rewritten, and Gmail and other mail apps make it tappable themselves.
+  The code is the backup: it always works.
 -->
 <!doctype html>
 <html>
@@ -14,13 +16,17 @@
             <tr>
               <td align="center">
                 <p style="margin:0 0 20px;font-size:22px;font-weight:700;letter-spacing:.02em">MyFit</p>
-                <h1 style="margin:0 0 10px;font-size:22px">Your sign-in code</h1>
-                <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#4b5563">
-                  Open MyFit, tap <b>Email me a sign-in code instead</b>, and type this code to sign in.
+                <h1 style="margin:0 0 10px;font-size:22px">Sign in to MyFit</h1>
+                <p style="margin:0 0 16px;font-size:15px;line-height:1.5;color:#4b5563">
+                  On your phone, tap this link. It signs you in and takes you to the MyFit app. The link works once and expires soon.
                 </p>
-                <p style="margin:0 0 24px;font-size:34px;font-weight:700;letter-spacing:.2em">{{ .Token }}</p>
+                <p style="margin:0 0 24px;font-size:15px;line-height:1.5;font-weight:700;word-break:break-all;color:#1a1a1a">https://getmyfit.vercel.app/go?th={{ .TokenHash }}</p>
+                <p style="margin:0 0 8px;font-size:14px;color:#4b5563">
+                  Link not working? Open MyFit, tap <b>Email me a sign-in link instead</b>, and type this code:
+                </p>
+                <p style="margin:0 0 24px;font-size:30px;font-weight:700;letter-spacing:.2em">{{ .Token }}</p>
                 <p style="margin:0;font-size:13px;line-height:1.5;color:#6b7280">
-                  The code works once and expires soon. Do not share it with anyone. If you did not ask to sign in, you can ignore this email.
+                  Only use this on your own phone. Do not share the link or the code with anyone. If you did not ask to sign in, you can ignore this email.
                 </p>
               </td>
             </tr>
