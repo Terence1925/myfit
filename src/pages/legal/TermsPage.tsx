@@ -54,7 +54,7 @@ export default function TermsPage() {
           The price you pay is the one Google Play or the App Store shows you before you subscribe, in your local currency (for example, in
           the Philippines: Monthly ₱149 and Yearly ₱1,290). Prices may change with prior notice for future billing periods.
         </li>
-        <li>Refunds are handled under our <a href="/refund-policy">Refund policy</a>.</li>
+        <li>Refunds are handled under our <a href="/refund-policy">Refund Policy</a>.</li>
       </ul>
 
       <h2>5. Acceptable Use</h2>
