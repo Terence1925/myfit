@@ -143,7 +143,7 @@ Subscriptions are sold through **Google Play Billing**, run by RevenueCat (see t
 
 Google requires in-app digital subscriptions to go through Google Play Billing. The app uses RevenueCat, which wraps Play Billing, and activates Pro through the `revenuecat-webhook` edge function.
 
-1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.myfit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱199/mo) and `pro_yearly` (₱1,790/yr), each with a 7-day free-trial offer.
+1. **Google Play Console** — [play.google.com/console](https://play.google.com/console), $25 one-time developer fee. Create the app (package name must match `capacitor.config.ts`'s `appId`: `com.getmyfit.app`, or change both to match). Under Monetize → Products → Subscriptions, create two products with these exact IDs: `pro_monthly` (₱199/mo) and `pro_yearly` (₱1,790/yr), each with a 7-day free-trial offer.
 2. **RevenueCat** — [revenuecat.com](https://revenuecat.com), free up to $2.5k/mo tracked revenue. Create a project, add a Google Play app, and link it to your Play Console app (RevenueCat's setup wizard walks you through creating a Google service account key for this — needed so RevenueCat can verify purchases server-side).
    - Products: add `pro_monthly` and `pro_yearly` (matching Play Console).
    - Entitlements: create one called `pro`, attach both products to it.

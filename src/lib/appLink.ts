@@ -2,7 +2,7 @@
 // The page builds a Chrome "intent:" link that is pinned to this app's package, so no other app can receive it; the app
 // then reads the one-time login token from the link and signs in.
 
-const APP_PACKAGE = 'com.myfit.app'
+const APP_PACKAGE = 'com.getmyfit.app'
 
 /** The login token carried by a myfit://open?rt=... link, or null when the link has none (or it looks wrong). */
 export function refreshTokenFromAppLink(url: string): string | null {

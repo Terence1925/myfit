@@ -17,7 +17,7 @@ check('another host is refused', refreshTokenFromAppLink('myfit://evil?rt=abc123
 check('garbage is refused', refreshTokenFromAppLink('not a link'), null)
 
 const withToken = openAppLink('abc123xyz789', 'https://getmyfit.vercel.app/')
-check('the link is pinned to the MyFit package', withToken.includes(';package=com.myfit.app;'), true)
+check('the link is pinned to the MyFit package', withToken.includes(';package=com.getmyfit.app;'), true)
 check('the link carries the token', withToken.startsWith('intent://open?rt=abc123xyz789#Intent;scheme=myfit;'), true)
 check('the link falls back to the website', withToken.includes('S.browser_fallback_url=https%3A%2F%2Fgetmyfit.vercel.app%2F;end'), true)
 check('without a token it just opens the app', openAppLink(null, 'https://x.test/').startsWith('intent://open#Intent;scheme=myfit;'), true)

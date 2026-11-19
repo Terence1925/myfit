@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">MyFit</string>
     <string name="title_activity_main">MyFit</string>
-    <string name="package_name">com.myfit.app</string>
-    <string name="custom_url_scheme">com.myfit.app</string>
+    <string name="package_name">com.getmyfit.app</string>
+    <string name="custom_url_scheme">com.getmyfit.app</string>
     <string name="widget_description">Today\'s workout and your weekly streak</string>
 </resources>

@@ -15,14 +15,14 @@ expect to fix small things on the first build). Everything below is done on the 
 1. In Terminal, inside `myfit`: `npm run ios:open`. This builds the web app, copies it into the iPhone project, and opens Xcode.
 2. In Xcode click the blue **App** project, choose the **App** target, open **Signing & Capabilities**:
    - Tick **Automatically manage signing** and pick your **Team** (your Apple Developer account).
-   - Bundle Identifier must be `com.myfit.app`.
+   - Bundle Identifier must be `com.getmyfit.app`.
    - Click **+ Capability** and add **In-App Purchase**.
 3. Pick an iPhone simulator (top bar) and press **Run**. To use your own iPhone: plug it in, enable Developer Mode on it
    (Settings > Privacy & Security), choose it in the top bar, press Run.
 4. After changing any web code, run `npm run ios:sync` again, then Run.
 
 ## C. Subscriptions (App Store Connect + RevenueCat)
-1. App Store Connect (appstoreconnect.apple.com) > My Apps > **+** > New App: name MyFit, bundle ID `com.myfit.app`.
+1. App Store Connect (appstoreconnect.apple.com) > My Apps > **+** > New App: name MyFit, bundle ID `com.getmyfit.app`.
 2. In the app: **Subscriptions** > create a Subscription Group, then two auto-renewable subscriptions with the product IDs
    `pro_monthly` and `pro_yearly`. Choose the nearest Apple price points to PHP 199/month and PHP 1,790/year.
 3. On each, add an **Introductory Offer**: Free, 1 week (7 days).

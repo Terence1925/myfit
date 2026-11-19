@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.myfit.app',
+  appId: 'com.getmyfit.app',
   appName: 'MyFit',
   webDir: 'dist',
   backgroundColor: '#191a1f',

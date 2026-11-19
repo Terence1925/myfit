@@ -23,7 +23,7 @@ import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 import { displayName } from '@/lib/displayName'
 
 // Must match capacitor.config.ts's appId
-const ANDROID_PACKAGE_ID = 'com.myfit.app'
+const ANDROID_PACKAGE_ID = 'com.getmyfit.app'
 
 // Must match supabase/functions/delete-account's OWNER_EMAIL — the server is the real
 // enforcement; this just avoids offering a delete flow that would only fail at the last step.
