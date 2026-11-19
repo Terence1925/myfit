@@ -151,11 +151,17 @@ export const auth = {
   },
 
   async requestSignInCode(): Promise<void> {
-    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+    // Demo mode sends no email; the code form accepts DEMO_RESET_CODE so the screens can be tried.
   },
 
-  async verifyEmailCode(): Promise<Profile> {
-    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  async verifyEmailCode(email: string, code: string): Promise<Profile> {
+    const match = readAll<StoredUser>(USERS_KEY).find((u) => u.email.toLowerCase() === email.toLowerCase())
+    if (code !== DEMO_RESET_CODE || !match) throw new Error('That code is not right, or it has expired. Check it, or send a new link.')
+    writeOne(SESSION_KEY, { userId: match.id })
+    const profile = await profiles.get(match.id)
+    if (!profile) throw new Error('Profile not found.')
+    logActivity(match.id, 'signed_in', {})
+    return profile
   },
 
   async resetPasswordWithCode(email: string, code: string, newPassword: string): Promise<Profile> {

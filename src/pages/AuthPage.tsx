@@ -156,6 +156,10 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (mode === 'signup' && password.length < 6) {
+      setError('Your password must be at least 6 characters.')
+      return
+    }
     setLoading(true)
     try {
       if (mode === 'signup') {
@@ -351,6 +355,7 @@ export default function AuthPage() {
                       className="mt-1.5 text-center text-lg tracking-widest"
                       placeholder="123456"
                     />
+                    {!isSupabaseConfigured && <p className="mt-1.5 text-xs text-muted-foreground">Demo: the code is {DEMO_RESET_CODE}.</p>}
                   </div>
                   {error && (
                     <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">{error}</div>
