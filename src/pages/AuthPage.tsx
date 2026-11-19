@@ -634,11 +634,6 @@ export default function AuthPage() {
               </button>
             )}
 
-            {!isSupabaseConfigured && (
-              <p className="mt-5 text-center text-xs text-muted-foreground">
-                Demo admin: <span className="text-foreground/80">admin@myfit.app</span> / admin123
-              </p>
-            )}
           </CardContent>
         </Card>
       </motion.div>
