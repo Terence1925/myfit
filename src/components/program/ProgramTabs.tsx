@@ -6,7 +6,8 @@ import { WeeklyPlanTab } from './WeeklyPlanTab'
 import { NutritionTab } from './NutritionTab'
 import { RecoveryTab } from './RecoveryTab'
 import { loadView, saveView } from '@/lib/workoutLog'
-import { programs } from '@/lib/backend/api'
+import { programs, sessions } from '@/lib/backend/api'
+import { nextWorkoutDay } from '@/lib/todayPlan'
 import { withExercise } from '@/lib/programEdit'
 import { hasProAccess } from '@/lib/billing'
 import { useAuth } from '@/context/AuthContext'
@@ -28,7 +29,24 @@ export function ProgramTabs({
   const { profile, role } = useAuth()
   // Reopen where the person left off (e.g. Weekly plan, Day 3), or on the day chosen with Start workout on Home.
   const [tab, setTab] = React.useState(() => loadView(program.id)?.tab ?? 'overview')
+  // Opens on today's training day: the day trained today, or the day Home shows as next. Not the last day picked or Day 1.
   const [activeDay, setActiveDay] = React.useState(() => loadView(program.id)?.day ?? 1)
+  React.useEffect(() => {
+    let cancelled = false
+    void sessions.listForUser(userId).then((list) => {
+      if (cancelled) return
+      const now = new Date()
+      // A workout saved today wins: open on that day, so its history is what the person sees.
+      const trainedToday = list
+        .filter((x) => x.programId === program.id && new Date(x.date).toDateString() === now.toDateString())
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+      const day = trainedToday?.day ?? nextWorkoutDay(list, program.id, program.programData.days.map((d) => d.day), now)
+      if (day !== null && day !== undefined) setActiveDay(day)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [userId, program.id])
   React.useEffect(() => {
     saveView(program.id, tab, activeDay)
   }, [program.id, tab, activeDay])

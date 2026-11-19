@@ -44,7 +44,8 @@
     "test:applink": "npx tsx scripts/check-applink.ts",
     "test:deletion-email": "npx tsx scripts/check-deletion-email.ts",
     "test:welcome-email": "npx tsx scripts/check-welcome-email.ts",
-    "test:auth": "node scripts/e2e/auth-flows.mjs"
+    "test:auth": "node scripts/e2e/auth-flows.mjs",
+    "test:history": "node scripts/e2e/program-history.mjs"
   },
   "dependencies": {
     "@capacitor-mlkit/barcode-scanning": "^8.2.1",
