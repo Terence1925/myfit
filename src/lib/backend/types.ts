@@ -29,6 +29,8 @@ export interface AuthApi {
   requestSignInCode(email: string): Promise<void>
   /** Signs in with the 6-digit code from that email. */
   verifyEmailCode(email: string, code: string): Promise<Profile>
+  /** Resets a forgotten password with the 6-digit code from the reset email, then signs the person in. */
+  resetPasswordWithCode(email: string, code: string, newPassword: string): Promise<Profile>
   /** Emails the welcome message to the signed-in member, once, for new accounts. */
   sendWelcomeEmail(): Promise<void>
   updatePassword(newPassword: string): Promise<void>

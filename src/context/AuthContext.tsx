@@ -16,6 +16,7 @@ interface AuthContextValue {
   requestPasswordReset: (email: string) => Promise<void>
   requestSignInCode: (email: string) => Promise<void>
   verifyEmailCode: (email: string, code: string) => Promise<void>
+  resetPasswordWithCode: (email: string, code: string, newPassword: string) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
   deleteAccount: () => Promise<void>
   usesPassword: () => Promise<boolean>
@@ -116,6 +117,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(p)
   }, [])
 
+  const resetPasswordWithCode = React.useCallback(async (email: string, code: string, newPassword: string) => {
+    const p = await auth.resetPasswordWithCode(email, code, newPassword)
+    setProfile(p)
+  }, [])
+
   const updatePassword = React.useCallback(async (newPassword: string) => {
     await auth.updatePassword(newPassword)
   }, [])
@@ -143,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         requestPasswordReset,
         requestSignInCode,
         verifyEmailCode,
+        resetPasswordWithCode,
         updatePassword,
         deleteAccount,
         usesPassword,

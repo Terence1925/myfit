@@ -24,6 +24,9 @@ import { generateAlternate } from './programGenerator'
 import { programFor, withoutCustomDays } from './customProgram'
 import { readAll, readOne, removeKey, uid, writeAll, writeOne } from './storage'
 
+/** In demo mode no email is sent; this code completes the reset so the screens can be tried. */
+export const DEMO_RESET_CODE = '123456'
+
 interface StoredUser {
   id: string
   email: string
@@ -144,7 +147,7 @@ export const auth = {
   // Demo mode has no real email delivery or recovery-session flow, so password reset can't
   // actually work here — surface a clear message instead of pretending it sent something.
   async requestPasswordReset(): Promise<void> {
-    throw new Error('DEMO_MODE_NOT_SUPPORTED')
+    // Demo mode sends no email; the code form accepts DEMO_RESET_CODE so the screens can be tried.
   },
 
   async requestSignInCode(): Promise<void> {
@@ -153,6 +156,19 @@ export const auth = {
 
   async verifyEmailCode(): Promise<Profile> {
     throw new Error('DEMO_MODE_NOT_SUPPORTED')
+  },
+
+  async resetPasswordWithCode(email: string, code: string, newPassword: string): Promise<Profile> {
+    const users = readAll<StoredUser>(USERS_KEY)
+    const match = users.find((u) => u.email.toLowerCase() === email.toLowerCase())
+    if (code !== DEMO_RESET_CODE || !match) throw new Error('That code is not right, or it has expired. Check it, or send a new code.')
+    match.password = newPassword
+    writeAll(USERS_KEY, users)
+    writeOne(SESSION_KEY, { userId: match.id })
+    const profile = await profiles.get(match.id)
+    if (!profile) throw new Error('Profile not found.')
+    logActivity(match.id, 'password_reset', {})
+    return profile
   },
 
   async sendWelcomeEmail(): Promise<void> {

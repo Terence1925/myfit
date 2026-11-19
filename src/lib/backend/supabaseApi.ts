@@ -205,6 +205,17 @@ export const auth = {
     if (error) throw new Error(error.message)
   },
 
+  async resetPasswordWithCode(email: string, code: string, newPassword: string): Promise<Profile> {
+    // The code proves the person owns the email; it signs them in so the new password can be saved.
+    const { data, error } = await sb().auth.verifyOtp({ email, token: code, type: 'recovery' })
+    if (error || !data.user) throw new Error('That code is not right, or it has expired. Check it, or send a new code.')
+    const { error: updateError } = await sb().auth.updateUser({ password: newPassword })
+    if (updateError) throw new Error(updateError.message)
+    const profile = await profiles.get(data.user.id)
+    if (!profile) throw new Error('Profile not found.')
+    return profile
+  },
+
   async verifyEmailCode(email: string, code: string): Promise<Profile> {
     const { data, error } = await sb().auth.verifyOtp({ email, token: code, type: 'email' })
     if (error) throw new Error('That code is not right, or it has expired. Check it, or send a new link.')

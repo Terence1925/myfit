@@ -1,0 +1,32 @@
+<!--
+  Paste this into Supabase: Authentication > Email Templates > Reset Password.
+  Subject line to use: Your MyFit password reset code
+  Supabase fills in {{ .Token }} (the 6-digit code). There is deliberately no link: the app asks for the code,
+  so the reset works even when an email provider rewrites or blocks links.
+-->
+<!doctype html>
+<html>
+  <body style="margin:0;padding:24px;background:#f3f4f7;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;padding:32px">
+            <tr>
+              <td align="center">
+                <p style="margin:0 0 20px;font-size:22px;font-weight:700;letter-spacing:.02em">MyFit</p>
+                <h1 style="margin:0 0 10px;font-size:22px">Reset your password</h1>
+                <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#4b5563">
+                  Open MyFit, tap <b>Forgot password?</b>, and type this code to choose a new password.
+                </p>
+                <p style="margin:0 0 24px;font-size:34px;font-weight:700;letter-spacing:.2em">{{ .Token }}</p>
+                <p style="margin:0;font-size:13px;line-height:1.5;color:#6b7280">
+                  The code works once and expires soon. Do not share it with anyone. If you did not ask to reset your password, you can ignore this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

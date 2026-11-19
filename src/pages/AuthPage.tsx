@@ -15,9 +15,10 @@ import { GOOGLE_CANCELLED, isGoogleSignInConfigured } from '@/lib/backend/google
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
+import { DEMO_RESET_CODE } from '@/lib/backend/mockApi'
 
 export default function AuthPage() {
-  const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode } = useAuth()
+  const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode, resetPasswordWithCode } = useAuth()
   const navigate = useNavigate()
   // Sent here by the Delete account button: say that it worked (shown once)
   const [accountDeleted] = React.useState(() => {
@@ -45,6 +46,10 @@ export default function AuthPage() {
   const [googleLoading, setGoogleLoading] = React.useState(false)
   const [linkSent, setLinkSent] = React.useState(false)
   const [code, setCode] = React.useState('')
+  const [resetCode, setResetCode] = React.useState('')
+  const [newPassword, setNewPassword] = React.useState('')
+  const [confirmPassword, setConfirmPassword] = React.useState('')
+  const [codeResent, setCodeResent] = React.useState(false)
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,6 +64,42 @@ export default function AuthPage() {
       } else {
         setError(err instanceof Error ? err.message : 'Something went wrong.')
       }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    if (newPassword !== confirmPassword) {
+      setError('The two passwords do not match.')
+      return
+    }
+    if (newPassword.length < 6) {
+      setError('Your new password must be at least 6 characters.')
+      return
+    }
+    setLoading(true)
+    try {
+      await resetPasswordWithCode(email, resetCode.trim(), newPassword)
+      navigate('/', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendCode = async () => {
+    setError(null)
+    setCodeResent(false)
+    setLoading(true)
+    try {
+      await requestPasswordReset(email)
+      setCodeResent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setLoading(false)
     }
@@ -161,32 +202,111 @@ export default function AuthPage() {
   if (resetSent) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
-            <MailCheck className="h-8 w-8 text-primary-foreground" />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md"
+        >
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
+              <MailCheck className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">Enter your code</h1>
+            <p className="mt-1 text-sm text-muted-foreground font-body">
+              If an account exists for <span className="text-foreground">{email}</span>, we sent it a 6-digit code. Type the code and choose a new
+              password.
+            </p>
           </div>
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Check your email</h1>
-          <p className="mt-3 text-sm text-muted-foreground font-body">
-            If an account exists for <span className="text-foreground">{email}</span>, we sent a link to reset your
-            password. Click it to set a new one.
-          </p>
-          <p className="mt-3 text-xs text-muted-foreground font-body">
-            Nothing after a couple of minutes? Check your spam folder and make sure you used the email you signed up
-            with. Still stuck? Email{' '}
-            <a href="mailto:joinmyfit@gmail.com" className="text-primary underline underline-offset-2">
-              joinmyfit@gmail.com
-            </a>{' '}
-            and we'll help you get back in.
-          </p>
-          <Button
-            className="mt-6"
-            onClick={() => {
-              setResetSent(false)
-              setMode('signin')
-            }}
-          >
-            Back to Sign In
-          </Button>
+
+          <Card className="shadow-glow-lg border-primary/10">
+            <CardContent className="p-6 sm:p-8">
+              <form onSubmit={handleResetSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="resetCode">6-digit code</Label>
+                  <Input
+                    id="resetCode"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={resetCode}
+                    onChange={(e) => setResetCode(e.target.value)}
+                    required
+                    className="mt-1.5 text-center text-lg tracking-widest"
+                    placeholder="123456"
+                  />
+                  {!isSupabaseConfigured && <p className="mt-1.5 text-xs text-muted-foreground">Demo: the code is {DEMO_RESET_CODE}.</p>}
+                </div>
+                <div>
+                  <Label htmlFor="newPassword">New password</Label>
+                  <PasswordInput
+                    id="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    className="mt-1.5"
+                    placeholder="At least 6 characters"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirmNewPassword">Confirm new password</Label>
+                  <PasswordInput
+                    id="confirmNewPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    className="mt-1.5"
+                    placeholder="Type it again"
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">{error}</div>
+                )}
+                {codeResent && !error && (
+                  <div className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground">A new code is on its way.</div>
+                )}
+
+                <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Reset password
+                </Button>
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={loading}
+                  className="w-full text-center text-xs text-muted-foreground underline underline-offset-2 disabled:opacity-50"
+                >
+                  Send a new code
+                </button>
+                <p className="text-center text-xs text-muted-foreground">
+                  Nothing after a couple of minutes? Check your spam folder and make sure you used the email you signed up with. Still stuck? Email{' '}
+                  <a href="mailto:joinmyfit@gmail.com" className="text-primary underline underline-offset-2">
+                    joinmyfit@gmail.com
+                  </a>
+                  .
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null)
+                    setCodeResent(false)
+                    setResetCode('')
+                    setNewPassword('')
+                    setConfirmPassword('')
+                    setResetSent(false)
+                    setMode('signin')
+                  }}
+                  className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Back to Sign In
+                </button>
+              </form>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     )
@@ -305,7 +425,7 @@ export default function AuthPage() {
             <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
             <h1 className="font-display text-4xl tracking-wide text-gradient-gold">Reset password</h1>
             <p className="mt-1 text-sm text-muted-foreground font-body">
-              Enter your email and we'll send you a reset link.
+              Enter your email and we'll send you a 6-digit code.
             </p>
           </div>
 
@@ -333,7 +453,7 @@ export default function AuthPage() {
 
                 <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Send Reset Link
+                  Send Code
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
                   Can't get the email? Contact{' '}
