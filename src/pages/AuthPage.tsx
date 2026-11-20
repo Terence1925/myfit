@@ -1,10 +1,9 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
 import { Loader2, MailCheck } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/Logo'
-import { Wordmark } from '@/components/ui/Wordmark'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Label } from '@/components/ui/label'
@@ -16,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
 import { DEMO_RESET_CODE } from '@/lib/backend/mockApi'
+import { CodeInput } from '@/components/auth/CodeInput'
 
 export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode, resetPasswordWithCode } = useAuth()
@@ -228,16 +228,9 @@ export default function AuthPage() {
               <form onSubmit={handleResetSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="resetCode">6-digit code</Label>
-                  <Input
-                    id="resetCode"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    value={resetCode}
-                    onChange={(e) => setResetCode(e.target.value)}
-                    required
-                    className="mt-1.5 text-center text-lg tracking-widest"
-                    placeholder="123456"
-                  />
+                  <div className="mt-1.5">
+                    <CodeInput id="resetCode" value={resetCode} onChange={setResetCode} disabled={loading} />
+                  </div>
                   {!isSupabaseConfigured && <p className="mt-1.5 text-xs text-muted-foreground">Demo: the code is {DEMO_RESET_CODE}.</p>}
                 </div>
                 <div>
@@ -345,16 +338,9 @@ export default function AuthPage() {
                 <form onSubmit={handleCodeSubmit} className="space-y-4">
                   <div>
                     <Label htmlFor="signInCode">6-digit code</Label>
-                    <Input
-                      id="signInCode"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      required
-                      className="mt-1.5 text-center text-lg tracking-widest"
-                      placeholder="123456"
-                    />
+                    <div className="mt-1.5">
+                      <CodeInput id="signInCode" value={code} onChange={setCode} disabled={loading} />
+                    </div>
                     {!isSupabaseConfigured && <p className="mt-1.5 text-xs text-muted-foreground">Demo: the code is {DEMO_RESET_CODE}.</p>}
                   </div>
                   {error && (
@@ -494,11 +480,13 @@ export default function AuthPage() {
         className="w-full max-w-md"
       >
         <div className="mb-8 flex flex-col items-center text-center">
-          <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
-          <h1>
-            <Wordmark className="text-5xl" />
+          <Logo className="mb-5 h-14 w-14 rounded-2xl" />
+          <h1 className="font-display text-3xl tracking-wide text-foreground">
+            {mode === 'signup' ? 'Create your account' : 'Welcome back'}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground font-body">All-in-One Workout &amp; Calorie Tracker</p>
+          <p className="mt-2 text-sm text-muted-foreground font-body">
+            {mode === 'signup' ? 'Start your training in under a minute.' : 'Sign in to continue your training.'}
+          </p>
         </div>
 
         {accountDeleted && (
@@ -511,16 +499,16 @@ export default function AuthPage() {
           </div>
         )}
 
-        <Card className="shadow-glow-lg border-primary/10">
+        <Card className="border-border shadow-none">
           <CardContent className="p-6 sm:p-8">
-            <div className="mb-6 flex rounded-lg border border-border p-1">
+            <div className="mb-6 flex h-11 rounded-xl bg-muted p-1">
               {(['signin', 'signup'] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
                   className={cn(
-                    'flex-1 rounded-md py-2 text-sm font-semibold transition-colors',
-                    mode === m ? 'bg-gold-gradient text-primary-foreground' : 'text-muted-foreground',
+                    'flex-1 rounded-lg text-sm transition-colors',
+                    mode === m ? 'bg-card font-medium text-foreground shadow-sm' : 'text-muted-foreground',
                   )}
                 >
                   {m === 'signin' ? 'Sign In' : 'Sign Up'}
@@ -596,16 +584,18 @@ export default function AuthPage() {
                   placeholder="••••••••"
                 />
                 {mode === 'signin' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setError(null)
-                      setMode('forgot')
-                    }}
-                    className="mt-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Forgot password?
-                  </button>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError(null)
+                        setMode('forgot')
+                      }}
+                      className="flex h-11 items-center text-sm text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -628,10 +618,24 @@ export default function AuthPage() {
                   setError(null)
                   setMode('link')
                 }}
-                className="mt-4 w-full text-center text-sm font-semibold text-primary hover:underline"
+                className="mt-2 flex h-11 w-full items-center justify-center text-sm text-foreground underline underline-offset-4 transition-colors hover:text-primary"
               >
                 Email me a sign-in link instead
               </button>
+            )}
+
+            {mode === 'signup' && (
+              <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
+                By continuing you agree to our{' '}
+                <Link to="/terms" className="inline-block py-2 underline underline-offset-2 transition-colors hover:text-primary">
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link to="/privacy" className="inline-block py-2 underline underline-offset-2 transition-colors hover:text-primary">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
             )}
 
           </CardContent>
