@@ -17,6 +17,11 @@ import { ACCOUNT_DELETED_KEY } from '@/lib/accountDeleted'
 import { DEMO_RESET_CODE } from '@/lib/backend/mockApi'
 import { CodeInput } from '@/components/auth/CodeInput'
 
+// A simple check: something@something.something, with no spaces.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+type FieldErrors = { displayName?: string; email?: string; password?: string }
+
 export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode, resetPasswordWithCode, verifySignUpCode, resendSignUpCode } = useAuth()
   const navigate = useNavigate()
@@ -51,6 +56,7 @@ export default function AuthPage() {
   const [confirmPassword, setConfirmPassword] = React.useState('')
   const [codeResent, setCodeResent] = React.useState(false)
   const [signUpCode, setSignUpCode] = React.useState('')
+  const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({})
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -185,10 +191,14 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (mode === 'signup' && password.length < 6) {
-      setError('Your password must be at least 6 characters.')
-      return
-    }
+    // Checked here (not by the browser) so every message uses the app's own red text under the field.
+    const problems: FieldErrors = {}
+    if (mode === 'signup' && !displayName.trim()) problems.displayName = 'Enter your name.'
+    if (!EMAIL_RE.test(email.trim())) problems.email = 'Enter a valid email, like name@example.com.'
+    if (mode === 'signup' && password.length < 6) problems.password = 'Your password must be at least 6 characters.'
+    if (mode === 'signin' && !password) problems.password = 'Enter your password.'
+    setFieldErrors(problems)
+    if (Object.keys(problems).length > 0) return
     setLoading(true)
     try {
       if (mode === 'signup') {
@@ -620,7 +630,7 @@ export default function AuthPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {mode === 'signup' && (
                 <div>
                   <Label htmlFor="displayName">Display name</Label>
@@ -628,10 +638,11 @@ export default function AuthPage() {
                     id="displayName"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    required
+                    aria-invalid={!!fieldErrors.displayName}
                     className="mt-1.5"
                     placeholder="Alex Rivera"
                   />
+                  {fieldErrors.displayName && <p className="mt-1.5 text-sm text-destructive">{fieldErrors.displayName}</p>}
                 </div>
               )}
               <div>
@@ -641,10 +652,11 @@ export default function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  aria-invalid={!!fieldErrors.email}
                   className="mt-1.5"
                   placeholder="you@example.com"
                 />
+                {fieldErrors.email && <p className="mt-1.5 text-sm text-destructive">{fieldErrors.email}</p>}
               </div>
               <div>
                 <Label htmlFor="password">Password</Label>
@@ -652,11 +664,11 @@ export default function AuthPage() {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
+                  aria-invalid={!!fieldErrors.password}
                   className="mt-1.5"
                   placeholder="••••••••"
                 />
+                {fieldErrors.password && <p className="mt-1.5 text-sm text-destructive">{fieldErrors.password}</p>}
                 {mode === 'signin' && (
                   <div className="flex justify-end">
                     <button
