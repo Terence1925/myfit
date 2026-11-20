@@ -8,6 +8,7 @@
 //   { action: "alternate", exerciseName: string, dayFocus: string, answers: IntakeAnswers }
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
+import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -52,6 +53,34 @@ async function callLLM(systemPrompt: string, userPrompt: string) {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS })
+
+  // Only signed-in MyFit users may call this function. Without this check anyone with the URL
+  // could run the LLM at the project's expense.
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'Sign in to generate a plan.' }), {
+      status: 401,
+      headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
+    })
+  }
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  if (!supabaseUrl || !anonKey) {
+    return new Response(JSON.stringify({ error: 'Server is not configured.' }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
+    })
+  }
+  const caller = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } })
+  const {
+    data: { user },
+  } = await caller.auth.getUser()
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'Your session has expired. Sign in again.' }), {
+      status: 401,
+      headers: { ...CORS_HEADERS, 'content-type': 'application/json' },
+    })
+  }
 
   try {
     const body = await req.json()
