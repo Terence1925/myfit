@@ -18,7 +18,7 @@ import { DEMO_RESET_CODE } from '@/lib/backend/mockApi'
 import { CodeInput } from '@/components/auth/CodeInput'
 
 export default function AuthPage() {
-  const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode, resetPasswordWithCode } = useAuth()
+  const { signIn, signUp, signInWithGoogle, requestPasswordReset, requestSignInCode, verifyEmailCode, resetPasswordWithCode, verifySignUpCode, resendSignUpCode } = useAuth()
   const navigate = useNavigate()
   // Sent here by the Delete account button: say that it worked (shown once)
   const [accountDeleted] = React.useState(() => {
@@ -50,6 +50,7 @@ export default function AuthPage() {
   const [newPassword, setNewPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
   const [codeResent, setCodeResent] = React.useState(false)
+  const [signUpCode, setSignUpCode] = React.useState('')
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,6 +138,34 @@ export default function AuthPage() {
     }
   }
 
+  const handleSignUpCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      await verifySignUpCode(email, signUpCode.trim())
+      navigate('/', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendSignUpCode = async () => {
+    setError(null)
+    setCodeResent(false)
+    setLoading(true)
+    try {
+      await resendSignUpCode(email)
+      setCodeResent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleGoogle = async () => {
     setError(null)
     setGoogleLoading(true)
@@ -186,18 +215,63 @@ export default function AuthPage() {
   if (checkEmail) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-gradient shadow-glow-lg">
-            <MailCheck className="h-8 w-8 text-primary-foreground" />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md"
+        >
+          <div className="mb-8 flex flex-col items-center text-center">
+            <Logo className="mb-5 h-14 w-14 rounded-2xl" />
+            <h1 className="font-display text-3xl tracking-wide text-foreground">Enter your code</h1>
+            <p className="mt-2 text-sm text-muted-foreground font-body">
+              We sent a 6-digit code to <span className="text-foreground">{email}</span>. Enter it to finish creating your account.
+            </p>
           </div>
-          <h1 className="font-display text-3xl tracking-wide text-gradient-gold">Check your email</h1>
-          <p className="mt-3 text-sm text-muted-foreground font-body">
-            We sent a confirmation link to <span className="text-foreground">{email}</span>. Click it, then come
-            back and sign in.
-          </p>
-          <Button className="mt-6" onClick={() => setCheckEmail(false)}>
-            Back to Sign In
-          </Button>
+
+          <Card className="border-border shadow-none">
+            <CardContent className="p-6 sm:p-8">
+              <form onSubmit={handleSignUpCodeSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="signUpCode">6-digit code</Label>
+                  <div className="mt-1.5">
+                    <CodeInput id="signUpCode" value={signUpCode} onChange={setSignUpCode} disabled={loading} autoFocus />
+                  </div>
+                  {!isSupabaseConfigured && <p className="mt-1.5 text-xs text-muted-foreground">Demo: the code is {DEMO_RESET_CODE}.</p>}
+                </div>
+                {error && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">{error}</div>
+                )}
+                {codeResent && !error && (
+                  <div className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground">A new code is on its way.</div>
+                )}
+                <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Confirm email
+                </Button>
+                <button
+                  type="button"
+                  onClick={handleResendSignUpCode}
+                  disabled={loading}
+                  className="flex h-11 w-full items-center justify-center text-sm text-foreground underline underline-offset-4 transition-colors hover:text-primary disabled:opacity-50"
+                >
+                  Send a new code
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null)
+                  setCodeResent(false)
+                  setSignUpCode('')
+                  setCheckEmail(false)
+                }}
+                className="mt-4 flex h-11 w-full items-center justify-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Back to Sign Up
+              </button>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     )

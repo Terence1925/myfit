@@ -177,6 +177,20 @@ export const auth = {
     return profile
   },
 
+  async verifySignUpCode(email: string, code: string): Promise<Profile> {
+    // Demo sign-up signs in straight away, so this only runs if the code step is reached in demo mode.
+    const match = readAll<StoredUser>(USERS_KEY).find((u) => u.email.toLowerCase() === email.toLowerCase())
+    if (code !== DEMO_RESET_CODE || !match) throw new Error('That code is not right, or it has expired. Check it, or send a new code.')
+    writeOne(SESSION_KEY, { userId: match.id })
+    const profile = await profiles.get(match.id)
+    if (!profile) throw new Error('Profile not found.')
+    return profile
+  },
+
+  async resendSignUpCode(): Promise<void> {
+    // Demo mode sends no email.
+  },
+
   async sendWelcomeEmail(): Promise<void> {
     // The demo sends no email.
   },
