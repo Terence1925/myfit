@@ -423,9 +423,9 @@ export default function AuthPage() {
           className="w-full max-w-md"
         >
           <div className="mb-8 flex flex-col items-center text-center">
-            <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
-            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">{linkSent ? 'Check your email' : 'Sign in with email'}</h1>
-            <p className="mt-1 text-sm text-muted-foreground font-body">
+            <Logo className="mb-5 h-14 w-14 rounded-2xl" />
+            <h1 className="font-display text-3xl tracking-wide text-foreground">{linkSent ? 'Check your email' : 'Sign in with email'}</h1>
+            <p className="mt-2 text-sm text-muted-foreground font-body">
               {linkSent ? (
                 <>
                   We sent a sign-in link and a 6-digit code to <span className="text-foreground">{email}</span>. Tap the link on this phone, or type the code below.
@@ -436,7 +436,7 @@ export default function AuthPage() {
             </p>
           </div>
 
-          <Card className="shadow-glow-lg border-primary/10">
+          <Card className="border-border shadow-none">
             <CardContent className="p-6 sm:p-8">
               {linkSent ? (
                 <form onSubmit={handleCodeSubmit} noValidate className="space-y-4">
@@ -517,14 +517,14 @@ export default function AuthPage() {
           className="w-full max-w-md"
         >
           <div className="mb-8 flex flex-col items-center text-center">
-            <Logo className="mb-4 h-16 w-16 rounded-2xl shadow-glow-lg" />
-            <h1 className="font-display text-4xl tracking-wide text-gradient-gold">Reset password</h1>
-            <p className="mt-1 text-sm text-muted-foreground font-body">
+            <Logo className="mb-5 h-14 w-14 rounded-2xl" />
+            <h1 className="font-display text-3xl tracking-wide text-foreground">Reset your password</h1>
+            <p className="mt-2 text-sm text-muted-foreground font-body">
               Enter your email and we'll send you a 6-digit code.
             </p>
           </div>
 
-          <Card className="shadow-glow-lg border-primary/10">
+          <Card className="border-border shadow-none">
             <CardContent className="p-6 sm:p-8">
               <form onSubmit={handleForgotSubmit} noValidate className="space-y-4">
                 <div>
