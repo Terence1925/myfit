@@ -61,6 +61,10 @@ export default function AuthPage() {
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (!EMAIL_RE.test(email.trim())) {
+      setError('Enter a valid email, like name@example.com.')
+      return
+    }
     setLoading(true)
     try {
       await requestPasswordReset(email)
@@ -79,6 +83,10 @@ export default function AuthPage() {
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (!/^\d{6}$/.test(resetCode.trim())) {
+      setError('Enter the 6-digit code from your email.')
+      return
+    }
     if (newPassword !== confirmPassword) {
       setError('The two passwords do not match.')
       return
@@ -115,6 +123,10 @@ export default function AuthPage() {
   const handleLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (!EMAIL_RE.test(email.trim())) {
+      setError('Enter a valid email, like name@example.com.')
+      return
+    }
     setLoading(true)
     try {
       await requestSignInCode(email)
@@ -133,6 +145,10 @@ export default function AuthPage() {
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (!/^\d{6}$/.test(code.trim())) {
+      setError('Enter the 6-digit code from your email.')
+      return
+    }
     setLoading(true)
     try {
       await verifyEmailCode(email, code.trim())
@@ -147,6 +163,10 @@ export default function AuthPage() {
   const handleSignUpCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (!/^\d{6}$/.test(signUpCode.trim())) {
+      setError('Enter the 6-digit code from your email.')
+      return
+    }
     setLoading(true)
     try {
       await verifySignUpCode(email, signUpCode.trim())
@@ -241,7 +261,7 @@ export default function AuthPage() {
 
           <Card className="border-border shadow-none">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={handleSignUpCodeSubmit} className="space-y-4">
+              <form onSubmit={handleSignUpCodeSubmit} noValidate className="space-y-4">
                 <div>
                   <Label htmlFor="signUpCode">6-digit code</Label>
                   <div className="mt-1.5">
@@ -309,7 +329,7 @@ export default function AuthPage() {
 
           <Card className="shadow-glow-lg border-primary/10">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={handleResetSubmit} className="space-y-4">
+              <form onSubmit={handleResetSubmit} noValidate className="space-y-4">
                 <div>
                   <Label htmlFor="resetCode">6-digit code</Label>
                   <div className="mt-1.5">
@@ -419,7 +439,7 @@ export default function AuthPage() {
           <Card className="shadow-glow-lg border-primary/10">
             <CardContent className="p-6 sm:p-8">
               {linkSent ? (
-                <form onSubmit={handleCodeSubmit} className="space-y-4">
+                <form onSubmit={handleCodeSubmit} noValidate className="space-y-4">
                   <div>
                     <Label htmlFor="signInCode">6-digit code</Label>
                     <div className="mt-1.5">
@@ -447,7 +467,7 @@ export default function AuthPage() {
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleLinkSubmit} className="space-y-4">
+                <form onSubmit={handleLinkSubmit} noValidate className="space-y-4">
                   <div>
                     <Label htmlFor="linkEmail">Email</Label>
                     <Input
@@ -506,7 +526,7 @@ export default function AuthPage() {
 
           <Card className="shadow-glow-lg border-primary/10">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={handleForgotSubmit} className="space-y-4">
+              <form onSubmit={handleForgotSubmit} noValidate className="space-y-4">
                 <div>
                   <Label htmlFor="forgotEmail">Email</Label>
                   <Input
