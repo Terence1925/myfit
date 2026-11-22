@@ -5,7 +5,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseCard } from './ExerciseCard'
-import { WeekTargetCard } from './WeekTargetCard'
 import { CustomExerciseDialog } from './CustomExerciseDialog'
 import { blockStatus } from '@/lib/programBlock'
 import { dayForWeek, suggestFor, weekTarget } from '@/lib/weekPlan'
@@ -229,9 +228,7 @@ export function WeeklyPlanTab({
         </Tabs>
       )}
 
-      {target && <WeekTargetCard target={target} />}
-
-      <div>
+      <div className="mt-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
           <h3 className="font-display text-2xl tracking-wide">{day.name}</h3>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">

@@ -74,11 +74,20 @@ export function planLabel(profile: Pick<Profile, 'subscriptionTier' | 'subscript
   return 'Free'
 }
 
+/*
+ * LAUNCH SWITCH: "free Pro for everyone" during testing.
+ * While this is on, every account gets the full Pro app (plan, workouts, Programs, progress).
+ * BEFORE RELEASING TO PRODUCTION: change `true` to `false` on the line below, rebuild, then check that a new free account
+ * sees the paywall again. The paywall must be on in production.
+ */
+export const FREE_PRO_FOR_EVERYONE: boolean = true
+
 /** Admins get every Pro feature for free — use this (not isPro) for feature gating. */
 export function hasProAccess(
   profile: Pick<Profile, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionRenewsAt'> | null,
   role: Role,
 ): boolean {
+  if (FREE_PRO_FOR_EVERYONE) return true
   return role === 'admin' || isPro(profile)
 }
 

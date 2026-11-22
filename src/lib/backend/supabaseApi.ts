@@ -225,6 +225,20 @@ export const auth = {
     return profile
   },
 
+  async verifySignUpCode(email: string, code: string): Promise<Profile> {
+    const { data, error } = await sb().auth.verifyOtp({ email, token: code, type: 'signup' })
+    if (error) throw new Error('That code is not right, or it has expired. Check it, or send a new code.')
+    if (!data.user) throw new Error('Could not confirm your email. Please try again.')
+    const profile = await profiles.get(data.user.id)
+    if (!profile) throw new Error('Profile not found.')
+    return profile
+  },
+
+  async resendSignUpCode(email: string): Promise<void> {
+    const { error } = await sb().auth.resend({ type: 'signup', email })
+    if (error) throw new Error(error.message)
+  },
+
   async sendWelcomeEmail(): Promise<void> {
     const { error } = await sb().functions.invoke('welcome-email', { body: {} })
     if (error) throw new Error(error.message)
