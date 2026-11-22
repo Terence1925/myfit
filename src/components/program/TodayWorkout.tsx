@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { ExerciseCard } from './ExerciseCard'
-import { WeekTargetCard } from './WeekTargetCard'
 import { CustomExerciseDialog } from './CustomExerciseDialog'
 import { withExercise } from '@/lib/programEdit'
 import { NO_SWAP_MESSAGE } from '@/lib/backend/swapFamily'
@@ -194,11 +193,7 @@ export function TodayWorkout({
   }
 
   return (
-    <section id="today-workout" aria-label={`Day ${day.day}: ${day.name}`} className="scroll-mt-20">
-      {/* What this week asks for, the same card as on the Weekly plan page */}
-      <div className="mb-4">
-        <WeekTargetCard target={target} />
-      </div>
+    <section id="today-workout" aria-label={`Day ${day.day}: ${day.name}`} className="mt-5 scroll-mt-20">
       <div className="mb-3 flex items-end justify-between gap-3 px-1">
         <div className="min-w-0">
           <div className="text-xs font-bold uppercase tracking-widest text-primary">Day {day.day}</div>
