@@ -193,7 +193,7 @@ export function TodayWorkout({
   }
 
   return (
-    <section id="today-workout" aria-label={`Day ${day.day}: ${day.name}`} className="mt-5 scroll-mt-20">
+    <section id="today-workout" aria-label={`Day ${day.day}: ${day.name}`} className="mt-2 scroll-mt-20">
       <div className="mb-3 flex items-end justify-between gap-3 px-1">
         <div className="min-w-0">
           <div className="text-xs font-bold uppercase tracking-widest text-primary">Day {day.day}</div>
