@@ -4,9 +4,7 @@ import { Check, ChevronDown, Crown, Flame, Loader2, PlayCircle, Plus, RefreshCw,
 import { useSubscribeSheet } from '@/context/SubscribeSheetContext'
 import { Badge } from '@/components/ui/badge'
 import { ExerciseDemoDialog } from './ExerciseDemoDialog'
-import { useHideExerciseDetails } from '@/lib/exerciseDetails'
 import { ExerciseHistoryDialog } from './ExerciseHistoryDialog'
-import { plainEffort } from '@/lib/effortWords'
 import { lastSessionHint } from '@/lib/progressiveOverload'
 import type { Suggestion } from '@/lib/weekPlan'
 import type { WarmupPlan } from '@/lib/warmup'
@@ -54,7 +52,6 @@ export function ExerciseCard({
   userSessions,
   hasProgressAccess,
   readOnly,
-  alwaysShowDetails,
   suggestion,
   warmup,
 }: {
@@ -85,8 +82,6 @@ export function ExerciseCard({
   const { openSubscribe } = useSubscribeSheet()
   const [unit] = useWeightUnit()
   const [demoOpen, setDemoOpen] = React.useState(false)
-  const [hideDetailsSetting, setHideDetails] = useHideExerciseDetails()
-  const hideDetails = hideDetailsSetting && !alwaysShowDetails
   const [historyOpen, setHistoryOpen] = React.useState(false)
   const [warmupOpen, setWarmupOpen] = React.useState(false)
   // Yoga and Pilates flow from move to move: no sets table, no rest, no weights to track.
@@ -115,26 +110,7 @@ export function ExerciseCard({
             {index + 1}
           </div>
           <h4 className="min-w-0 flex-1 font-body text-base sm:text-lg font-bold text-foreground truncate">{exercise.name}</h4>
-          {!alwaysShowDetails && (
-          <button
-            type="button"
-            onClick={() => setHideDetails(!hideDetails)}
-            aria-expanded={!hideDetails}
-            aria-label={hideDetails ? 'Show exercise details' : 'Hide exercise details'}
-            className="-mr-1 flex h-9 shrink-0 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
-          >
-            Details
-            <ChevronDown className={cn('h-4 w-4 transition-transform', !hideDetails && 'rotate-180')} />
-          </button>
-          )}
         </div>
-        {hideDetails ? (
-          <p className="mt-2 text-xs text-muted-foreground font-body">
-            {mindBody
-              ? exercise.reps
-              : `${exercise.sets} sets · ${exercise.reps}${/sec|min|pumps/.test(exercise.reps) ? '' : ' reps'} · ${exercise.rest} rest`}
-          </p>
-        ) : (
         <div className="min-w-0">
           <div className="mt-3 flex flex-wrap gap-2">
             {!mindBody && <Badge variant="default">{exercise.sets} sets</Badge>}
@@ -149,9 +125,6 @@ export function ExerciseCard({
             {exercise.format === 'pilates' && exercise.sets > 1 && <Badge variant="outline">{exercise.sets} rounds</Badge>}
             {!mindBody && <Badge variant="outline">{exercise.rest} rest</Badge>}
           </div>
-          {exercise.notes && (
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-body">{plainEffort(exercise.notes)}</p>
-          )}
           {suggestion && (
             <div className="mt-2">
               {/* Nothing logged yet: the aim would only repeat the week's advice, so show just the coach line */}
@@ -159,9 +132,6 @@ export function ExerciseCard({
                 <p className="flex items-start gap-1.5 text-xs font-semibold text-primary">
                   <Target className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span>This week: {suggestion.aim}</span>
                 </p>
-              )}
-              {suggestion.coach && (
-                <p className={cn('text-xs leading-relaxed text-muted-foreground', suggestion.firstTime ? 'mt-0' : 'mt-1 pl-5')}>{suggestion.coach}</p>
               )}
             </div>
           )}
@@ -253,7 +223,6 @@ export function ExerciseCard({
             </p>
           )}
         </div>
-        )}
       </div>
 
       {/* The set boxes use the whole width of the card, so the space on the left and right is equal */}
