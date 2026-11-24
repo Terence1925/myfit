@@ -131,6 +131,11 @@ export const auth = {
       options: { data: { display_name: displayName } },
     })
     if (error) throw new Error(error.message)
+    // With "Confirm email" on, Supabase returns no error for an email that already has an account.
+    // It returns the user with an empty identities list instead, so treat that as "already registered".
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      throw new Error('User already registered')
+    }
     if (!data.session || !data.user) {
       throw new Error('EMAIL_CONFIRMATION_REQUIRED')
     }
